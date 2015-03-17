@@ -15,3 +15,6 @@ $ nodemon
 
 ## Todo:
 * get Compiler working
+* get new router working
+* structure app to manage the same state
+* have the app work without javascript

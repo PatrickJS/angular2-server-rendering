@@ -12,7 +12,7 @@ var options = {
 };
 */
 require('gulp-traceur/node_modules/traceur/bin/traceur-runtime.js');
-var server = require('./server/app')(__dirname);
+var server = require('./server/app_server')(__dirname);
 
 // Start server
 http.createServer(server).listen(port, function() {

@@ -6,9 +6,14 @@ var router = require('express').Router();
 var path = require('path');
 // var jsdom = require("jsdom");
 
-// var System = require('es6-module-loader').System;
-var App = require('../dist/app.es6.js');
-// var angular2 = require('../dist/lib/angular2.js');
+
+// Parse5DomAdapter needs to be before angular2
+var Parse5DomAdapter = require('angular2/src/dom/parse5_adapter').Parse5DomAdapter;
+Parse5DomAdapter.makeCurrent();
+
+var cmp = require('../dist/app.node.es6.js');
+
+
 
 var ng2 = require('angular2/angular2');
 var ngCore = require('angular2/core');
@@ -20,11 +25,11 @@ var UrlResolver = require('angular2/src/core/compiler/url_resolver').UrlResolver
 var CssProcessor = require('angular2/src/core/compiler/css_processor').CssProcessor;
 var StyleUrlResolver = require('angular2/src/core/compiler/style_url_resolver').StyleUrlResolver;
 var MockTemplateResolver = require('angular2/src/mock/template_resolver_mock.js').MockTemplateResolver;
-
+var DirectiveMetadataReader = require('angular2/src/core/compiler/directive_metadata_reader').DirectiveMetadataReader;
+var NativeShadowDomStrategy = require('angular2/src/core/compiler/shadow_dom_strategy').NativeShadowDomStrategy;
+var ComponentUrlMapper = require('angular2/src/core/compiler/component_url_mapper').ComponentUrlMapper;
 // var ngDom = require('angular2/src/dom/dom_adapter');
 
-var Parse5DomAdapter = require('angular2/src/dom/parse5_adapter').Parse5DomAdapter;
-Parse5DomAdapter.makeCurrent();
 // di.bind(ngDom.DomAdapter).toClass(Parse5DomAdapter);
 
 // var DOM = require('angular2/src/dom/dom_adapter');
@@ -51,12 +56,12 @@ var styleUrlResolver = new StyleUrlResolver(urlResolver);
 compiler = new ng2.Compiler(
   ng2.dynamicChangeDetection,
   new ng2.TemplateLoader(null, null),
-  new ng2.DirectiveMetadataReader(),
+  new DirectiveMetadataReader(),
   new ng2.Parser(new ng2.Lexer()),
   new ng2.CompilerCache(),
-  new ng2.NativeShadowDomStrategy(styleUrlResolver),
+  new NativeShadowDomStrategy(styleUrlResolver),
   tplResolver,
-  new ng2.ComponentUrlMapper(),
+  new ComponentUrlMapper(),
   urlResolver,
   new CssProcessor(null)
 );
@@ -90,13 +95,19 @@ module.exports = function(ROOT) { // jshint ignore:line
   // console.log('di', di);
   app.engine('ng2.html', function (filePath, options, callback) { // define the template engine
     fs.readFile(filePath, function (err, content) {
-
       if (err) return callback(new Error(err));
+
+      // var cmpApp = new cmp.App();
+      var tmp = compiler.compile(cmp.App);
+      console.log('tmp', tmp);
+
+
       // this is an extremely simple template engine
       var rendered = content.toString().
-      replace('Loading...',
+      replace('__ServerRendered__',
         '<app>'+
         'Loading Swag'+
+        tmp+
         '</app>'+
         '\n'+
         '<pre>'+

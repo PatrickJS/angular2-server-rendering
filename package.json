@@ -1,0 +1,32 @@
+{
+  "name": "angular2-example-isomorphic",
+  "version": "0.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "gdi2290 <github@gdi2290.com>",
+  "license": "MIT",
+  "dependencies": {
+    "angular2": "^2.0.0-alpha.13",
+    "es6-module-loader": "^0.15.0",
+    "jsdom": "3.1.2",
+    "parse5": "^1.4.1",
+    "rtts_assert": "^2.0.0-alpha.13",
+    "systemjs": "^0.15.0"
+  },
+  "devDependencies": {
+    "del": "~1.1.1",
+    "express": "^4.12.2",
+    "gulp": "~3.8.10",
+    "gulp-concat": "~2.5.0",
+    "gulp-plumber": "^1.0.0",
+    "gulp-rename": "~1.2.0",
+    "gulp-traceur": "0.16.*",
+    "morgan": "^1.5.2",
+    "open": "0.0.5",
+    "serve-static": "~1.8.1",
+    "through2": "~0.6.3"
+  }
+}

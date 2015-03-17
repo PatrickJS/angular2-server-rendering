@@ -11,7 +11,7 @@ function dedent(strings, ...values) {
   return result;
 }
 
-export var template = dedent`
+export var template = `
   <span *if="name">
     Hello, {{ name }}!
   </span>

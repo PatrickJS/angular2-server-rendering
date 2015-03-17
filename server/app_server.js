@@ -4,6 +4,7 @@ var morgan  = require('morgan');
 var fs = require('fs');
 var router = require('express').Router();
 var path = require('path');
+var util = require('util');
 // var jsdom = require("jsdom");
 
 
@@ -28,7 +29,7 @@ var MockTemplateResolver = require('angular2/src/mock/template_resolver_mock.js'
 var DirectiveMetadataReader = require('angular2/src/core/compiler/directive_metadata_reader').DirectiveMetadataReader;
 var NativeShadowDomStrategy = require('angular2/src/core/compiler/shadow_dom_strategy').NativeShadowDomStrategy;
 var ComponentUrlMapper = require('angular2/src/core/compiler/component_url_mapper').ComponentUrlMapper;
-// var ngDom = require('angular2/src/dom/dom_adapter');
+var DOM = require('angular2/src/dom/dom_adapter').DOM;
 
 // di.bind(ngDom.DomAdapter).toClass(Parse5DomAdapter);
 
@@ -66,14 +67,21 @@ compiler = new ng2.Compiler(
   new CssProcessor(null)
 );
 
-function createView(pv) {
-  component = new ng2.TestComponent();
+function createView(Cmp, pv) {
+  console.log('createView');
+  component = new Cmp();
+  console.log('new component');
   view = pv.instantiate(null, null);
-  view.hydrate(new ng2.Injector([]), null, component);
+  console.log('pv.instantiate');
+  view.hydrate(new di.Injector([]), null, component);
+  console.log('view.hydrate');
   cd = view.changeDetector;
+  console.log('view.changeDetector');
 }
 
 function compileWithTemplate(component, directives, html) {
+  console.log('compileWithTemplate');
+
   var template = new ng2.Template({
     inline: html,
     directives: [
@@ -98,24 +106,47 @@ module.exports = function(ROOT) { // jshint ignore:line
       if (err) return callback(new Error(err));
 
       // var cmpApp = new cmp.App();
-      var tmp = compiler.compile(cmp.App);
-      console.log('tmp', tmp);
+      // var tmp = compiler.compile(cmp.App);
+      // console.log('tmp', DOM.getText(tmp));
 
 
-      // this is an extremely simple template engine
-      var rendered = content.toString().
-      replace('__ServerRendered__',
-        '<app>'+
-        'Loading Swag'+
-        tmp+
-        '</app>'+
-        '\n'+
-        '<pre>'+
-          JSON.stringify(options, null, 2)+
-        '</pre>'
-      );
+      console.log('starting');
+      compileWithTemplate(cmp.App, ngDirectives.If, cmp.template).then(function(pv) {
+        console.log('before createView(pv)', pv);
+        createView(cmp.App, pv);
+        console.log('createView(pv)');
+        cd.detectChanges();
+        console.log('view',
+          view, '\n'
+        );
 
-      return callback(null, rendered);
+        console.log('view',
+          'VIEW:\n',
+          view.nodes[0].html,
+          '\ngetInnerHTML:\n',
+          DOM.getInnerHTML(view.nodes[0]), '\n',
+          '\ngetOuterHTML:\n',
+          DOM.getOuterHTML(view.nodes[0])
+          // util.inspect(DOM.getOuterHTML(view.nodes[0]), {
+          //   showHidden: true, depth: null
+          // })
+        );
+
+        var rendered = content.toString().
+        replace('__ServerRendered__',
+          // '<app>'+
+          DOM.getText(view.nodes[0])+
+          // '</app>'+
+          '\n'+
+          '<pre>'+
+            JSON.stringify(options, null, 2)+
+          '</pre>'
+        );
+
+        callback(null, rendered);
+      });
+
+      // return
     });
   });
 

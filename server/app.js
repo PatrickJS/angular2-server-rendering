@@ -83,10 +83,15 @@ module.exports = function(ROOT) { // jshint ignore:line
         tmp+
         '</app>'+
 
+        // Ignore debug code
         '\n'+
+        '<br>'+
+        '<br>'+
+        '<br>'+
+        '<br>'+
+        '<hr>'+
         '<pre>'+
-          '// App Component\n'+
-          cmpApp.name + ' = '+
+          'App = '+
           prettyPrint(cmpApp)+
         '</pre>'+
         '<pre>'+
@@ -94,7 +99,19 @@ module.exports = function(ROOT) { // jshint ignore:line
           prettyPrint(options)+
         '</pre>'+
         '<code>'+
-        safeHtml(tmp)+
+          safeHtml(
+            '<template>\n'
+          )+
+        '</code>'+
+        '<br>'+
+        '&nbsp;&nbsp;<code>'+
+          safeHtml(tmp)+
+        '</code>'+
+        '<br>'+
+        '<code>'+
+          safeHtml(
+            '</template>'
+          )+
         '</code>'
 
       );

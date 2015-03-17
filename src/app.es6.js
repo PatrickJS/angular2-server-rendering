@@ -18,9 +18,9 @@ function dedent(strings, ...values) {
 }
 
 
-export var template = `
-  <span *if="name">
-    Hello, {{ name }}!
+export var template = dedent`
+  <span *if="username">
+    Hello, {{ username }}!
   </span>
 `;
 
@@ -35,9 +35,9 @@ export var template = `
 })
 export class App {
   constructor() {
-    this.name = 'World';
+    this.username = 'World';
     setTimeout(() => {
-      this.name = 'NEW World'
+      this.username = 'NEW World'
     }, 2000);
   }
   swag() {

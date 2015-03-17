@@ -25,6 +25,7 @@ var ngDirectives = require('angular2/directives');
 var UrlResolver = require('angular2/src/core/compiler/url_resolver').UrlResolver;
 var CssProcessor = require('angular2/src/core/compiler/css_processor').CssProcessor;
 var StyleUrlResolver = require('angular2/src/core/compiler/style_url_resolver').StyleUrlResolver;
+var TemplateResolver = require('angular2/src/core/compiler/template_resolver').TemplateResolver;
 var MockTemplateResolver = require('angular2/src/mock/template_resolver_mock.js').MockTemplateResolver;
 var DirectiveMetadataReader = require('angular2/src/core/compiler/directive_metadata_reader').DirectiveMetadataReader;
 var NativeShadowDomStrategy = require('angular2/src/core/compiler/shadow_dom_strategy').NativeShadowDomStrategy;
@@ -101,6 +102,11 @@ module.exports = function(ROOT) { // jshint ignore:line
   }
   // console.log('angular2', ng2);
   // console.log('di', di);
+  var parse5 = require('parse5');
+  var parser = new parse5.Parser(parse5.TreeAdapters.htmlparser2);
+  var serializer = new parse5.Serializer(parse5.TreeAdapters.htmlparser2);
+  var treeAdapter = parser.treeAdapter;
+
   app.engine('ng2.html', function (filePath, options, callback) { // define the template engine
     fs.readFile(filePath, function (err, content) {
       if (err) return callback(new Error(err));
@@ -126,17 +132,24 @@ module.exports = function(ROOT) { // jshint ignore:line
           '\ngetInnerHTML:\n',
           DOM.getInnerHTML(view.nodes[0]), '\n',
           '\ngetOuterHTML:\n',
-          DOM.getOuterHTML(view.nodes[0])
+          DOM.getOuterHTML(view.nodes[0]),
+          '\nview.nodes[0].childNodes[0]:\n'//,
+          // view.nodes[0].childNodes[0]
           // util.inspect(DOM.getOuterHTML(view.nodes[0]), {
           //   showHidden: true, depth: null
           // })
         );
+        var temp = treeAdapter.createElement("template", null, []);
+        treeAdapter.appendChild(temp, view.nodes[0]);
+        var serialized = serializer.serialize(temp);
+        // var newParser = new parse5.Parser(parse5.TreeAdapters.htmlparser2);
+        // return newParser.parseFragment(serialized).childNodes[0];
 
         var rendered = content.toString().
         replace('__ServerRendered__',
-          // '<app>'+
-          DOM.getText(view.nodes[0])+
-          // '</app>'+
+          '<app>'+
+          '</app>'+
+          serialized+
           '\n'+
           '<pre>'+
             JSON.stringify(options, null, 2)+

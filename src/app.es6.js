@@ -12,7 +12,6 @@ function dedent(strings, ...values) {
         values[i] ? values[i] : ''
       )
     : '';
-    console.log('result '+i, result);
   }
   return result;
 }

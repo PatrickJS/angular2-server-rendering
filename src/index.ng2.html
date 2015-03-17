@@ -38,11 +38,15 @@
     var dom = modules[2];
     var cmp = modules[3];
     return new Promise(function(resolve) {
+      var bindings = [];
+      if (!!document.body.createShadowRoot) {
+        bindings.push(
+          di.bind(dom.ShadowDomStrategy).toClass(dom.NativeShadowDomStrategy)
+        );
+      }
       setTimeout(function() {
         resolve(
-          ng2.bootstrap(cmp.App, [
-            di.bind(dom.ShadowDomStrategy).toClass(dom.NativeShadowDomStrategy)
-          ])
+          ng2.bootstrap(cmp.App, bindings)
         );
       }, 1000);
     });

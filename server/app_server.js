@@ -13,6 +13,7 @@ var Parse5DomAdapter = require('angular2/src/dom/parse5_adapter').Parse5DomAdapt
 Parse5DomAdapter.makeCurrent();
 
 var cmp = require('../dist/app.node.es6.js');
+var cmpApp = cmp.App;
 
 
 
@@ -28,7 +29,12 @@ var StyleUrlResolver = require('angular2/src/core/compiler/style_url_resolver').
 var TemplateResolver = require('angular2/src/core/compiler/template_resolver').TemplateResolver;
 var MockTemplateResolver = require('angular2/src/mock/template_resolver_mock.js').MockTemplateResolver;
 var DirectiveMetadataReader = require('angular2/src/core/compiler/directive_metadata_reader').DirectiveMetadataReader;
-var NativeShadowDomStrategy = require('angular2/src/core/compiler/shadow_dom_strategy').NativeShadowDomStrategy;
+
+var shadow_dom_strategy = require('angular2/src/core/compiler/shadow_dom_strategy');
+var NativeShadowDomStrategy = shadow_dom_strategy.NativeShadowDomStrategy;
+var EmulatedScopedShadowDomStrategy = shadow_dom_strategy.EmulatedScopedShadowDomStrategy;
+var EmulatedUnscopedShadowDomStrategy = shadow_dom_strategy.EmulatedUnscopedShadowDomStrategy;
+
 var ComponentUrlMapper = require('angular2/src/core/compiler/component_url_mapper').ComponentUrlMapper;
 var DOM = require('angular2/src/dom/dom_adapter').DOM;
 
@@ -61,7 +67,7 @@ compiler = new ng2.Compiler(
   new DirectiveMetadataReader(),
   new ng2.Parser(new ng2.Lexer()),
   new ng2.CompilerCache(),
-  new NativeShadowDomStrategy(styleUrlResolver),
+  new EmulatedUnscopedShadowDomStrategy(styleUrlResolver),
   tplResolver,
   new ComponentUrlMapper(),
   urlResolver,
@@ -117,9 +123,9 @@ module.exports = function(ROOT) { // jshint ignore:line
 
 
       console.log('starting');
-      compileWithTemplate(cmp.App, ngDirectives.If, cmp.template).then(function(pv) {
+      compileWithTemplate(cmpApp, ngDirectives.If, cmp.template).then(function(pv) {
         console.log('before createView(pv)', pv);
-        createView(cmp.App, pv);
+        createView(cmpApp, pv);
         console.log('createView(pv)');
         cd.detectChanges();
         console.log('view',
@@ -130,18 +136,18 @@ module.exports = function(ROOT) { // jshint ignore:line
           'VIEW:\n',
           view.nodes[0].html,
           '\ngetInnerHTML:\n',
-          DOM.getInnerHTML(view.nodes[0]), '\n',
+          DOM.getInnerHTML(pv.element), '\n',
           '\ngetOuterHTML:\n',
-          DOM.getOuterHTML(view.nodes[0]),
-          '\nview.nodes[0].childNodes[0]:\n'//,
+          DOM.getOuterHTML(pv.element),
+          '\nview.nodes[0].childNodes[0]:\n'
           // view.nodes[0].childNodes[0]
           // util.inspect(DOM.getOuterHTML(view.nodes[0]), {
           //   showHidden: true, depth: null
           // })
         );
-        var temp = treeAdapter.createElement("template", null, []);
-        treeAdapter.appendChild(temp, view.nodes[0]);
-        var serialized = serializer.serialize(temp);
+        // var temp = treeAdapter.createElement("template", null, []);
+        // treeAdapter.appendChild(temp, view.nodes[0]);
+        // var serialized = serializer.serialize(temp);
         // var newParser = new parse5.Parser(parse5.TreeAdapters.htmlparser2);
         // return newParser.parseFragment(serialized).childNodes[0];
 
@@ -149,7 +155,8 @@ module.exports = function(ROOT) { // jshint ignore:line
         replace('__ServerRendered__',
           '<app>'+
           '</app>'+
-          serialized+
+          DOM.getOuterHTML(pv.element)+
+          // serialized+
           '\n'+
           '<pre>'+
             JSON.stringify(options, null, 2)+

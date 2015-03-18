@@ -16,7 +16,7 @@ var server = require('./server/app_server')(__dirname);
 
 // Start server
 http.createServer(server).listen(port, function() {
-  console.log('Listening on port: ' + port + ' in ' + process.env.NODE_ENV);
+  console.log('Listening on port: ' + port);
 });
 /*
 https.createServer(options, server).listen(ssl, function() {

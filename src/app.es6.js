@@ -16,8 +16,16 @@ function dedent(strings, ...values) {
   return result;
 }
 
+// easier to serialize without '\n' new lines
+export var template = ''+
+'<div>'+
+  '<span>Hello, {{ username }}!</span>'+
+  '<span *if="username">Nice to meet you</span>'+
+'</div>'+
+'';
 
-export var template = dedent`
+/*
+dedent`
 <div>
   <span>
     Hello, {{ username }}!
@@ -27,6 +35,9 @@ export var template = dedent`
   </span>
 </div>
 `;
+
+*/
+
 
 @Component({
   selector: 'app'

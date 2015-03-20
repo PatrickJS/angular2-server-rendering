@@ -1,16 +1,12 @@
 var fs = require('fs'); // read in template file
 var util = require('util'); // used to do JSON.stringify() like thing
-
+var _ = require('lodash');
 
 // Parse5DomAdapter needs to be before angular2
 // this will set the Parse5DomAdapter as the DOM in dom_adapter
 // essentially I believe this is our mock DOM perhaps?
 var Parse5DomAdapter = require('angular2/src/dom/parse5_adapter').Parse5DomAdapter;
 Parse5DomAdapter.makeCurrent();
-
-// this is getting our custom component from /src
-var cmp = require('../dist/app.node.es6.js');
-var MyComponent = cmp.App;
 
 // get Angular2 libraries that we will use
 var ng2 = require('angular2/angular2');             // main lib used when creating compiler
@@ -90,6 +86,7 @@ var compiler = new ng2.Compiler(
  */
 module.exports = function ng2Engine(filePath, options, done) {
 
+
   // read in the server side template file
   //TODO: need to implement routing so we can use that instead of express router (express router simple * to angular router)
   //TODO: HOWEVER, we do have to account for the fact that the main page wrapper is server side only
@@ -100,71 +97,194 @@ module.exports = function ng2Engine(filePath, options, done) {
 
 
     // set the template in the resolver (which is used within the compile)
-    var template = new ng2.Template({
-        inline:     cmp.template,
-        directives: [ngDirectives.If]
-    });
-    tplResolver.setTemplate(MyComponent, template);
+    // only needed if we want to overwrite template annotation
+    // var template = new ng2.Template({
+    //     inline:     cmp.template,
+    //     directives: [ngDirectives.If]
+    // });
+    // tplResolver.setTemplate(MyComponent, template);
 
     // compile the component and get the protoView
-    compiler.compile(MyComponent).then(function(protoView) {
+    var Component = options.Component;
+
+    compiler.compile(Component).then(function(protoView) {
       //console.log('before createView(pv)', pv);
 
       //************ CREATING THE VIEW ***************
-      //console.log('createView');
-      var component = new MyComponent();
-      //console.log('new component');
+      var component = new Component();
       var view = protoView.instantiate(null, null);
-      //console.log('pv.instantiate');
       view.hydrate(new di.Injector([]), null, component);
-      //console.log('view.hydrate');
 
       //TODO: why do we need to detect changes when we should be doing it in one shot?
       var cd = view.changeDetector;
       cd.detectChanges();
 
-      //console.log('createView(pv)');
 
-      console.log('ngWat', util.inspect(view.nodes[0], { depth: 1 }));
+
+      // lol hackmap used in mvp
+      /*
+      var _tags = {
+        'div': ['<div>', '</div>'],
+        'menu': ['<menu>', '</menu>'],
+        'nav': ['<nav>', '</nav>'],
+        'section': ['<section>', '</section>'],
+        'span': ['<span>', '</span>'],
+        'a': ['<a>', '</a>'],
+        'b': ['<b>', '</b>'],
+        'i': ['<i>', '</i>'],
+        'strong': ['<strong>', '</strong>'],
+        'options': ['<options>', '</options>'],
+        // 'template': ['   ', '   ']
+        'template': ['<template>', '</template>']
+      };
+      */
+
+      var attrHash = {
+        'class': function(value) {
+          return value + ' ';
+        },
+        'style': function(value) {
+          return value + ' ';
+        }
+      };
+
+      function openTag(node) {
+        var attributes = node.attribs;
+
+        var tag = '<'+node.name;
+
+        if (attributes) {
+          tag += ' ';
+
+          for (var attr in attributes) {
+            if (attrHash[attr]) {
+              tag = tag + (attr + '="' + attrHash[attr](attributes[attr], attr, attributes) + '"');
+            }
+          }
+
+        }
+
+
+        return tag + '>';
+      }
+
+
+      function closeTag(node) {
+        if (!node || !node.name) return '';
+        var tag = node.name.toLowerCase();
+        return '</' + tag + '>';
+      }
+
+      // hacky way to return the correct string
+      function logValue(node, type) {
+        if (!node) return '';
+
+        try {
+          // if view is a tag node return string version
+          if (node.type && node.type === 'tag') {
+
+
+            if (type === 0) {
+              return openTag(node);
+            } else if (type === 1) {
+              return closeTag(node);
+            }
+
+          }
+          // if view is a text node return the string
+          else if (node.type === 'text') {
+
+            if (node.data && type) return node.data || '';
+            // console.log('logValue', node, type);
+            return '';
+
+          }
+
+        } catch(e) {
+          // because I had errors before
+          console.log('WAT', e);
+        }
+      }
+
+      //
+      function traverseDom(nodes) {
+        if (!nodes) return '';
+        // iterate through child nodes
+        var newContent = '';
+        if (Array.isArray(nodes)) {
+          for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            // console.log(logValue(node, 0));
+            if (node) {
+              newContent += logValue(node, 0);
+              if (node.children && node.children.length) {
+                newContent += traverseDom(node.children);
+              }
+              // console.log(logValue(node, 1));
+              newContent += logValue(node, 1);
+            }
+          }
+        }
+        // if View node is root or leaf
+        else if (_.isObject(nodes)) {
+          for (var objNode in nodes) {
+            // console.log(logValue(objNode, 0));
+            if (objNode) {
+              newContent += logValue(objNode, 0);
+              if (objNode && objNode.children && objNode.children.length) {
+                newContent += traverseDom(objNode.children);
+              }
+              // console.log(logValue(objNode, 1));
+              newContent += logValue(objNode, 1);
+            }
+          }
+        }
+        // not sure I need this anymore
+        else {
+
+          // console.log('yup', logValue(nodes));
+          newContent += logValue(nodes);
+        }
+        return newContent;
+      }
+
+      // object mutation ftw
+      var serializedCmp = '' + traverseDom(view.nodes);
+
+      function copyCmp(context) {
+        var state = {};
+        for (var prop in context) {
+          state[prop] = context[prop];
+        }
+        return state;
+      }
+
+      var state = copyCmp(view.context);
+      // console.log('serializedCmp\n', serializedCmp);
 
       // you can has debugger with node-inspector
       // debugger;
 
-      // for (var i = 0; i < view.nodes.length; i++) {
-      //   //console.log('Value for ' + i + ' is ' + view.nodes[0].next.next.next.data + '\n');
-      //   console.log('Value for ' + i + ': ');
-      //   console.log(util.inspect(view.nodes[0].next.next, { depth: 1 }));
-      //   console.log('\n');
-      // }
+      // <app></app>
+      var intro =  '<' + options.selector + '>';
+      var outro = '</' + options.selector + '>';
 
-      //console.log(util.inspect(view.nodes, { depth: 4 }));
+      var selector = intro + outro;
+      var regExpSelector = new RegExp(selector, 'g');
 
-      //console.log('view',
-      //    'VIEW:\n',
-      //    view.nodes[0].html,
-      //    '\ngetInnerHTML:\n',
-      //    DOM.getInnerHTML(protoView.element), '\n',
-      //    '\ngetOuterHTML:\n',
-      //    DOM.getOuterHTML(protoView.element),
-      //    '\nview.nodes[0].childNodes[0]:\n'
-      //    // view.nodes[0].childNodes[0]
-      //    // util.inspect(DOM.getOuterHTML(view.nodes[0]), {
-      //    //   showHidden: true, depth: null
-      //    // })
-      //);
+      var injectContent = intro + serializedCmp + outro;
 
-      // simply stick the rendered HTML for the component in the server side page
-      var rendered = content.toString().
-          replace('__ServerRendered__',
-          '<app>'+
-          '</app>'+
-          DOM.getOuterHTML(protoView.element)+
-              // serialized+
-          '\n'+
-          '<pre>'+
-          JSON.stringify(options, null, 2)+
-          '</pre>'
-      );
+      // debug info
+      var debugInfo = '\n'+
+      '<pre>'+
+      'Server = ' + JSON.stringify(options, null, 2)+
+      '</pre>'+
+      '<pre>'+
+      '// Component State'+
+      'state = ' + JSON.stringify(state, null, 2)+
+      '</pre>';
+
+      var rendered = content.toString().replace(regExpSelector, injectContent + debugInfo);
 
       done(null, rendered);
     });

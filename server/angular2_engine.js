@@ -1,6 +1,5 @@
 var fs = require('fs'); // read in template file
 var util = require('util'); // used to do JSON.stringify() like thing
-var _ = require('lodash');
 
 // Parse5DomAdapter needs to be before angular2
 // this will set the Parse5DomAdapter as the DOM in dom_adapter
@@ -78,6 +77,8 @@ var compiler = new ng2.Compiler(
 // var newParser = new parse5.Parser(parse5.TreeAdapters.htmlparser2);
 // return newParser.parseFragment(serialized).childNodes[0];
 
+var ng2string = require('./ng2string');
+
 /**
  * This is the actual template engine where all the magic happens
  * @param filePath
@@ -119,139 +120,7 @@ module.exports = function ng2Engine(filePath, options, done) {
       var cd = view.changeDetector;
       cd.detectChanges();
 
-
-
-      // lol hackmap used in mvp
-      /*
-      var _tags = {
-        'div': ['<div>', '</div>'],
-        'menu': ['<menu>', '</menu>'],
-        'nav': ['<nav>', '</nav>'],
-        'section': ['<section>', '</section>'],
-        'span': ['<span>', '</span>'],
-        'a': ['<a>', '</a>'],
-        'b': ['<b>', '</b>'],
-        'i': ['<i>', '</i>'],
-        'strong': ['<strong>', '</strong>'],
-        'options': ['<options>', '</options>'],
-        // 'template': ['   ', '   ']
-        'template': ['<template>', '</template>']
-      };
-      */
-
-      var attrHash = {
-        'class': function(value) {
-          return value + ' ';
-        },
-        'style': function(value) {
-          return value + ' ';
-        }
-      };
-
-      function openTag(node) {
-        var attributes = node.attribs;
-
-        var tag = '<'+node.name;
-
-        if (attributes) {
-          tag += ' ';
-
-          for (var attr in attributes) {
-            if (attrHash[attr]) {
-              tag = tag + (attr + '="' + attrHash[attr](attributes[attr], attr, attributes) + '"');
-            }
-          }
-
-        }
-
-
-        return tag + '>';
-      }
-
-
-      function closeTag(node) {
-        if (!node || !node.name) return '';
-        var tag = node.name.toLowerCase();
-        return '</' + tag + '>';
-      }
-
-      // hacky way to return the correct string
-      function logValue(node, type) {
-        if (!node) return '';
-
-        try {
-          // if view is a tag node return string version
-          if (node.type && node.type === 'tag') {
-
-
-            if (type === 0) {
-              return openTag(node);
-            } else if (type === 1) {
-              return closeTag(node);
-            }
-
-          }
-          // if view is a text node return the string
-          else if (node.type === 'text') {
-
-            if (node.data && type) return node.data || '';
-            // console.log('logValue', node, type);
-            return '';
-
-          } else {
-            return '';
-          }
-
-        } catch(e) {
-          // because I had errors before
-          console.log('WAT', e);
-        }
-      }
-
-      //
-      function traverseDom(nodes) {
-        if (!nodes) return '';
-        // iterate through child nodes
-        var newContent = '';
-        if (Array.isArray(nodes)) {
-          for (var i = 0; i < nodes.length; i++) {
-            var node = nodes[i];
-            // console.log(logValue(node, 0));
-            if (node) {
-              newContent += logValue(node, 0);
-              if (node.children && node.children.length) {
-                newContent += traverseDom(node.children);
-              }
-              // console.log(logValue(node, 1));
-              newContent += logValue(node, 1);
-            }
-          }
-        }
-        // if View node is root or leaf
-        else if (_.isObject(nodes)) {
-          for (var objNode in nodes) {
-            // console.log(logValue(objNode, 0));
-            if (objNode) {
-              newContent += logValue(objNode, 0);
-              if (objNode && objNode.children && objNode.children.length) {
-                newContent += traverseDom(objNode.children);
-              }
-              // console.log(logValue(objNode, 1));
-              newContent += logValue(objNode, 1);
-            }
-          }
-        }
-        // not sure I need this anymore
-        else {
-
-          // console.log('yup', logValue(nodes));
-          newContent += logValue(nodes);
-        }
-        return newContent;
-      }
-
-      // object mutation ftw
-      var serializedCmp = '' + traverseDom(view.nodes);
+      var serializedCmp = ng2string(view.nodes);
 
       function copyCmp(context) {
         var state = {};

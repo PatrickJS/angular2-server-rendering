@@ -131,7 +131,6 @@ function traverseDom(nodes) {
 }
 
 module.exports = function ng2string(nodes) {
-  console.log('wat', nodes);
   var serialized = traverseDom(nodes);
   return serialized;
 };

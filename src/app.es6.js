@@ -18,9 +18,14 @@ function dedent(strings, ...values) {
 
 
 export var template = dedent`
-  <span *if="username">
+<div>
+  <span>
     Hello, {{ username }}!
   </span>
+  <span *if="username">
+    Nice to meet you
+  </span>
+</div>
 `;
 
 @Component({

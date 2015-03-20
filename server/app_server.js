@@ -16,9 +16,15 @@ module.exports = function(ROOT) {
   app.set('view engine', 'ng2.html');             // register the template engine
   app.set('view options', { doctype: 'html' });   // set the doctype
 
+
   router.route('/')                               // routing for home page
     .get(function(req, res) {
-      res.render('index', {yolo: 'yolo'});
+       // this is getting our custom component from /src
+      var App = require('../dist/app.node.es6.js').App;
+      res.render('index', {
+        Component: App,
+        selector: 'app'
+      });
     });
 
   app.use(router);

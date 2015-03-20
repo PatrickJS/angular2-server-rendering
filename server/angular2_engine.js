@@ -198,6 +198,8 @@ module.exports = function ng2Engine(filePath, options, done) {
             // console.log('logValue', node, type);
             return '';
 
+          } else {
+            return '';
           }
 
         } catch(e) {

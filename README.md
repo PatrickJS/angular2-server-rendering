@@ -1,6 +1,6 @@
 # angular2-example-isomorphic
 WIP: isomorphic angular2
-We need to serialize the component.
+Refactor component serializer
 
 ## Build
 
@@ -17,7 +17,8 @@ $ npm run debug
 
 ## Todo:
 * ~~get Compiler working~~
-* serialize the component
+* ~~serialize the component~~
+* refactor component serializer
 * get new router working on the server
 * structure app to manage the same state
 * have the app work without javascript

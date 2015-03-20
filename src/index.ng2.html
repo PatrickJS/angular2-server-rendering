@@ -1,28 +1,29 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <title>Isomorphic Angular 2</title>
   <meta charset="UTF-8">
 
-  <!-- ES6-related imports -->
-  <script src="lib/traceur-runtime.js"></script>
-  <script src="lib/es6-module-loader-sans-promises.src.js"></script>
-  <script src="lib/extension-register.js"></script>
-  <script>
-    window.global = window.global || window;
-    window.register(System);
-  </script>
-  <!-- Angular2-related imports -->
-  <!-- // <script src="lib/rtts_assert.js"></script> -->
-  <script src="lib/angular2.js"></script>
-  <script src="lib/zone.js"></script>
 </head>
-
 <body>
 
-  __ServerRendered__
+  <app></app>
+
 
 </body>
 
+<!-- ES6-related imports -->
+<script src="lib/traceur-runtime.js"></script>
+<script src="lib/es6-module-loader-sans-promises.src.js"></script>
+<script src="lib/extension-register.js"></script>
+<script>
+  window.global = window.global || window;
+  window.register(System);
+</script>
+<!-- Angular2-related imports -->
+<!-- // <script src="lib/rtts_assert.js"></script> -->
+<script src="lib/angular2.js"></script>
+<script src="lib/zone.js"></script>
 <!-- Application bootstrap logic -->
 <!-- <script src="app.js"></script> -->
 <script>
@@ -44,12 +45,13 @@
           di.bind(dom.ShadowDomStrategy).toClass(dom.NativeShadowDomStrategy)
         );
       }
-      // because we only care about server rendered
+      // because angular2 bootstraps too fast
+      var timer = 2000;
       setTimeout(function() {
         resolve(
           ng2.bootstrap(cmp.App, bindings)
         );
-      }, 10000);
+      }, timer);
     });
     // return modules[0].bootstrap(modules[1].App);
   })

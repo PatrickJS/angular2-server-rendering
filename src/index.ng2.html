@@ -44,11 +44,12 @@
           di.bind(dom.ShadowDomStrategy).toClass(dom.NativeShadowDomStrategy)
         );
       }
+      // because we only care about server rendered
       setTimeout(function() {
         resolve(
           ng2.bootstrap(cmp.App, bindings)
         );
-      }, 1000);
+      }, 10000);
     });
     // return modules[0].bootstrap(modules[1].App);
   })

@@ -1,6 +1,6 @@
 # angular2-example-isomorphic
 WIP: isomorphic angular2
-I need to grab the InnerHtml. I have the component compiled 
+We need to serialize the component.
 
 ## Build
 
@@ -10,10 +10,14 @@ $ gulp
 $ nodemon
 ```
 
+## Debug
+```bash
+$ npm run debug
+```
 
 ## Todo:
 * ~~get Compiler working~~
-* grab innerHtml to render on client
-* get new router working
+* serialize the component
+* get new router working on the server
 * structure app to manage the same state
 * have the app work without javascript

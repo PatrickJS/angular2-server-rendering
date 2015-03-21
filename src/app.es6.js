@@ -105,11 +105,11 @@ export class Store {
       placeholder="What needs to be done?"
       autofocus
       #newtodo
-      >
+      (keyup)="enterTodo($event, newtodo)">
   </header>
 
   <section id="main">
-    <input id="toggle-all" type="checkbox" >
+    <input id="toggle-all" type="checkbox" (click)="toggleAll($event)">
     <label for="toggle-all">Mark all as complete</label>
 
     <ul id="todo-list">
@@ -120,11 +120,11 @@ export class Store {
             [hidden]="todoEdit == todo">
 
           <input class="toggle" type="checkbox"
-
+                 (click)="completeMe(todo)"
                  [checked]="todo.completed">
 
-          <label >{{todo.title}}</label>
-          <button class="destroy" ></button>
+          <label (dblclick)="editTodo(todo)">{{todo.title}}</label>
+          <button class="destroy" (click)="deleteMe(todo)"></button>
 
         </div>
 
@@ -133,7 +133,7 @@ export class Store {
           <input class="edit"
             [class.visible]="todoEdit == todo"
             [value]="todo.title"
-            >
+            (keyup)="doneEditing($event, todo)">
 
         </div>
 
@@ -158,7 +158,7 @@ export class Store {
         <a href="#/completed">Completed</a>
       </li>
     </ul>
-    <button id="clear-completed" >Clear completed</button>
+    <button id="clear-completed" (click)="clearCompleted()">Clear completed</button>
   </footer>
 
 </section>
@@ -167,7 +167,6 @@ export class Store {
   <p>Double-click to edit a todo</p>
   <p>Created by <a href="http://twitter.com/angularjs">The Angular Team</a></p>
 </footer>
-
 `,
   directives: [
     Foreach

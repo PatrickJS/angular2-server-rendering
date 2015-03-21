@@ -2,10 +2,7 @@ var _ = require('lodash');
 /*
 
 TODO:
-clean up angular special bindings [class.] [style.]
-clean up angular ref
 allow [value] and [checked] bindings
-blacklist elements <template>
 figure out eventManager bug
 
 */
@@ -47,7 +44,6 @@ var attrHash = {
   },
   'type': function(value) {
     return value + '';
-  },
   }
 };
 
@@ -62,9 +58,20 @@ function openTag(node) {
     for (var attr in attributes) {
       if (attrHash[attr]) {
         tag = tag + (attr + '="' + attrHash[attr](attributes[attr], attr, attributes) + '"');
-      } else {
-        tag = tag + attr + ' ';//(attr + '="' + attr + '"');
+      }
+      // if bind attr
+      else if (attr[0] === '[' && attr[attr.length-1] === ']') {
+        // console.log('[SWAG]', attr, tag)
+        // tag = tag + attr.replace('[', '').replace(']', '') + '="' + attributes[attr] + '"';
 
+      }
+      else if (attr[0] === '#') {
+        // console.log('#SWAG', attr, tag)
+        // tag = tag + attr.replace('[', '').replace(']', '') + '="' + attributes[attr] + '"';
+
+      }
+      else {
+        tag = tag + ' ' + attr + ' ';//(attr + '="' + attr + '"');
       }
 
     }
@@ -115,6 +122,19 @@ function logValue(node, type) {
   }
 }
 
+var tagBlackList = {
+  'template': true
+}
+
+function isTagBlackList(node) {
+  if (!node) return !!node;
+
+  if (node.type && node.type === 'tag') {
+    return !tagBlackList[node.name]
+  }
+
+  return 1;
+}
 //
 function traverseDom(nodes) {
   if (!nodes) return '';
@@ -124,7 +144,7 @@ function traverseDom(nodes) {
     for (var i = 0; i < nodes.length; i++) {
       var node = nodes[i];
       // console.log(logValue(node, 0));
-      if (node) {
+      if (isTagBlackList(node)) {
         newContent += logValue(node, 0);
         if (node.children && node.children.length) {
           newContent += traverseDom(node.children);
@@ -138,7 +158,7 @@ function traverseDom(nodes) {
   else if (_.isObject(nodes)) {
     for (var objNode in nodes) {
       // console.log(logValue(objNode, 0));
-      if (objNode) {
+      if (isTagBlackList(objNode)) {
         newContent += logValue(objNode, 0);
         if (objNode && objNode.children && objNode.children.length) {
           newContent += traverseDom(objNode.children);

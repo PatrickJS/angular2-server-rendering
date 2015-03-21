@@ -44,6 +44,9 @@ var attrHash = {
   },
   'type': function(value) {
     return value + '';
+  },
+  'placeholder': function(value) {
+    return value + '';
   }
 };
 

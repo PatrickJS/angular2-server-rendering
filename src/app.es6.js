@@ -109,7 +109,7 @@ export class Store {
       <li *foreach="#todo in todoStore.list">
 
         <div class="view"
-            [class.hidden]="todoEdit == todo">
+            [hidden]="todoEdit == todo">
 
           <input class="toggle" type="checkbox"
 
@@ -134,9 +134,11 @@ export class Store {
 
   </section>
 
-  <footer id="footer">
-    <span id="todo-count"></span>
-    <div [class.hidden]="true"></div>
+  <footer id="footer" [hidden]="todoStore.list.length == 0">
+    <span id="todo-count">
+      <strong>{{ todoStore.list.length }}</strong>
+      {{ (todoStore.list.length == 1) ? 'item' : 'items' }} left
+    </span>
     <ul id="filters">
       <li>
         <a href="#/" class="selected">All</a>

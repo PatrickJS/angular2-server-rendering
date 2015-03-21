@@ -23,8 +23,17 @@ var attrHash = {
   'class': function(value) {
     return value + ' ';
   },
+  'id': function(value) {
+    return value + '';
+  },
   'style': function(value) {
     return value + ' ';
+  },
+  'for': function(value) {
+    return value + '';
+  },
+  'href': function(value) {
+    return value + '';
   }
 };
 
@@ -39,7 +48,11 @@ function openTag(node) {
     for (var attr in attributes) {
       if (attrHash[attr]) {
         tag = tag + (attr + '="' + attrHash[attr](attributes[attr], attr, attributes) + '"');
+      } else {
+        tag = tag + attr + ' ';//(attr + '="' + attr + '"');
+
       }
+
     }
 
   }

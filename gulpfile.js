@@ -47,6 +47,8 @@ gulp.task('es6', function () {
       moduleName: true,
       annotations: true,
       types: true,
+      memberVariables: true,
+      experimental: true,
       // asyncFunctions: true,
       // asyncGenerators: true,
       // forOn: true,

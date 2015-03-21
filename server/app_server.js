@@ -21,12 +21,12 @@ module.exports = function(ROOT) {
     .get(function(req, res) {
        // this is getting our custom component from /src
        var app = require('../dist/app.node.es6.js');
-      var App = app.App;
+      var App = app.TodoApp;
       var Store = app.Store;
       var TodoFactory = app.TodoFactory;
       res.render('index', {
         Component: App,
-        selector: 'app',
+        selector: 'todo-app',
         arguments: [
           new Store(),
           new TodoFactory()

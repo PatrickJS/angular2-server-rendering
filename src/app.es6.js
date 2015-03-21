@@ -86,7 +86,7 @@ export class Store {
 
 
 @Component({
-  selector: 'app',
+  selector: 'todo-app',
   services: [
     Store,
     TodoFactory
@@ -173,7 +173,7 @@ export class Store {
     Foreach
   ]
 })
-export class App {
+export class TodoApp {
   // todoStore: Store;
   // todoEdit: Todo;
   // factory: TodoFactory;

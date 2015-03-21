@@ -7,7 +7,10 @@
 </head>
 <body>
 
-  <app></app>
+  <todo-app></todo-app>
+
+  <!-- remain server rendered -->
+  <todo-app></todo-app>
 
 
 </body>
@@ -49,7 +52,7 @@
       var timer = 1000000;
       setTimeout(function() {
         resolve(
-          ng2.bootstrap(cmp.App, bindings)
+          ng2.bootstrap(cmp.TodoApp, bindings)
         );
       }, timer);
     });

@@ -153,7 +153,12 @@ module.exports = function ng2Engine(filePath, options, done) {
       var outro = '</' + options.selector + '>';
 
       var selector = intro + outro;
-      var regExpSelector = new RegExp(selector, 'g');
+
+      function escapeRegExp(str) {
+        return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+      }
+
+      var regExpSelector = new RegExp(escapeRegExp(selector), 'g');
 
       var linkStyles = '<link rel="stylesheet" href="css/base.css" media="screen" title="no title" charset="utf-8">'
       var styles = '<style>@import "css/base.css";</style>'

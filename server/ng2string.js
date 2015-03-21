@@ -120,7 +120,9 @@ function logValue(node, type) {
       // console.log('logValue', node, type);
       return '';
 
-    } else {
+    }
+    else {
+      // ignore root types <template>
       return '';
     }
 

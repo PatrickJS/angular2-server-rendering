@@ -1,4 +1,14 @@
 var _ = require('lodash');
+/*
+
+TODO:
+clean up angular special bindings [class.] [style.]
+clean up angular ref
+allow [value] and [checked] bindings
+blacklist elements <template>
+figure out eventManager bug
+
+*/
 
 
 // lol hackmap used in mvp

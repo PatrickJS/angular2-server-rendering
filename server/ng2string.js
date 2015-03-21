@@ -64,12 +64,17 @@ function openTag(node) {
       }
       // if bind attr
       else if (attr[0] === '[' && attr[attr.length-1] === ']') {
-        // console.log('[SWAG]', attr, tag)
+        // console.log('[SWAG]', attr+'="'+attributes[attr]+'"', tag)
         // tag = tag + attr.replace('[', '').replace(']', '') + '="' + attributes[attr] + '"';
 
       }
       else if (attr[0] === '#') {
         // console.log('#SWAG', attr, tag)
+        // tag = tag + attr.replace('[', '').replace(']', '') + '="' + attributes[attr] + '"';
+
+      }
+      else if (attr[0] === '*') {
+        // console.log('*SWAG', attr, tag)
         // tag = tag + attr.replace('[', '').replace(']', '') + '="' + attributes[attr] + '"';
 
       }
@@ -161,6 +166,7 @@ function traverseDom(nodes) {
   else if (_.isObject(nodes)) {
     for (var objNode in nodes) {
       // console.log(logValue(objNode, 0));
+      if (!isTagBlackList(objNode)) {
         newContent += logValue(objNode, 0);
         if (objNode && objNode.children && objNode.children.length) {
           newContent += traverseDom(objNode.children);

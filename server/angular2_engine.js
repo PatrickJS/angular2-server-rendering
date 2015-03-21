@@ -4,6 +4,7 @@ var util = require('util'); // used to do JSON.stringify() like thing
 // Parse5DomAdapter needs to be before angular2
 // this will set the Parse5DomAdapter as the DOM in dom_adapter
 // essentially I believe this is our mock DOM perhaps?
+console.time('Loading Angular');
 var Parse5DomAdapter = require('angular2/src/dom/parse5_adapter').Parse5DomAdapter;
 Parse5DomAdapter.makeCurrent();
 
@@ -17,6 +18,7 @@ var UrlResolver = require('angular2/src/core/compiler/url_resolver').UrlResolver
 
 // this used to create EmulatedUnscopedShadowDomStrategy(styleUrlResolver); used to resolve URLs for styles?
 var StyleUrlResolver = require('angular2/src/core/compiler/style_url_resolver').StyleUrlResolver;
+// var StyleInliner = require('angular2/src/core/compiler/style_inliner').StyleInliner
 
 // passed into compiler, but not sure what it does; something with emulating the DOM
 var shadow_dom_strategy = require('angular2/src/core/compiler/shadow_dom_strategy');
@@ -24,10 +26,11 @@ var EmulatedUnscopedShadowDomStrategy = shadow_dom_strategy.EmulatedUnscopedShad
 
 // doesn't seem like these are used so commenting it out
 //var NativeShadowDomStrategy = shadow_dom_strategy.NativeShadowDomStrategy;
-//var EmulatedScopedShadowDomStrategy = shadow_dom_strategy.EmulatedScopedShadowDomStrategy;
+// var EmulatedScopedShadowDomStrategy = shadow_dom_strategy.EmulatedScopedShadowDomStrategy;
 
 // I think used to add styles to web component...how does this work on the server side?
 var CssProcessor = require('angular2/src/core/compiler/css_processor').CssProcessor;
+
 
 // I was not able to see this being used anywhere so commenting it out
 //var TemplateResolver = require('angular2/src/core/compiler/template_resolver').TemplateResolver;
@@ -50,6 +53,7 @@ var DOM = require('angular2/src/dom/dom_adapter').DOM;
 var urlResolver = new UrlResolver();
 var tplResolver = new MockTemplateResolver();
 var styleUrlResolver = new StyleUrlResolver(urlResolver);
+// var styleInliner = new StyleInliner();
 
 // create the compiler
 var compiler = new ng2.Compiler(
@@ -64,7 +68,7 @@ var compiler = new ng2.Compiler(
   urlResolver,
   new CssProcessor(null)
 );
-
+console.timeEnd('Loading Angular');
 // HTML parser (not used right now)
 //var parse5 = require('parse5');
 //var parser = new parse5.Parser(parse5.TreeAdapters.htmlparser2);
@@ -107,12 +111,20 @@ module.exports = function ng2Engine(filePath, options, done) {
 
     // compile the component and get the protoView
     var Component = options.Component;
-
+    console.time('Compiling Template');
     compiler.compile(Component).then(function(protoView) {
       //console.log('before createView(pv)', pv);
 
+      function wrapper(f, args) {
+        return function() {
+          f.apply(this, args);
+        };
+      }
+
       //************ CREATING THE VIEW ***************
-      var component = new Component();
+      var component = new (
+        wrapper(Component, options.arguments)
+      );
       var view = protoView.instantiate(null, null);
       view.hydrate(new di.Injector([]), null, component);
 
@@ -143,7 +155,11 @@ module.exports = function ng2Engine(filePath, options, done) {
       var selector = intro + outro;
       var regExpSelector = new RegExp(selector, 'g');
 
-      var injectContent = intro + serializedCmp + outro;
+      var linkStyles = '<link rel="stylesheet" href="css/base.css" media="screen" title="no title" charset="utf-8">'
+      var styles = '<style>@import "css/base.css";</style>'
+
+      var injectContent = intro + styles + serializedCmp + outro;
+
 
       // debug info
       var debugInfo = '\n'+
@@ -155,7 +171,8 @@ module.exports = function ng2Engine(filePath, options, done) {
       'state = ' + JSON.stringify(state, null, 2)+
       '</pre>';
 
-      var rendered = content.toString().replace(regExpSelector, injectContent + debugInfo);
+      console.timeEnd('Compiling Template');
+      var rendered = content.toString().replace(regExpSelector, injectContent /*+ debugInfo*/);
 
       done(null, rendered);
     });

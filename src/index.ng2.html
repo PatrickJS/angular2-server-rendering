@@ -3,7 +3,7 @@
 <head>
   <title>Isomorphic Angular 2</title>
   <meta charset="UTF-8">
-
+  <link rel="stylesheet" href="css/main.css" media="screen" title="no title" charset="utf-8">
 </head>
 <body>
 
@@ -46,7 +46,7 @@
         );
       }
       // because angular2 bootstraps too fast
-      var timer = 2000;
+      var timer = 1000000;
       setTimeout(function() {
         resolve(
           ng2.bootstrap(cmp.App, bindings)

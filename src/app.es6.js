@@ -46,7 +46,15 @@ export class Store {
   // list: List<KeyModel>;
 
   constructor() {
-    this.list = [];
+    this.list = [
+      {
+        title: 'isomorphic'
+      },
+      {
+        title: 'server-rendered',
+        completed: true
+      }
+    ];
   }
 
   add(record: KeyModel) {

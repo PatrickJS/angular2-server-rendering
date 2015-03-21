@@ -130,13 +130,13 @@ var tagBlackList = {
 }
 
 function isTagBlackList(node) {
-  if (!node) return !!node;
+  if (!node) return !node;
 
   if (node.type && node.type === 'tag') {
-    return !tagBlackList[node.name]
+    return !!tagBlackList[node.name]
   }
 
-  return 1;
+  return 0;
 }
 //
 function traverseDom(nodes) {
@@ -147,7 +147,7 @@ function traverseDom(nodes) {
     for (var i = 0; i < nodes.length; i++) {
       var node = nodes[i];
       // console.log(logValue(node, 0));
-      if (isTagBlackList(node)) {
+      if (!isTagBlackList(node)) {
         newContent += logValue(node, 0);
         if (node.children && node.children.length) {
           newContent += traverseDom(node.children);
@@ -161,7 +161,6 @@ function traverseDom(nodes) {
   else if (_.isObject(nodes)) {
     for (var objNode in nodes) {
       // console.log(logValue(objNode, 0));
-      if (isTagBlackList(objNode)) {
         newContent += logValue(objNode, 0);
         if (objNode && objNode.children && objNode.children.length) {
           newContent += traverseDom(objNode.children);

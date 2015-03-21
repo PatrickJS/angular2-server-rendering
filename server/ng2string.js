@@ -44,6 +44,10 @@ var attrHash = {
   },
   'href': function(value) {
     return value + '';
+  },
+  'type': function(value) {
+    return value + '';
+  },
   }
 };
 

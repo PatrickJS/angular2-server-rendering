@@ -20,15 +20,23 @@ module.exports = function(ROOT) {
   router.route('/')                               // routing for home page
     .get(function(req, res) {
        // this is getting our custom component from /src
-      var App = require('../dist/app.node.es6.js').App;
+       var app = require('../dist/app.node.es6.js');
+      var App = app.App;
+      var Store = app.Store;
+      var TodoFactory = app.TodoFactory;
       res.render('index', {
         Component: App,
-        selector: 'app'
+        selector: 'app',
+        arguments: [
+          new Store(),
+          new TodoFactory()
+        ]
       });
     });
 
   app.use(router);
   app.use(serveStatic(ROOT + '/dist'));           // statically serve up js files
+  app.use(serveStatic(ROOT + '/public'));         // statically serve up js files
 
   return app;
 };

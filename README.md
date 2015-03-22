@@ -78,7 +78,7 @@ another idea
                      |                      
 +--------------------|--------------------+ 
 |                    v                    | 
-|            Isomorphic Web App           | 
+|              Isomorphic App             | 
 | +-------------------------------------+ | 
 | |                                     | | 
 | |       JSONG App Dependencies        | | 

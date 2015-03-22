@@ -9,7 +9,8 @@ var PATHS = {
   src: {
    client: 'client/*.js',
    es6: 'src/**/*.es6.js',
-   html: 'src/**/*.html'
+   html: 'src/**/*.html',
+   dist: 'dist'
   },
   lib: [
    'node_modules/gulp-traceur/node_modules/traceur/bin/traceur-runtime.js',
@@ -20,7 +21,7 @@ var PATHS = {
 };
 
 gulp.task('clean', function(done) {
-  del(['dist'], done);
+  del([PATHS.src.dist], done);
 });
 
 gulp.task('es6', function () {
@@ -38,7 +39,7 @@ gulp.task('es6', function () {
     sourceMaps: true
   }))
   .pipe(rename({extname: '.node.es6.js'})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
-  .pipe(gulp.dest('dist'));
+  .pipe(gulp.dest(PATHS.src.dist));
   return gulp.src(PATHS.src.es6)
     .pipe(rename({extname: ''})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
     .pipe(plumber())
@@ -55,22 +56,22 @@ gulp.task('es6', function () {
       sourceMaps: true
     }))
     .pipe(rename({extname: '.es6.js'})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest(PATHS.src.dist));
 });
 
 gulp.task('html', function () {
   return gulp.src(PATHS.src.html)
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest(PATHS.src.dist));
 });
 
 gulp.task('client', function () {
   return gulp.src(PATHS.src.client)
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest(PATHS.src.dist));
 });
 
 gulp.task('libs', ['angular2'], function () {
   return gulp.src(PATHS.lib)
-    .pipe(gulp.dest('dist/lib'));
+    .pipe(gulp.dest(PATHS.src.dist+'/lib'));
 });
 
 gulp.task('angular2', function () {
@@ -99,7 +100,7 @@ gulp.task('angular2', function () {
       // sourceMaps: true
     }))
     .pipe(concat('angular2.js'))
-    .pipe(gulp.dest('dist/lib'));
+    .pipe(gulp.dest(PATHS.src.dist+'/lib'));
 });
 
 gulp.task('rtts_assert', function () {
@@ -119,10 +120,10 @@ gulp.task('rtts_assert', function () {
       sourceMaps: true
     }))
     .pipe(concat('rtts_assert.js'))
-    .pipe(gulp.dest('dist/lib'));
+    .pipe(gulp.dest(PATHS.src.dist+'/lib'));
 });
 
-gulp.task('play', ['default'], function () {
+gulp.task('dist', ['default'], function () {
 
   // gulp.watch(PATHS.src.html, ['html']);
   gulp.watch(PATHS.src.es6, ['es6']);

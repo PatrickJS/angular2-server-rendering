@@ -26,28 +26,18 @@ var _tags = {
 };
 */
 
-var attrHash = {
-  'class': function(value) {
-    return value + ' ';
-  },
-  'id': function(value) {
-    return value + '';
-  },
-  'style': function(value) {
-    return value + ' ';
-  },
-  'for': function(value) {
-    return value + '';
-  },
-  'href': function(value) {
-    return value + '';
-  },
-  'type': function(value) {
-    return value + '';
-  },
-  'placeholder': function(value) {
-    return value + '';
-  }
+var hasAttrValue = {
+  'class': true,
+  'id': true,
+  'style': true,
+  'for': true,
+  'href': true,
+  'type': true,
+  'placeholder': true,
+  'rel': true,
+  'media':true,
+  'title':true,
+  'charset': true
 };
 
 function openTag(node) {
@@ -59,8 +49,8 @@ function openTag(node) {
     tag += ' ';
 
     for (var attr in attributes) {
-      if (attrHash[attr]) {
-        tag = tag + (attr + '="' + attrHash[attr](attributes[attr], attr, attributes) + '"');
+      if (hasAttrValue[attr]) {
+        tag = tag + (attr + '="' + attributes[attr] + '"');
       }
       // if bind attr
       else if (attr[0] === '[' && attr[attr.length-1] === ']') {

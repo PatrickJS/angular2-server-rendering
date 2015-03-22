@@ -22,3 +22,22 @@ $ npm run debug
 * get new router working on the server
 * structure app to manage the same state
 * have the app work without javascript
+
+
+```txt
++--------------------------------+
+|Build System                    |
+|                                |
+|                                |
+|     +--+--------------------+  |
+|     |Environments           |  |
+|     |  Client               |  |
+|     |  Server               |  |
+|     |  Desktop +---------+  |  |
+|     |          | Iso  App|  |  |
+|     |          +---------+  |  |
+|     |                       |  |
+|     +-----------------------+  |
+|                                |
++--------------------------------+
+```

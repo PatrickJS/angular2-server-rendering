@@ -4,11 +4,13 @@ var concat = require('gulp-concat');
 var plumber = require('gulp-plumber');
 var rename = require('gulp-rename');
 var traceur = require('gulp-traceur');
+var sourcemaps = require('gulp-sourcemaps');
 
 var PATHS = {
   src: {
    client: 'client/*.js',
-   es6: 'src/**/*.es6.js',
+   // server: 'server/*.js',
+   src: 'src/**/*.es6.js',
    html: 'src/**/*.html',
    dist: 'dist'
   },
@@ -24,40 +26,54 @@ gulp.task('clean', function(done) {
   del([PATHS.src.dist], done);
 });
 
-gulp.task('es6', function () {
-  gulp.src(PATHS.src.es6)
-  .pipe(rename({extname: ''})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
-  .pipe(plumber())
-  .pipe(traceur({
-    modules: 'commonjs',
-    moduleName: true,
-    annotations: true,
-    types: true,
-    // asyncFunctions: true,
-    // asyncGenerators: true,
-    // forOn: true,
-    sourceMaps: true
-  }))
-  .pipe(rename({extname: '.node.es6.js'})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
-  .pipe(gulp.dest(PATHS.src.dist));
-  return gulp.src(PATHS.src.es6)
+
+gulp.task('es6.client', function() {
+  return gulp.src(PATHS.src.src)
     .pipe(rename({extname: ''})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
     .pipe(plumber())
+    .pipe(sourcemaps.init({ loadMaps: true }))
+      .pipe(traceur({
+        modules: 'instantiate',
+        moduleName: true,
+        annotations: true,
+        types: true,
+        memberVariables: true,
+        experimental: true,
+        // asyncFunctions: true,
+        // asyncGenerators: true,
+        // forOn: true,
+        sourceMaps: true
+      }))
+      .pipe(rename({extname: '.es6.js'})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
+    .pipe(sourcemaps.write('.', {
+      sourceMappingURLPrefix: ''
+    }))
+    .pipe(gulp.dest(PATHS.src.dist));
+});
+
+gulp.task('src.server', function() {
+  return gulp.src(PATHS.src.src)
+  .pipe(rename({extname: ''})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
+  .pipe(plumber())
+  .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(traceur({
-      modules: 'instantiate',
+      modules: 'commonjs',
       moduleName: true,
       annotations: true,
       types: true,
-      memberVariables: true,
-      experimental: true,
       // asyncFunctions: true,
       // asyncGenerators: true,
       // forOn: true,
       sourceMaps: true
     }))
-    .pipe(rename({extname: '.es6.js'})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
-    .pipe(gulp.dest(PATHS.src.dist));
+    .pipe(rename({extname: '.node.es6.js'})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
+  .pipe(sourcemaps.write('.', {
+    sourceMappingURLPrefix: ''
+  }))
+  .pipe(gulp.dest(PATHS.src.dist));
 });
+
+gulp.task('src', ['es6.client', 'es6.server']);
 
 gulp.task('html', function () {
   return gulp.src(PATHS.src.html)
@@ -90,16 +106,20 @@ gulp.task('angular2', function () {
     ],
       { base: 'node_modules/angular2/es6/prod' }
     )
-    .pipe(rename(function(path){
-      path.dirname = 'angular2/' + path.dirname; //this is not ideal... but not sure how to change angular's file structure
-      path.extname = ''; //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
+    .pipe(sourcemaps.init({ loadMaps: true }))
+      .pipe(rename(function(path){
+        path.dirname = 'angular2/' + path.dirname; //this is not ideal... but not sure how to change angular's file structure
+        path.extname = ''; //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
+      }))
+      .pipe(traceur({
+        modules: 'instantiate',
+        moduleName: true,
+        // sourceMaps: true
+      }))
+      .pipe(concat('angular2.js'))
+    .pipe(sourcemaps.write('.', {
+      sourceMappingURLPrefix: ''
     }))
-    .pipe(traceur({
-      modules: 'instantiate',
-      moduleName: true,
-      // sourceMaps: true
-    }))
-    .pipe(concat('angular2.js'))
     .pipe(gulp.dest(PATHS.src.dist+'/lib'));
 });
 
@@ -126,7 +146,7 @@ gulp.task('rtts_assert', function () {
 gulp.task('dist', ['default'], function () {
 
   // gulp.watch(PATHS.src.html, ['html']);
-  gulp.watch(PATHS.src.es6, ['es6']);
+  gulp.watch(PATHS.src.src, ['src']);
   gulp.watch(PATHS.src.client, ['client']);
 
 });

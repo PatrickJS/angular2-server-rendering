@@ -8,10 +8,16 @@ console.time('Loading Angular');
 var Parse5DomAdapter = require('angular2/src/dom/parse5_adapter').Parse5DomAdapter;
 Parse5DomAdapter.makeCurrent();
 
+// Ensure environment is correctly set up before loading angular
+
+var lang = require('angular2/src/facade/lang');
 // get Angular2 libraries that we will use
 var ng2 = require('angular2/angular2');             // main lib used when creating compiler
 var di = require('angular2/di');                    // only used for view.hydrate(new di.Injector([]), null, component)
 var ngDirectives = require('angular2/directives');  // when we compile, we need to make sure core directives available
+
+var VmTurnZone = require('angular2/src/core/zone/vm_turn_zone').VmTurnZone
+var EventManager = require('angular2/src/core/events/event_manager').EventManager;
 
 // this is passed into the StyleUrlResolver
 var UrlResolver = require('angular2/src/core/compiler/url_resolver').UrlResolver;
@@ -62,7 +68,7 @@ var compiler = new ng2.Compiler(
   new DirectiveMetadataReader(),
   new ng2.Parser(new ng2.Lexer()),
   new ng2.CompilerCache(),
-  new EmulatedUnscopedShadowDomStrategy(styleUrlResolver),
+  new EmulatedUnscopedShadowDomStrategy(styleUrlResolver, {firstChild: null}),
   tplResolver,
   new ComponentUrlMapper(),
   urlResolver,

@@ -1,6 +1,5 @@
 # angular2-example-isomorphic
-WIP: isomorphic angular2
-Refactor component serializer
+WIP: Waiting for new Rendering Architecture in Angular 2
 
 ## Build
 
@@ -18,7 +17,8 @@ $ npm run debug
 ## Todo:
 * ~~get Compiler working~~
 * ~~serialize the component~~
-* refactor component serializer
+* ~~refactor component serializer~~
+* transfer state from stateful elements into shadow dom
 * get new router working on the server
 * structure app to manage the same state
 * have the app work without javascript

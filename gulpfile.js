@@ -143,7 +143,8 @@ gulp.task('rtts_assert', function () {
     .pipe(gulp.dest(PATHS.src.dist+'/lib'));
 });
 
-gulp.task('dist', ['default'], function () {
+
+gulp.task('watch', ['default'], function () {
 
   // gulp.watch(PATHS.src.html, ['html']);
   gulp.watch(PATHS.src.src, ['src']);
@@ -151,4 +152,6 @@ gulp.task('dist', ['default'], function () {
 
 });
 
-gulp.task('default', ['src', 'libs', 'client']);
+gulp.task('dist', ['src', 'libs', 'client']);
+
+gulp.task('default', ['dist']);

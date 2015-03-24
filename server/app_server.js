@@ -4,7 +4,7 @@ var morgan  = require('morgan');                // http request logger middlewar
 var router = require('express').Router();       // express routing
 var path = require('path');                     // path normalization
 
-var ng2Engine = require('./angular2_engine');
+var ng2Engine = require('../dev_modules/angular2_engine');
 
 module.exports = function(ROOT) {
   var app = express();

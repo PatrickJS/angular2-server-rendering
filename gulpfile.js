@@ -27,7 +27,7 @@ gulp.task('clean', function(done) {
 });
 
 
-gulp.task('es6.client', function() {
+gulp.task('src.client', function() {
   return gulp.src(PATHS.src.src)
     .pipe(rename({extname: ''})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
     .pipe(plumber())
@@ -73,7 +73,7 @@ gulp.task('src.server', function() {
   .pipe(gulp.dest(PATHS.src.dist));
 });
 
-gulp.task('src', ['es6.client', 'es6.server']);
+gulp.task('src', ['src.client', 'src.server']);
 
 gulp.task('html', function () {
   return gulp.src(PATHS.src.html)
@@ -151,4 +151,4 @@ gulp.task('dist', ['default'], function () {
 
 });
 
-gulp.task('default', ['es6', 'libs', 'client']);
+gulp.task('default', ['src', 'libs', 'client']);

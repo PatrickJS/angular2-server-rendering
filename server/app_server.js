@@ -17,13 +17,14 @@ module.exports = function(ROOT) {
   app.set('view options', { doctype: 'html' });   // set the doctype
 
 
+  var client = require('../dist/app.node.es6.js');
+
   router.route('/')                               // routing for home page
     .get(function(req, res) {
        // this is getting our custom component from /src
-       var app = require('../dist/app.node.es6.js');
-      var App = app.TodoApp;
-      var Store = app.Store;
-      var TodoFactory = app.TodoFactory;
+      var App = client.TodoApp;
+      var Store = client.Store;
+      var TodoFactory = client.TodoFactory;
       res.render('index', {
         Component: App,
         selector: 'todo-app',

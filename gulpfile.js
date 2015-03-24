@@ -5,6 +5,7 @@ var plumber = require('gulp-plumber');
 var rename = require('gulp-rename');
 var traceur = require('gulp-traceur');
 var sourcemaps = require('gulp-sourcemaps');
+var runSequence = require('run-sequence');
 
 var PATHS = {
   src: {
@@ -144,7 +145,7 @@ gulp.task('rtts_assert', function () {
 });
 
 
-gulp.task('watch', ['default'], function () {
+gulp.task('watch', ['build'], function () {
 
   // gulp.watch(PATHS.src.html, ['html']);
   gulp.watch(PATHS.src.src, ['src']);
@@ -152,6 +153,8 @@ gulp.task('watch', ['default'], function () {
 
 });
 
-gulp.task('dist', ['src', 'libs', 'client']);
+gulp.task('build', ['src', 'libs', 'client']);
 
-gulp.task('default', ['dist']);
+gulp.task('default', function(cb) {
+  runSequence('clean', 'build', 'watch', cb);
+});

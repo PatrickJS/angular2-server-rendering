@@ -14,22 +14,29 @@
 
 
 </body>
+<!-- Application bootstrap logic -->
 
 <!-- ES6-related imports -->
-<script src="lib/traceur-runtime.js"></script>
-<script src="lib/es6-module-loader-sans-promises.src.js"></script>
-<script src="lib/extension-register.js"></script>
-<script>
-  window.global = window.global || window;
-  window.register(System);
-</script>
-<!-- Angular2-related imports -->
-<!-- // <script src="lib/rtts_assert.js"></script> -->
-<script src="lib/angular2.js"></script>
-<script src="lib/zone.js"></script>
+<script src="https://rawgit.com/jmcriffey/bower-traceur/master/traceur.js"></script>
+<script src="https://rawgit.com/angular/zone.js/master/zone.js"></script>
+<script src="https://rawgit.com/angular/zone.js/master/long-stack-trace-zone.js"></script>
 
-<!-- Application bootstrap logic -->
-<script src="app_client.js"></script>
+<!-- SystemJS -->
+<!--
+  <script src="lib/traceur-runtime.js"></script>
+  <script src="lib/es6-module-loader-sans-promises.src.js"></script>
+  <script src="lib/extension-register.js"></script>
+  <script>
+    window.global = window.global || window;
+    window.register(System);
+  </script>
+  <script src="lib/angular2.js"></script>
+  <script src="lib/zone.js"></script>
+
+  <script src="app_client.js"></script>
+ -->
+  <!-- Angular2-related imports -->
+  <!-- // <script src="lib/rtts_assert.js"></script> -->
+
 <!-- End Application bootstrap logic -->
-
 </html>

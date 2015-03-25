@@ -40,6 +40,7 @@ var hasAttrValue = {
   'charset': true
 };
 
+
 function openTag(node) {
   var attributes = node.attribs;
 
@@ -87,13 +88,14 @@ function closeTag(node) {
   return '</' + tag + '>';
 }
 
+
 // hacky way to return the correct string
 function logValue(node, type) {
   if (!node) return '';
 
   try {
     // if view is a tag node return string version
-    if (node.type && node.type === 'tag') {
+    if (node.type && node.type === 'tag' || node.type === 'style') {
 
 
       if (type === 0) {
@@ -156,22 +158,20 @@ function traverseDom(nodes) {
   }
   // if View node is root or leaf
   else if (_.isObject(nodes)) {
-    for (var objNode in nodes) {
-      // console.log(logValue(objNode, 0));
-      if (!isTagBlackList(objNode)) {
-        newContent += logValue(objNode, 0);
-        if (objNode && objNode.children && objNode.children.length) {
-          newContent += traverseDom(objNode.children);
-        }
-        // console.log(logValue(objNode, 1));
-        newContent += logValue(objNode, 1);
+
+    if (!isTagBlackList(nodes)) {
+      newContent += logValue(nodes, 0);
+      if (nodes && nodes.children && nodes.children.length) {
+        newContent += traverseDom(nodes.children);
       }
+      // console.log(logValue(nodes, 1));
+      newContent += logValue(nodes, 1);
     }
   }
   // not sure I need this anymore
   else {
 
-    // console.log('yup', logValue(nodes));
+    console.log('yup', logValue(nodes));
     newContent += logValue(nodes);
   }
   return newContent;

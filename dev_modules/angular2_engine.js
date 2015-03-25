@@ -191,7 +191,7 @@ module.exports = function ng2Engine(filePath, options, done) {
         console.timeEnd('Instantiate Component');
 
         console.time('Hydrate Component'); // 1ms
-        view.hydrate(new di.Injector([]), null, component);
+        view.hydrate(new di.Injector([]), null, null, component, null);
         console.timeEnd('Hydrate Component');
 
         //TODO: why do we need to detect changes when we should be doing it in one shot?

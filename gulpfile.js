@@ -86,7 +86,7 @@ gulp.task('client', function () {
     .pipe(gulp.dest(PATHS.src.dist));
 });
 
-gulp.task('libs', ['angular2'], function () {
+gulp.task('libs', ['angular2', 'rtts_assert'], function () {
   return gulp.src(PATHS.lib)
     .pipe(gulp.dest(PATHS.src.dist+'/lib'));
 });

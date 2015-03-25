@@ -106,6 +106,41 @@ export class Store {
 
 }
 
+
+@Component({
+  selector: 'compose-test-client',
+  services: []
+})
+@Template({
+  inline: '<div><content></content></div>',
+  directives: []
+})
+@Environment({
+  server: false,
+  web: true
+})
+class ComposeTestClient {
+  constructor() {
+  }
+}
+
+@Component({
+  selector: 'compose-test-server',
+  services: []
+})
+@Template({
+  inline: '<div><content></content></div>',
+  directives: []
+})
+@Environment({
+  server: true,
+  web: true
+})
+class ComposeTestServer {
+  constructor() {
+  }
+}
+
 var template = `
 <style>@import "css/base.css";</style>
 
@@ -182,6 +217,17 @@ var template = `
   <p>Created by <a href="http://twitter.com/angularjs">The Angular Team</a></p>
 </footer>
 
+
+level1
+<compose-test-server>
+  level2
+  <compose-test-client>
+    level3
+    <compose-test-client>
+      level4
+    </compose-test-client>
+  </compose-test-client>
+</compose-test-server>
 `;
 
 
@@ -195,11 +241,13 @@ var template = `
 @Template({
   inline: template,
   directives: [
-    For
+    For,
+    ComposeTestClient,
+    ComposeTestServer
   ]
 })
 @Environment({
-  server: false,
+  server: true,
   web: true
 })
 export class TodoApp {

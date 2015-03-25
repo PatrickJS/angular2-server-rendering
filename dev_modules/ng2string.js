@@ -37,7 +37,8 @@ var hasAttrValue = {
   'rel': true,
   'media':true,
   'title':true,
-  'charset': true
+  'charset': true,
+  'select': true
 };
 
 
@@ -95,9 +96,7 @@ function logValue(node, type) {
 
   try {
     // if view is a tag node return string version
-    if (node.type && node.type === 'tag' || node.type === 'style') {
-
-
+    if (node.type && node.type === 'tag' || node.type === 'style'|| node.type === 'script') {
       if (type === 0) {
         return openTag(node);
       } else if (type === 1) {

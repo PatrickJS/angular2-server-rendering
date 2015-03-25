@@ -4,26 +4,26 @@ Promise.all([
   System.import('angular2/src/core/compiler/shadow_dom_strategy'),
   System.import('app.es6')
 ])
-.then(function(modules) {
-  var ng2 = modules[0];
-  var di = modules[1];
-  var dom = modules[2];
-  var cmp = modules[3];
+.then(function([
+  {bootstrap},
+  {bind},
+  {ShadowDomStrategy, NativeShadowDomStrategy},
+  {TodoApp}
+]) {
   return new Promise(function(resolve) {
     var bindings = [];
     if (!!document.body.createShadowRoot) {
       bindings.push(
-        di.bind(dom.ShadowDomStrategy).toClass(dom.NativeShadowDomStrategy)
+        bind(ShadowDomStrategy).toClass(NativeShadowDomStrategy)
       );
     }
     // because angular2 bootstraps too fast
     var timer = 2000;
     setTimeout(function() {
       resolve(
-        ng2.bootstrap(cmp.TodoApp, bindings)
+        bootstrap(TodoApp, bindings)
       );
     }, timer);
   });
-  // return modules[0].bootstrap(modules[1].App);
 })
 .catch(console.log.bind(console));

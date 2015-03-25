@@ -43,10 +43,10 @@ gulp.task('iso.client', function() {
         annotations: true,
         types: true,
         memberVariables: true,
-        experimental: true,
+        experimental: true
         // asyncFunctions: true,
         // asyncGenerators: true,
-        forOn: true
+        // forOn: true
         // sourceMaps: true
       }))
       .pipe(rename({extname: '.es6.js'})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
@@ -65,10 +65,10 @@ gulp.task('iso.server', function() {
       modules: 'commonjs',
       moduleName: true,
       annotations: true,
-      types: true,
+      types: true
       // asyncFunctions: true,
       // asyncGenerators: true,
-      forOn: true
+      // forOn: true
       // sourceMaps: true
     }))
     .pipe(rename({extname: '.es6.js'})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54

@@ -7,6 +7,7 @@
 </head>
 <body>
 
+  <!-- events don't work -->
   <todo-app></todo-app>
 
   <!-- remain server rendered -->
@@ -27,17 +28,17 @@
 <!--
  -->
   <script src="lib/traceur-runtime.js"></script>
+  <script src="lib/rtts_assert.js"></script>
   <script src="lib/es6-module-loader-sans-promises.src.js"></script>
   <script src="lib/extension-register.js"></script>
   <script>
     window.global = window.global || window;
     window.register(System);
   </script>
-  <script src="lib/rtts_assert.js"></script>
   <script src="lib/angular2.js"></script>
   <script src="lib/zone.js"></script>
 
-  <script src="app_client.js"></script>
+  <script src="client/app_client.es6.js"></script>
   <!-- Angular2-related imports -->
 
 <!-- End Application bootstrap logic -->

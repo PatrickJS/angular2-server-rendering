@@ -114,16 +114,17 @@ export class Store {
 
     <ul id="todo-list">
 
-      <li *foreach="#todo in todoStore.list">
+      <li
+        *foreach="#todo in todoStore.list">
 
-        <div class="view"
-            [hidden]="todoEdit == todo">
+        <div
+          class="view"
+          [hidden]="todoEdit == todo">
 
           <input class="toggle" type="checkbox"
-
                  [checked]="todo.completed">
 
-          <label >{{todo.title}}</label>
+          <label >{{ todo.title }}</label>
           <button class="destroy" ></button>
 
         </div>

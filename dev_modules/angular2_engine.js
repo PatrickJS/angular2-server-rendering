@@ -1,10 +1,10 @@
 var fs = require('fs'); // read in template file
 var util = require('util'); // used to do JSON.stringify() like thing
 
+console.time('Loading Angular'); // 300ms
 // Parse5DomAdapter needs to be before angular2
 // this will set the Parse5DomAdapter as the DOM in dom_adapter
 // essentially I believe this is our mock DOM perhaps?
-console.time('Loading Angular');
 var Parse5DomAdapter = require('angular2/src/dom/parse5_adapter').Parse5DomAdapter;
 Parse5DomAdapter.makeCurrent();
 
@@ -50,11 +50,13 @@ var DOM = require('angular2/src/dom/dom_adapter').DOM;
 //var ngCore = require('angular2/core');
 //console.log('angular2', ng2, '\n', ngDirectives, '\n', ngCore, '\nparse\n');
 
+/*
+console.time('Loading Compiler');
 var urlResolver = new UrlResolver();
 var tplResolver = new MockTemplateResolver();
 var styleUrlResolver = new StyleUrlResolver(urlResolver);
 // var styleInliner = new StyleInliner();
-
+var host = DOM.createElement('div');
 // create the compiler
 var compiler = new ng2.Compiler(
   ng2.dynamicChangeDetection,
@@ -62,12 +64,14 @@ var compiler = new ng2.Compiler(
   new DirectiveMetadataReader(),
   new ng2.Parser(new ng2.Lexer()),
   new ng2.CompilerCache(),
-  new EmulatedUnscopedShadowDomStrategy(styleUrlResolver),
+  new EmulatedUnscopedShadowDomStrategy(styleUrlResolver, host),
   tplResolver,
   new ComponentUrlMapper(),
   urlResolver,
   new CssProcessor(null)
 );
+console.timeEnd('Loading Compiler');
+*/
 console.timeEnd('Loading Angular');
 // HTML parser (not used right now)
 //var parse5 = require('parse5');
@@ -83,6 +87,36 @@ console.timeEnd('Loading Angular');
 
 var ng2string = require('./ng2string');
 
+
+function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
+function copyCmp(context) {
+  var state = {};
+  for (var prop in context) {
+    state[prop] = context[prop];
+  }
+  return state;
+}
+
+function wrapper(f, args) {
+  return function() {
+    f.apply(this, args);
+  };
+}
+
+function showDebug(options) {
+  return '\n'+
+  '<pre>'+
+  'Server = ' + JSON.stringify(options, null, 2)+
+  '</pre>'+
+  '<pre>'+
+  '// Component State'+
+  'state = ' + JSON.stringify(state, null, 2)+
+  '</pre>';
+}
+
 /**
  * This is the actual template engine where all the magic happens
  * @param filePath
@@ -95,7 +129,10 @@ module.exports = function ng2Engine(filePath, options, done) {
   // read in the server side template file
   //TODO: need to implement routing so we can use that instead of express router (express router simple * to angular router)
   //TODO: HOWEVER, we do have to account for the fact that the main page wrapper is server side only
+
+  console.time('Read File'); // 2ms
   fs.readFile(filePath, function (err, content) {
+    console.timeEnd('Read File');
 
     // if error while reading file, then throw error
     if (err) { return done(new Error(err)); }
@@ -110,76 +147,101 @@ module.exports = function ng2Engine(filePath, options, done) {
     // tplResolver.setTemplate(MyComponent, template);
 
     // compile the component and get the protoView
-    var Component = options.Component;
-    console.time('Compiling Template');
-    compiler.compile(Component).then(function(protoView) {
-      //console.log('before createView(pv)', pv);
 
-      function wrapper(f, args) {
-        return function() {
-          f.apply(this, args);
-        };
-      }
+    try {
 
-      //************ CREATING THE VIEW ***************
-      var component = new (
-        wrapper(Component, options.arguments)
+      var Component = options.Component;
+
+      console.time('Loading Compiler'); // 2ms
+      var urlResolver = new UrlResolver();
+      var tplResolver = new MockTemplateResolver();
+      var styleUrlResolver = new StyleUrlResolver(urlResolver);
+      // var styleInliner = new StyleInliner();
+      var hostElement = DOM.createElement(options.selector);
+      // create the compiler
+      var compiler = new ng2.Compiler(
+        ng2.dynamicChangeDetection,
+        new ng2.TemplateLoader(null, null),
+        new DirectiveMetadataReader(),
+        new ng2.Parser(new ng2.Lexer()),
+        new ng2.CompilerCache(),
+        new EmulatedUnscopedShadowDomStrategy(styleUrlResolver, hostElement),
+        tplResolver,
+        new ComponentUrlMapper(),
+        urlResolver,
+        new CssProcessor(null)
       );
-      var view = protoView.instantiate(null, null);
-      view.hydrate(new di.Injector([]), null, component);
-
-      //TODO: why do we need to detect changes when we should be doing it in one shot?
-      var cd = view.changeDetector;
-      cd.detectChanges();
-
-      var serializedCmp = ng2string(view.nodes);
-
-      function copyCmp(context) {
-        var state = {};
-        for (var prop in context) {
-          state[prop] = context[prop];
-        }
-        return state;
-      }
-
-      var state = copyCmp(view.context);
-      // console.log('serializedCmp\n', serializedCmp);
-
-      // you can has debugger with node-inspector
-      // debugger;
-
-      // <app></app>
-      var intro =  '<' + options.selector + '>';
-      var outro = '</' + options.selector + '>';
-
-      var selector = intro + outro;
-
-      function escapeRegExp(str) {
-        return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-      }
-
-      var regExpSelector = new RegExp(escapeRegExp(selector), 'g');
-
-      var linkStyles = '<link rel="stylesheet" href="css/base.css" media="screen" title="no title" charset="utf-8">'
-      var styles = '<style>@import "css/base.css";</style>'
-
-      var injectContent = intro + styles + serializedCmp + outro;
+      console.timeEnd('Loading Compiler');
 
 
-      // debug info
-      var debugInfo = '\n'+
-      '<pre>'+
-      'Server = ' + JSON.stringify(options, null, 2)+
-      '</pre>'+
-      '<pre>'+
-      '// Component State'+
-      'state = ' + JSON.stringify(state, null, 2)+
-      '</pre>';
+      console.time('Compiling Template');
+      // 60-80ms
+      compiler.compile(Component).then(function(protoView) {
+        console.timeEnd('Compiling Template');
+        console.time('Hydrate Template'); // 30ms
+        //console.log('before createView(pv)', pv);
 
-      console.timeEnd('Compiling Template');
-      var rendered = content.toString().replace(regExpSelector, injectContent /*+ debugInfo*/);
+        //************ CREATING THE VIEW ***************
+        console.time('Instantiate Component'); // 11-20ms
+        var component = new (
+          wrapper(Component, options.arguments)
+        );
+        var view = protoView.instantiate(null, null);
+        console.timeEnd('Instantiate Component');
 
-      done(null, rendered);
-    });
+        console.time('Hydrate Component'); // 1ms
+        view.hydrate(new di.Injector([]), null, component);
+        console.timeEnd('Hydrate Component');
+
+        //TODO: why do we need to detect changes when we should be doing it in one shot?
+        var cd = view.changeDetector;
+        cd.detectChanges();
+
+        console.time('Serialize Component'); // 1-2ms
+        var len = hostElement.children.length;
+        for (var i = 0; i < view.nodes.length; i++) {
+          hostElement.children[len+i] = view.nodes[i];
+        };
+        var serializedCmp = ng2string(hostElement);
+        // var serializedHost = ng2string(hostElement);
+        console.timeEnd('Serialize Component');
+        // debugger;
+        console.time('Inject Component'); // 0-2ms
+        var state = copyCmp(view.context);
+        // console.log('serializedCmp\n', serializedHost, '\nwat', hostElement);
+
+        // you can has debugger with node-inspector
+        // debugger;
+
+        // <app></app>
+        var intro =  '<' + options.selector + '>';
+        var outro = '</' + options.selector + '>';
+
+        var selector = intro + outro;
+
+        var regExpSelector = new RegExp(escapeRegExp(selector), 'g');
+
+        // var linkStyles = '<link rel="stylesheet" href="css/base.css" media="screen" title="no title" charset="utf-8">'
+        // var styles = '<style>@import "css/base.css";</style>'
+
+        // var injectContent = intro +/* styles +*/ serializedCmp + outro;
+        var injectContent = serializedCmp;
+
+
+        // debug info
+        // var debugInfo = showDebug(options);
+
+        var rendered = content.toString().replace(regExpSelector, injectContent /*+ debugInfo*/);
+        console.timeEnd('Inject Component');
+
+        console.timeEnd('Hydrate Template');
+        done(null, rendered);
+      })
+      .catch(function(err) {
+        done(err);
+      });
+    } catch(e) {
+      done(e);
+    }
   });
 };

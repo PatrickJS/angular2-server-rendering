@@ -33,10 +33,10 @@ var CssProcessor = require('angular2/src/core/compiler/css_processor').CssProces
 
 
 // I was not able to see this being used anywhere so commenting it out
-//var TemplateResolver = require('angular2/src/core/compiler/template_resolver').TemplateResolver;
+var TemplateResolver = require('angular2/src/core/compiler/template_resolver').TemplateResolver;
 
 // allows us to set the template
-var MockTemplateResolver = require('angular2/src/mock/template_resolver_mock.js').MockTemplateResolver;
+// var MockTemplateResolver = require('angular2/src/mock/template_resolver_mock.js').MockTemplateResolver;
 
 // read the annotations from a component
 var DirectiveMetadataReader = require('angular2/src/core/compiler/directive_metadata_reader').DirectiveMetadataReader;
@@ -154,7 +154,7 @@ module.exports = function ng2Engine(filePath, options, done) {
 
       console.time('Loading Compiler'); // 2ms
       var urlResolver = new UrlResolver();
-      var tplResolver = new MockTemplateResolver();
+      // var tplResolver = new MockTemplateResolver();
       var styleUrlResolver = new StyleUrlResolver(urlResolver);
       // var styleInliner = new StyleInliner();
       var hostElement = DOM.createElement(options.selector);
@@ -166,7 +166,8 @@ module.exports = function ng2Engine(filePath, options, done) {
         new ng2.Parser(new ng2.Lexer()),
         new ng2.CompilerCache(),
         new EmulatedUnscopedShadowDomStrategy(styleUrlResolver, hostElement),
-        tplResolver,
+        // tplResolver,
+        new TemplateResolver(),
         new ComponentUrlMapper(),
         urlResolver,
         new CssProcessor(null)

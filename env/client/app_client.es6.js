@@ -17,7 +17,7 @@ Promise.all([
       );
     }
     // because angular2 bootstraps too fast
-    var timer = 0;
+    var timer = 2000;
     setTimeout(function() {
       resolve(
         ng2.bootstrap(cmp.TodoApp, bindings)

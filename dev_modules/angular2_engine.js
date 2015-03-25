@@ -174,6 +174,19 @@ module.exports = function ng2Engine(filePath, options, done) {
       );
       console.timeEnd('Loading Compiler');
 
+      if (Component && Component.annotations) {
+        var canHasRender = false;
+        for (var i = 0; i < Component.annotations.length; i++) {
+          if (Component.annotations[i].server) {
+            canHasRender = true;
+            break;
+          }
+        };
+        if (!canHasRender) {
+          return done(null, content.toString());
+        }
+      }
+
 
       console.time('Compiling Template');
       // 60-80ms

@@ -10,11 +10,20 @@ export class Environment {
   @CONST()
   constructor({
     server,
-    web
+    web,
+    v8,
+    webworker,
+    webgl,
+    canvas
   })
   {
+
     this.server = server;
     this.web = web;
+    this.v8 = v8;
+    this.webworker = webworker;
+    this.webgl = webgl;
+    this.canvas = canvas;
   }
 }
 
@@ -190,7 +199,7 @@ var template = `
   ]
 })
 @Environment({
-  server: true,
+  server: false,
   web: true
 })
 export class TodoApp {

@@ -1,13 +1,16 @@
-var express = require('express');               // express to serve up files
-var serveStatic = require('serve-static');      // static server for dist files
-var morgan  = require('morgan');                // http request logger middleware
-var router = require('express').Router();       // express routing
-var path = require('path');                     // path normalization
+import express from 'express';               // express to serve up files
+import serveStatic from 'serve-static';      // static server for dist files
+import morgan  from 'morgan';                // http request logger middleware
+import path from 'path';                     // path normalization
 
-var ng2Engine = require('../dev_modules/angular2_engine');
+import ng2Engine from '../../dev_modules/angular2_engine';
 
-module.exports = function(ROOT) {
+// es6
+import {TodoApp, Store, TodoFactory} from '../../dist/server/app.es6.js';
+
+export function App(ROOT) {
   var app = express();
+  var router = express.Router();
 
   //app.use(morgan('combined'));
   app.use(morgan('dev'));
@@ -17,16 +20,12 @@ module.exports = function(ROOT) {
   app.set('view options', { doctype: 'html' });   // set the doctype
 
 
-  var client = require('../dist/app.node.es6.js');
-
   router.route('/')                               // routing for home page
     .get(function(req, res) {
-       // this is getting our custom component from /src
-      var App = client.TodoApp;
-      var Store = client.Store;
-      var TodoFactory = client.TodoFactory;
+
+
       res.render('index', {
-        Component: App,
+        Component: TodoApp,
         selector: 'todo-app',
         arguments: [
           new Store(),
@@ -37,6 +36,7 @@ module.exports = function(ROOT) {
 
   app.use(router);
   app.use(serveStatic(ROOT + '/dist'));           // statically serve up js files
+  app.use(serveStatic(ROOT + '/dist/client'));           // statically serve up js files
   app.use(serveStatic(ROOT + '/public'));         // statically serve up js files
 
   return app;

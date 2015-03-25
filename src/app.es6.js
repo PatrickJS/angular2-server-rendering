@@ -1,7 +1,7 @@
 import {EventManager} from 'angular2/src/core/events/event_manager';
 
 import {Component, Template} from 'angular2/angular2';
-import {If, Foreach} from 'angular2/directives';
+import {If, For} from 'angular2/directives';
 import {bootstrap} from 'angular2/angular2';
 import {ListWrapper} from 'angular2/src/facade/collection';
 
@@ -171,7 +171,7 @@ export class Store {
 
 `,
   directives: [
-    Foreach
+    For
   ]
 })
 export class TodoApp {

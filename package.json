@@ -11,14 +11,14 @@
   "author": "gdi2290 <github@gdi2290.com>",
   "license": "MIT",
   "dependencies": {
-    "angular2": "2.0.0-alpha.13",
+    "angular2": "2.0.0-alpha.15",
     "css": "^2.2.0",
     "css-parse": "^2.0.0",
     "es6-module-loader": "^0.15.0",
     "jsdom": "3.1.2",
     "lodash": "^3.5.0",
     "parse5": "^1.4.1",
-    "rtts_assert": "^2.0.0-alpha.13",
+    "rtts_assert": "^2.0.0-alpha.15",
     "systemjs": "^0.15.0",
     "zone.js": "^0.4.1"
   },

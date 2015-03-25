@@ -106,7 +106,7 @@ function wrapper(f, args) {
   };
 }
 
-function showDebug(options) {
+function showDebug(options, state) {
   return '\n'+
   '<pre>'+
   'Server = ' + JSON.stringify(options, null, 2)+
@@ -208,8 +208,6 @@ module.exports = function ng2Engine(filePath, options, done) {
         console.timeEnd('Serialize Component');
         // debugger;
         console.time('Inject Component'); // 0-2ms
-        var state = copyCmp(view.context);
-        // console.log('serializedCmp\n', serializedHost, '\nwat', hostElement);
 
         // you can has debugger with node-inspector
         // debugger;
@@ -222,17 +220,14 @@ module.exports = function ng2Engine(filePath, options, done) {
 
         var regExpSelector = new RegExp(escapeRegExp(selector), 'g');
 
-        // var linkStyles = '<link rel="stylesheet" href="css/base.css" media="screen" title="no title" charset="utf-8">'
-        // var styles = '<style>@import "css/base.css";</style>'
-
-        // var injectContent = intro +/* styles +*/ serializedCmp + outro;
         var injectContent = serializedCmp;
 
 
         // debug info
-        // var debugInfo = showDebug(options);
+        // var state = copyCmp(view.context);
+        // var debugInfo = showDebug(options, state);
 
-        var rendered = content.toString().replace(regExpSelector, injectContent /*+ debugInfo*/);
+        var rendered = content.toString().replace(regExpSelector, serializedCmp /*+ debugInfo*/);
         console.timeEnd('Inject Component');
 
         console.timeEnd('Hydrate Template');

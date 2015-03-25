@@ -115,7 +115,7 @@ export class Store {
     <ul id="todo-list">
 
       <li
-        *foreach="#todo in todoStore.list">
+        *for="#todo of todoStore.list">
 
         <div
           class="view"

@@ -4,6 +4,19 @@ import {Component, Template} from 'angular2/angular2';
 import {If, For} from 'angular2/directives';
 import {bootstrap} from 'angular2/angular2';
 import {ListWrapper} from 'angular2/src/facade/collection';
+import {ABSTRACT, CONST, Type} from 'angular2/src/facade/lang';
+
+export class Environment {
+  @CONST()
+  constructor({
+    server,
+    web
+  })
+  {
+    this.server = server;
+    this.web = web;
+  }
+}
 
 // base model for RecordStore
 class KeyModel {
@@ -84,16 +97,7 @@ export class Store {
 
 }
 
-
-@Component({
-  selector: 'todo-app',
-  services: [
-    Store,
-    TodoFactory
-  ]
-})
-@Template({
-  inline: `
+var template = `
 <style>@import "css/base.css";</style>
 
 <section id="todoapp">
@@ -169,10 +173,25 @@ export class Store {
   <p>Created by <a href="http://twitter.com/angularjs">The Angular Team</a></p>
 </footer>
 
-`,
+`;
+
+
+@Component({
+  selector: 'todo-app',
+  services: [
+    Store,
+    TodoFactory
+  ]
+})
+@Template({
+  inline: template,
   directives: [
     For
   ]
+})
+@Environment({
+  server: true,
+  web: true
 })
 export class TodoApp {
   // todoStore: Store;

@@ -199,11 +199,14 @@ module.exports = function ng2Engine(filePath, options, done) {
         cd.detectChanges();
 
         console.time('Serialize Component'); // 1-2ms
-        var len = hostElement.children.length;
+        var copyHostElement = DOM.clone(hostElement);
+        // console.log('hostElement', copyHostElement);
+        var len = copyHostElement.children.length;
         for (var i = 0; i < view.nodes.length; i++) {
-          hostElement.children[len+i] = view.nodes[i];
+          copyHostElement.children[len+i] = view.nodes[i];
         };
-        var serializedCmp = ng2string(hostElement);
+        // console.log('hostElement', copyHostElement);
+        var serializedCmp = ng2string(copyHostElement);
         // var serializedHost = ng2string(hostElement);
         console.timeEnd('Serialize Component');
         // debugger;

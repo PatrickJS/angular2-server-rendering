@@ -11,17 +11,19 @@
   "author": "gdi2290 <github@gdi2290.com>",
   "license": "MIT",
   "dependencies": {
-    "angular2": "2.0.0-alpha.15",
+    "angular2": "2.0.0-alpha.18",
+    "benchpress": "^2.0.0-alpha.18",
+    "rtts_assert": "^2.0.0-alpha.18",
+    "rx": "^2.4.8",
     "bluebird": "^2.9.15",
     "css": "^2.2.0",
     "css-parse": "^2.0.0",
-    "es6-module-loader": "^0.15.0",
+    "es6-module-loader": "^0.16.1",
     "jsdom": "3.1.2",
     "lodash": "^3.5.0",
     "parse5": "^1.4.1",
-    "rtts_assert": "^2.0.0-alpha.15",
-    "systemjs": "^0.15.0",
-    "zone.js": "^0.4.1"
+    "systemjs": "^0.16.6",
+    "zone.js": "^0.4.2"
   },
   "devDependencies": {
     "del": "~1.1.1",

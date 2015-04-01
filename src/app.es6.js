@@ -6,6 +6,8 @@ import {bootstrap} from 'angular2/angular2';
 import {ListWrapper} from 'angular2/src/facade/collection';
 import {ABSTRACT, CONST, Type} from 'angular2/src/facade/lang';
 
+// import {TestingComponent} from 'components/testingComponent.es6.js';
+
 export class Environment {
   @CONST()
   constructor({
@@ -64,7 +66,7 @@ export class TodoFactory {
 }
 
 // Store manages any generic item that inherits from KeyModel
-export class Store {
+export class TodoStore {
   // list: List<KeyModel>;
 
   constructor() {
@@ -109,7 +111,9 @@ export class Store {
 
 @Component({
   selector: 'compose-test-client',
-  services: []
+  services: [
+    TodoStore
+  ]
 })
 @Template({
   inline: '<div><content></content></div>',
@@ -119,7 +123,7 @@ export class Store {
   server: false,
   web: true
 })
-class ComposeTestClient {
+export class ComposeTestClient {
   constructor() {
   }
 }
@@ -136,7 +140,7 @@ class ComposeTestClient {
   server: true,
   web: true
 })
-class ComposeTestServer {
+export class ComposeTestServer {
   constructor() {
   }
 }
@@ -234,7 +238,7 @@ level1
 @Component({
   selector: 'todo-app',
   services: [
-    Store,
+    TodoStore,
     TodoFactory
   ]
 })
@@ -255,7 +259,7 @@ export class TodoApp {
   // todoEdit: Todo;
   // factory: TodoFactory;
 
-  constructor(store: Store, factory: TodoFactory) {
+  constructor(store: TodoStore, factory: TodoFactory) {
     this.todoStore = store;
     this.todoEdit = null;
     this.factory = factory;

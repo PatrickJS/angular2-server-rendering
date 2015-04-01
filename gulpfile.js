@@ -33,7 +33,7 @@ gulp.task('clean', function(done) {
 
 
 gulp.task('iso.client', function() {
-  return gulp.src(PATHS.src.iso)
+  return gulp.src(PATHS.src.iso, { base: 'src' })
     .pipe(rename({extname: ''})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
     .pipe(plumber())
     .pipe(sourcemaps.init({ loadMaps: true }))
@@ -57,7 +57,7 @@ gulp.task('iso.client', function() {
 });
 
 gulp.task('iso.server', function() {
-  return gulp.src(PATHS.src.iso)
+  return gulp.src(PATHS.src.iso, { base: 'src' })
   .pipe(rename({extname: ''})) //hack, see: https://github.com/sindresorhus/gulp-traceur/issues/54
   .pipe(plumber())
   .pipe(sourcemaps.init({ loadMaps: true }))

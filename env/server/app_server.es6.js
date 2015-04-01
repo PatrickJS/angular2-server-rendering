@@ -5,14 +5,18 @@ import path from 'path';                     // path normalization
 
 import ng2Engine from '../../dev_modules/angular2_engine';
 
-// es6
-import {TodoApp, Store, TodoFactory} from '../../dist/server/app.es6.js';
+// es6 forces import at top level
+import {
+  TodoApp,
+  TodoStore,
+  TodoFactory
+} from '../../dist/server/app.es6.js';
+
 
 export function App(ROOT) {
   var app = express();
   var router = express.Router();
 
-  //app.use(morgan('combined'));
   app.use(morgan('dev'));
   app.engine('ng2.html', ng2Engine);
   app.set('views', path.join(ROOT, 'src'));       // specify the views directory
@@ -22,13 +26,11 @@ export function App(ROOT) {
 
   router.route('/')                               // routing for home page
     .get(function(req, res) {
-
-
       res.render('index', {
         Component: TodoApp,
         selector: 'todo-app',
         arguments: [
-          new Store(),
+          new TodoStore(),
           new TodoFactory()
         ]
       });

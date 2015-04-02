@@ -21,7 +21,7 @@
     "jsdom": "3.1.2",
     "lodash": "^3.5.0",
     "parse5": "^1.4.1",
-    "protractor": "1.7.0",
+    "protractor": "^2.0.0",
     "rtts_assert": "^2.0.0-alpha.18",
     "rx": "^2.4.8",
     "systemjs": "^0.16.6",

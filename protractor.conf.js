@@ -17,7 +17,9 @@ exports.config = {
     }
   },
 
-  specs: ['tree_benchmark.spec.js'],
+  specs: [
+    'tree_benchmark.spec.js'
+  ],
   framework: 'jasmine2',
 
   beforeLaunch: function () {

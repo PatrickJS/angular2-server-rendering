@@ -1,5 +1,3 @@
-import {EventManager} from 'angular2/src/core/events/event_manager';
-
 import {Component, Template} from 'angular2/angular2';
 import {If, For} from 'angular2/directives';
 import {bootstrap} from 'angular2/angular2';
@@ -157,11 +155,12 @@ var template = `
       placeholder="What needs to be done?"
       autofocus
       #newtodo
+      (keyup)="enterTodo($event, newtodo)"
       >
   </header>
 
   <section id="main">
-    <input id="toggle-all" type="checkbox" >
+    <input id="toggle-all" type="checkbox" (click)="toggleAll($event)">
     <label for="toggle-all">Mark all as complete</label>
 
     <ul id="todo-list">
@@ -174,10 +173,11 @@ var template = `
           [hidden]="todoEdit == todo">
 
           <input class="toggle" type="checkbox"
+                 (click)="completeMe(todo)"
                  [checked]="todo.completed">
 
-          <label >{{ todo.title }}</label>
-          <button class="destroy" ></button>
+          <label (dblclick)="editTodo(todo)">{{ todo.title }}</label>
+          <button class="destroy" (click)="deleteMe(todo)"></button>
 
         </div>
 
@@ -186,6 +186,7 @@ var template = `
           <input class="edit"
             [class.visible]="todoEdit == todo"
             [value]="todo.title"
+            (keyup)="doneEditing($event, todo)"
             >
 
         </div>
@@ -211,7 +212,7 @@ var template = `
         <a href="#/completed">Completed</a>
       </li>
     </ul>
-    <button id="clear-completed" >Clear completed</button>
+    <button id="clear-completed" (click)="clearCompleted()">Clear completed</button>
   </footer>
 
 </section>

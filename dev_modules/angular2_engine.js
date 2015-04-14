@@ -1,5 +1,9 @@
 var fs = require('fs'); // read in template file
 var util = require('util'); // used to do JSON.stringify() like thing
+var Promise = require('bluebird');
+var EventEmitter = require('events').EventEmitter
+var util = require('util');
+// global.window = global;
 
 console.time('Loading Angular'); // 300ms
 // Parse5DomAdapter needs to be before angular2
@@ -7,6 +11,24 @@ console.time('Loading Angular'); // 300ms
 // essentially I believe this is our mock DOM perhaps?
 var Parse5DomAdapter = require('angular2/src/dom/parse5_adapter').Parse5DomAdapter;
 Parse5DomAdapter.makeCurrent();
+// global.zone = {};
+// function HTMLElement() {
+
+// }
+// HTMLElement.prototype = {};
+// global.HTMLElement = HTMLElement;
+// global.document = {
+//   createElement: function() {
+//     return function() {
+//       this.onclick;
+//     }
+//   },
+//   addEventListener: function() {
+
+//   }
+// };
+
+// var zone = require('zone.js');
 
 // get Angular2 libraries that we will use
 var ng2 = require('angular2/angular2');             // main lib used when creating compiler
@@ -45,8 +67,12 @@ var DirectiveMetadataReader = require('angular2/src/core/compiler/directive_meta
 var ComponentUrlMapper = require('angular2/src/core/compiler/component_url_mapper').ComponentUrlMapper;
 
 // referencing the DOM...but this is actually the Parse5DomAdapter that was set earlier
+var VmTurnZone = require('angular2/src/core/zone/vm_turn_zone').VmTurnZone;
 var DOM = require('angular2/src/dom/dom_adapter').DOM;
-
+var events = require('angular2/src/core/events/event_manager');
+var DomEventsPlugin = events.DomEventsPlugin;
+var EventManager = events.EventManager;
+var HammerGesturesPlugin = require('angular2/src/core/events/hammer_gestures').HammerGesturesPlugin;
 //var ngCore = require('angular2/core');
 //console.log('angular2', ng2, '\n', ngDirectives, '\n', ngCore, '\nparse\n');
 
@@ -115,6 +141,44 @@ function showDebug(options, state) {
   '// Component State'+
   'state = ' + JSON.stringify(state, null, 2)+
   '</pre>';
+}
+
+// function createVmZone() {
+//   var defaultErrorReporter = function(exception, stackTrace) {
+//     var longStackTrace = ListWrapper.join(stackTrace, "\n\n-----async gap-----\n");
+//     console.log(""+exception+"\n\n"+longStackTrace+"");
+//     throw exception;
+//   };
+
+//   var reporter = defaultErrorReporter;
+
+//   var zone = new VmTurnZone({enableLongStackTrace: false});
+//   zone.initCallbacks({onErrorHandler: reporter});
+//   return zone;
+// }
+global.zone = {
+  fork: function(fn) {
+    if (typeof fn === 'function') {
+      fn();
+    }
+    return this;
+  }
+};
+function FakeVmTurnZone() {
+  VmTurnZone.call(this, {enableLongStackTrace: false});
+}
+util.inherits(FakeVmTurnZone, VmTurnZone);
+
+FakeVmTurnZone.prototype.run = function(fn) {
+  fn();
+}
+// FakeVmTurnZone.prototype.fork = function(fn) {
+//   fn();
+//   return this;
+// }
+
+FakeVmTurnZone.prototype.runOutsideAngular = function(fn) {
+  fn();
 }
 
 /**
@@ -200,7 +264,11 @@ module.exports = function ng2Engine(filePath, options, done) {
         var component = new (
           wrapper(Component, options.arguments)
         );
-        var view = protoView.instantiate(null, null);
+
+        var plugins = [new HammerGesturesPlugin(), new DomEventsPlugin()];
+        var ee = new EventManager(plugins, new FakeVmTurnZone());
+
+        var view = protoView.instantiate(null, ee);
         console.timeEnd('Instantiate Component');
 
         console.time('Hydrate Component'); // 1ms

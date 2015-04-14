@@ -70,40 +70,75 @@ export class TodoStore {
   constructor() {
     this.list = [
       {
-        title: 'isomorphic'
+        title: 'isomorphic',
+        _key: 0
       },
       {
         title: 'server-rendered',
-        completed: true
+        completed: true,
+        _key: 1
       }
     ];
+    this._uid = 1;
   }
 
-  add(record: KeyModel) {
-    this.list.push(record);
+  nextUid() {
+    this._uid = this._uid + 1;
+    return this._uid;
   }
 
-  remove(record: KeyModel) {
-    this.spliceOut(record);
+  getItem(recOrIndex) {
+    var item = recOrIndex;
+    if(typeof(recOrIndex) === "number") {
+      item = this.getRecord(recOrIndex);
+    }
+    return item;
   }
 
-  removeBy(callback: Function) {
-    var records = ListWrapper.filter(this.list, callback);
-    ListWrapper.removeAll(this.list, records);
+  add(rec) {
+    var addedItem = this.keyify(rec);
+    this.list.push(addedItem);
   }
 
-  spliceOut(record: KeyModel) {
-    var i = this.indexFor(record);
+  remove(recOrIndex) {
+    var removeItem = this.getItem(recOrIndex);
+    this.spliceOut(removeItem._key);
+  }
+
+  save(rec) {
+    var item = this.getItem(rec);
+    var indexToUpdate = this.indexFor(item._key);
+    rec._key = item._key;
+    this.list[indexToUpdate] = rec;
+  }
+
+  keyify(item) {
+    item._key = this.nextUid();
+    return item;
+  }
+
+  bulkUpdate(items) {
+    this.list.forEach((item) => {
+      this.save(item);
+    });
+  }
+
+  spliceOut(key) {
+    var i = this.indexFor(key);
     if( i > -1 ) {
       return this.list.splice(i, 1)[0];
     }
     return null;
   }
 
-  indexFor(record: KeyModel) {
+  indexFor(key) {
+    var record = this.getRecord(key);
     return this.list.indexOf(record);
   }
 
+  getRecord(key) {
+    return this.list.find((item) => key === item._key);
+  }
 }
 
 
@@ -256,7 +291,7 @@ level1
   web: true
 })
 export class TodoApp {
-  // todoStore: Store;
+  // todoStore: TodoStore;
   // todoEdit: Todo;
   // factory: TodoFactory;
 

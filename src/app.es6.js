@@ -346,7 +346,11 @@ export class TodoApp {
   }
 
   clearCompleted() {
-    this.todoStore.removeBy((todo) => todo.completed);
+    [].concat(this.todoStore.list).forEach((todo) => {
+      if (todo.completed) {
+        this.deleteMe(todo);
+      }
+    });
   }
 }
 /*

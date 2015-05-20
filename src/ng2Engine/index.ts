@@ -1,10 +1,13 @@
-import {readFile} from 'fs';
+import * as fs from 'fs';
 
 // server version
 import {bootstrap} from '../angular2_server';
 //
 
-import {escapeRegExp, showDebug} from './helper';
+import {
+  getHostElementRef,
+  selectorRegExpFactory
+} from './helper';
 import {ng2string} from './ng2string';
 
 import {DOCUMENT_TOKEN, bind} from 'angular2/angular2';
@@ -17,58 +20,53 @@ var FakeDoc = null;
 
 var directiveResolver = new DirectiveResolver();
 
-export function ng2Engine(filePath: string, {App}, done) {
-  function readNgTemplate(err, content) {
-    if (err) { return done(new Error(err)); }
-    try {
+export function readNgTemplate(content, AppComponent) {
+  let annotations = directiveResolver.resolve(AppComponent);
 
-      if (!FakeDoc) {
-        FakeDoc = DOM.createHtmlDocument();
-        // app hard coded
-        let annotations = directiveResolver.resolve(App);
-        let el = DOM.createElement(annotations.selector, FakeDoc);
-        DOM.appendChild(FakeDoc.body, el);
+  if (!FakeDoc) {
+    FakeDoc = DOM.createHtmlDocument();
+    let el = DOM.createElement(annotations.selector, FakeDoc);
+    DOM.appendChild(FakeDoc.body, el);
+  }
+
+  return Promise.resolve(
+    AppRef || bootstrap(AppComponent, [
+      bind(DOCUMENT_TOKEN).toValue(FakeDoc)
+    ])
+  )
+  .then(appRef => AppRef ? AppRef : AppRef = appRef)
+  .then(appRef => {
+
+    let serializedCmp = ng2string(getHostElementRef(appRef));
+    let selector = annotations.selector;
+
+    let rendered = content.toString().replace(
+      // <app></app>
+      selectorRegExpFactory(selector),
+      serializedCmp/* + showDebug(Object)*/
+    );
+
+    return rendered;
+  })
+  .catch(err => {
+    debugger;
+    throw err;
+  });
+}
+
+export function ng2Engine(filePath: string, options = {}, done) {
+  // read file on disk
+  try {
+    fs.readFile(filePath, (err, content) => {
+      if (err) {
+        return done(new Error(err));
       }
 
-      Promise.resolve(
-        AppRef || bootstrap(App, [
-          bind(DOCUMENT_TOKEN).toValue(FakeDoc)
-        ])
-      )
-      .then(function(appRef) {
-        if (!AppRef) { AppRef = appRef; }
-        return AppRef;
-      })
-      .then(function(appRef) {
-
-        var el = appRef._hostComponent.location.domElement;
-        var serializedCmp = ng2string(el);
-        var selector = el.name;
-
-        // console.log('appRef', '\n', '\n', serializedCmp);
-        // debugger;
-
-        // var debugInfo = showDebug(App, appRef);
-
-        // <app></app>
-        var intro =  '<' + selector + '>';
-        var outro = '</' + selector + '>';
-        var appCmp = intro + outro;
-        var regExpSelector = new RegExp(escapeRegExp(appCmp), 'g');
-        var rendered = content.toString().replace(regExpSelector, serializedCmp/* + debugInfo*/)
-        // debugger;
-
-        done(null, rendered);
-      })
-      .catch(err => {
-        debugger;
-        done(err)
-      });
-
-    } catch (e) {
-      done(e);
-    }
+      readNgTemplate(content, options.App)
+      .then(rendered => done(null, rendered))
+      .catch(e => done(e));
+    });
+  } catch (e) {
+    done(e);
   }
-  // read file on disk
-  readFile(filePath, readNgTemplate);
 };

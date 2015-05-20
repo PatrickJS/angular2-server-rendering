@@ -23,6 +23,8 @@
     "src/ng2Engine/index.ts",
     "src/ng2Engine/helper.ts",
     "src/ng2Engine/ng2string.ts",
-    "src/ng2Engine/angular2.server.ts"
+    "src/angular2_server/bootstrap.server.ts",
+    "src/angular2_server/server_patch.ts",
+    "src/angular2_server/index.ts"
   ]
 }

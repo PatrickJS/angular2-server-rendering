@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon",
+    "start": "nodemon --ext \"js,ts,html\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "node-inspector & nodemon --debug index.js -e js,ts,html"
+    "debug": "node-inspector & nodemon --ext \"js,ts,html\" --debug \"index.js\""
   },
   "author": "gdi2290 <github@gdi2290.com>",
   "license": "",

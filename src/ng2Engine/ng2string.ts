@@ -1,4 +1,3 @@
-var _ = require('lodash');
 /*
 
 TODO:
@@ -25,6 +24,12 @@ var _tags = {
   'template': ['<template>', '</template>']
 };
 */
+function isObject(value) {
+  // Avoid a V8 JIT bug in Chrome 19-20.
+  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
 
 var hasAttrValue = {
   'class': true,
@@ -156,7 +161,7 @@ function traverseDom(nodes) {
     }
   }
   // if View node is root or leaf
-  else if (_.isObject(nodes)) {
+  else if (isObject(nodes)) {
 
     if (!isTagBlackList(nodes)) {
       newContent += logValue(nodes, 0);
@@ -176,7 +181,7 @@ function traverseDom(nodes) {
   return newContent;
 }
 
-module.exports = function ng2string(nodes) {
+export function ng2string(nodes) {
   var serialized = traverseDom(nodes);
   return serialized;
 };

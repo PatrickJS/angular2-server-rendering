@@ -1,0 +1,27 @@
+{
+  "version": "1.5.0",
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": false,
+    "noImplicitAny": false,
+    "removeComments": true,
+    "noLib": false,
+    "emitDecoratorMetadata": true,
+    "sourceMap": false,
+    "listFiles": true,
+    "outDir": "dist"
+  },
+  "files": [
+    "typings/tsd.d.ts",
+    "src/app/app.ts",
+    "src/bootstrap.client.ts",
+    "src/bootstrap.server.ts",
+    "src/app.client.ts",
+    "src/app.server.ts",
+    "src/ng2Engine/index.ts",
+    "src/ng2Engine/helper.ts",
+    "src/ng2Engine/ng2string.ts",
+    "src/ng2Engine/angular2.server.ts"
+  ]
+}

@@ -11,9 +11,8 @@ var options = {
   cert: fs.readFileSync('/private/etc/apache2/ssl/ssl.crt')
 };
 */
-var traceur = require('gulp-traceur/node_modules/traceur/bin/traceur-runtime.js');
-var app_server = require('./dist/server/app_server.es6.js');
-var server = app_server.App(__dirname);
+
+var server = require('./server/server.js')(__dirname);
 
 // Start server
 http.createServer(server).listen(port, function() {

@@ -1,53 +1,24 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Isomorphic Angular 2</title>
+  <title>Angular 2 + TypeScript + Isomorphic + Server</title>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="css/main.css" media="screen" title="no title" charset="utf-8">
+
+  <script src="lib/traceur-runtime.min.js"></script>
+  <script src="lib/es6-module-loader-sans-promises.js"></script>
+  <script src="lib/system.js"></script>
+  <script src="lib/angular2.dev.js"></script>
+  <script src="lib/router.dev.js"></script>
 </head>
 <body>
 
-  <!-- events don't work -->
-  <todo-app></todo-app>
+<app></app>
 
-  <!-- remain server rendered -->
-  <todo-app></todo-app>
-
-
+<script>
+  // Angular bootstraps too fast
+  // setTimeout(function() {
+    System.import('app.client');
+  // }, 1000);
+</script>
 </body>
-<!-- Application bootstrap logic -->
-
-<!-- ES6-related imports -->
-<!--
-<script src="https://rawgit.com/jmcriffey/bower-traceur/master/traceur.js"></script>
-<script src="https://rawgit.com/angular/zone.js/master/zone.js"></script>
-<script src="https://rawgit.com/angular/zone.js/master/long-stack-trace-zone.js"></script>
-
- -->
- <!-- SystemJS -->
-<!--
- -->
-  <script src="lib/traceur-runtime.js"></script>
-  <script src="lib/rtts_assert.js"></script>
-  <script src="lib/es6-module-loader-sans-promises.src.js"></script>
-  <script src="lib/extension-register.js"></script>
-  <script src="lib/extension-cjs.js"></script>
-  <script>
-    System.paths = {
-      'rx/dist/rx.all': 'lib/rx.all.js',
-      'angular2/*': 'lib/angular2.js',
-      '*': 'client/*.js'
-    };
-    window.global = window.global || window;
-    window.register(System);
-    window.cjs(System);
-  </script>
-  <script src="lib/angular2.js"></script>
-  <script src="lib/zone.js"></script>
-  <script src="lib/long-stack-trace-zone.js"></script>
-
-  <script src="client/app_client.es6.js"></script>
-  <!-- Angular2-related imports -->
-
-<!-- End Application bootstrap logic -->
 </html>

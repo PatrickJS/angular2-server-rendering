@@ -13,6 +13,7 @@
     "outDir": "dist"
   },
   "files": [
+    "node_modules/typescript/bin/lib.es6.d.ts",
     "typings/tsd.d.ts",
     "src/app/app.ts",
     "src/bootstrap.client.ts",

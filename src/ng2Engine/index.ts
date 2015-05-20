@@ -1,22 +1,21 @@
 import {readFile} from 'fs';
 
 // server version
-import './angular2.server';
-import {bootstrap} from '../bootstrap.server';
+import {bootstrap} from '../angular2_server';
 //
 
 import {escapeRegExp, showDebug} from './helper';
 import {ng2string} from './ng2string';
 
-// angular 2 stuff
-import {bind} from 'angular2/di';
-import {DOCUMENT_TOKEN} from 'angular2/src/render/dom/dom_renderer';
+import {DOCUMENT_TOKEN, bind} from 'angular2/angular2';
 import {DOM} from 'angular2/src/dom/dom_adapter';
+import {DirectiveResolver} from 'angular2/src/core/compiler/directive_resolver';
 
 // because state is evil
 var AppRef = null;
 var FakeDoc = null;
 
+var directiveResolver = new DirectiveResolver();
 
 export function ng2Engine(filePath: string, {App}, done) {
   function readNgTemplate(err, content) {
@@ -25,11 +24,11 @@ export function ng2Engine(filePath: string, {App}, done) {
 
       if (!FakeDoc) {
         FakeDoc = DOM.createHtmlDocument();
-        var el = DOM.createElement('app', FakeDoc);
+        // app hard coded
+        let annotations = directiveResolver.resolve(App);
+        let el = DOM.createElement(annotations.selector, FakeDoc);
         DOM.appendChild(FakeDoc.body, el);
       }
-
-      // console.log('DOCUMENT_TOKEN', '\n', FakeDoc);
 
       Promise.resolve(
         AppRef || bootstrap(App, [

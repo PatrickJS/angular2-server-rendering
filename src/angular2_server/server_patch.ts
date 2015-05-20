@@ -46,6 +46,3 @@ global.assert.define = global.assert.define || function() {};
 import {Parse5DomAdapter} from 'angular2/src/dom/parse5_adapter';
 Parse5DomAdapter.makeCurrent();
 
-// npm build
-import 'angular2/angular2';
-

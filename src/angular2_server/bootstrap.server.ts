@@ -74,6 +74,7 @@ var _rootBindings = [
 function _injectorBindings(appComponentType): List<Binding> {
   return [
       bind(DOCUMENT_TOKEN).toValue(DOM.defaultDoc()),
+
       bind(appComponentTypeToken).toValue(appComponentType),
       bind(appComponentRefToken).toAsyncFactory((dynamicComponentLoader, injector,
         testability, registry) => {
@@ -200,6 +201,12 @@ export class ApplicationRef {
   get hostComponentType() {
     return this._hostComponentType;
   }
+
+// Server
+  get hostElementRef() {
+    return this._hostComponentType.location
+  }
+// Server
 
   get hostComponent() {
     return this._hostComponent.instance;

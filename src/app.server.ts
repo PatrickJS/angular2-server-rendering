@@ -1,15 +1,22 @@
 /// <reference path="../typings/angular2/angular2.d.ts" />
 
-import {bootstrap} from './bootstrap.server';
+
+
+// NOT USED
+
+import {bootstrap} from './angular2_server';
 import {App} from './app/app';
 
 bootstrap(App, [
 
 ])
-.then(cmpRef => {
-  console.log('server', cmpRef);
+.then(appRef => {
+  console.log('server', appRef);
   debugger;
-  return cmpRef;
+  return appRef;
 });
 
 export {App};
+
+
+// NOT USED

@@ -14,7 +14,7 @@ if (global.Zone) {
 global.Zone = microtask.addMicrotaskSupport(core.Zone);
 global.zone = new global.Zone();
 
-// Monkey path ẗhe Promise implementation to add support for microtasks
+// Monkey path áº—he Promise implementation to add support for microtasks
 global.Promise = es6Promise.Promise;
 
 browserPatch.apply();
@@ -699,7 +699,7 @@ module.exports = {
     /**
       Promise objects represent the eventual result of an asynchronous operation. The
       primary way of interacting with a promise is through its `then` method, which
-      registers callbacks to receive either a promise’s eventual value or the reason
+      registers callbacks to receive either a promiseâ€™s eventual value or the reason
       why the promise cannot be fulfilled.
 
       Terminology
@@ -2936,7 +2936,7 @@ var Reflect;
         }
         function CreateUUID() {
             var data = GenRandomBytes(UUID_SIZE);
-            // mark as random - RFC 4122 § 4.4
+            // mark as random - RFC 4122 Â§ 4.4
             data[6] = data[6] & 0x4f | 0x40;
             data[8] = data[8] & 0xbf | 0x80;
             var result = "";
@@ -7213,6 +7213,12 @@ System.register("angular2/src/facade/lang", [], function($__export) {
           replaceAll: function(s, from, replace) {
             return s.replace(from, replace);
           },
+          toUpperCase: function(s) {
+            return s.toUpperCase();
+          },
+          toLowerCase: function(s) {
+            return s.toLowerCase();
+          },
           startsWith: function(s, start) {
             return s.startsWith(start);
           },
@@ -7346,7 +7352,17 @@ System.register("angular2/src/facade/lang", [], function($__export) {
           }});
       }());
       $__export("FunctionWrapper", FunctionWrapper);
-      Json = _global.JSON;
+      Json = (function() {
+        function Json() {}
+        return ($traceurRuntime.createClass)(Json, {}, {
+          parse: function(s) {
+            return _global.JSON.parse(s);
+          },
+          stringify: function(data) {
+            return _global.JSON.stringify(data, null, 2);
+          }
+        });
+      }());
       $__export("Json", Json);
       DateWrapper = (function() {
         function DateWrapper() {}
@@ -7380,6 +7396,7 @@ System.register("angular2/src/facade/collection", ["angular2/src/facade/lang"], 
       Map,
       Set,
       StringMap,
+      createMapFromPairs,
       MapWrapper,
       StringMapWrapper,
       ListWrapper,
@@ -7420,6 +7437,23 @@ System.register("angular2/src/facade/collection", ["angular2/src/facade/lang"], 
       $__export("Set", Set);
       StringMap = global.Object;
       $__export("StringMap", StringMap);
+      createMapFromPairs = (function() {
+        try {
+          if (new Map([1, 2]).size === 2) {
+            return function createMapFromPairs(pairs) {
+              return new Map(pairs);
+            };
+          }
+        } catch (e) {}
+        return function createMapAndPopulateFromPairs(pairs) {
+          var map = new Map();
+          for (var i = 0; i < pairs.length; i++) {
+            var pair = pairs[i];
+            map.set(pair[0], pair[1]);
+          }
+          return map;
+        };
+      })();
       MapWrapper = (function() {
         function MapWrapper() {}
         return ($traceurRuntime.createClass)(MapWrapper, {}, {
@@ -7437,7 +7471,7 @@ System.register("angular2/src/facade/collection", ["angular2/src/facade/lang"], 
             return result;
           },
           createFromPairs: function(pairs) {
-            return new Map(pairs);
+            return createMapFromPairs(pairs);
           },
           get: function(m, k) {
             return m.get(k);
@@ -7918,9 +7952,16 @@ System.register("angular2/src/reflection/reflection_capabilities", ["angular2/sr
             throw new Error("Factory cannot take more than 10 arguments");
           },
           _zipTypesAndAnnotaions: function(paramTypes, paramAnnotations) {
-            var result = ListWrapper.createFixedSize(paramTypes.length);
+            var result;
+            if (typeof paramTypes === 'undefined') {
+              result = ListWrapper.createFixedSize(paramAnnotations.length);
+            } else {
+              result = ListWrapper.createFixedSize(paramTypes.length);
+            }
             for (var i = 0; i < result.length; i++) {
-              if (paramTypes[i] != Object) {
+              if (typeof paramTypes === 'undefined') {
+                result[i] = [];
+              } else if (paramTypes[i] != Object) {
                 result[i] = [paramTypes[i]];
               } else {
                 result[i] = [];
@@ -8067,6 +8108,70 @@ System.register("angular2/src/change_detection/exceptions", ["angular2/src/facad
           }}, {}, $__super);
       }(BaseException));
       $__export("ChangeDetectionError", ChangeDetectionError);
+    }
+  };
+});
+
+System.register("angular2/src/change_detection/interfaces", [], function($__export) {
+  "use strict";
+  var __moduleName = "angular2/src/change_detection/interfaces";
+  var __esModule,
+      ProtoChangeDetector,
+      ChangeDetection,
+      ChangeDispatcher,
+      ChangeDetector,
+      ChangeDetectorDefinition;
+  return {
+    setters: [],
+    execute: function() {
+      __esModule = true;
+      $__export("__esModule", __esModule);
+      ProtoChangeDetector = (function() {
+        function ProtoChangeDetector() {}
+        return ($traceurRuntime.createClass)(ProtoChangeDetector, {instantiate: function(dispatcher) {
+            return null;
+          }}, {});
+      }());
+      $__export("ProtoChangeDetector", ProtoChangeDetector);
+      ChangeDetection = (function() {
+        function ChangeDetection() {}
+        return ($traceurRuntime.createClass)(ChangeDetection, {createProtoChangeDetector: function(definition) {
+            return null;
+          }}, {});
+      }());
+      $__export("ChangeDetection", ChangeDetection);
+      ChangeDispatcher = (function() {
+        function ChangeDispatcher() {}
+        return ($traceurRuntime.createClass)(ChangeDispatcher, {notifyOnBinding: function(bindingRecord, value) {}}, {});
+      }());
+      $__export("ChangeDispatcher", ChangeDispatcher);
+      ChangeDetector = (function() {
+        function ChangeDetector() {}
+        return ($traceurRuntime.createClass)(ChangeDetector, {
+          addChild: function(cd) {},
+          addShadowDomChild: function(cd) {},
+          removeChild: function(cd) {},
+          removeShadowDomChild: function(cd) {},
+          remove: function() {},
+          hydrate: function(context, locals, directives) {},
+          dehydrate: function() {},
+          markPathToRootAsCheckOnce: function() {},
+          detectChanges: function() {},
+          checkNoChanges: function() {}
+        }, {});
+      }());
+      $__export("ChangeDetector", ChangeDetector);
+      ChangeDetectorDefinition = (function() {
+        function ChangeDetectorDefinition(id, strategy, variableNames, bindingRecords, directiveRecords) {
+          this.id = id;
+          this.strategy = strategy;
+          this.variableNames = variableNames;
+          this.bindingRecords = bindingRecords;
+          this.directiveRecords = directiveRecords;
+        }
+        return ($traceurRuntime.createClass)(ChangeDetectorDefinition, {}, {});
+      }());
+      $__export("ChangeDetectorDefinition", ChangeDetectorDefinition);
     }
   };
 });
@@ -8346,7 +8451,7 @@ System.register("angular2/src/change_detection/change_detection_jit_generator", 
     for (var i = 0; i < detectorFieldNames.length; ++i) {
       detectorInit += (detectorFieldNames[i] + " = directives.getDetectorFor(this.directiveRecords[" + i + "].directiveIndex);\n");
     }
-    return ("\n" + type + ".prototype.hydrate = function(context, locals, directives) {\n  " + MODE_ACCESSOR + " = \"" + mode + "\";\n  " + CONTEXT_ACCESSOR + " = context;\n  " + LOCALS_ACCESSOR + " = locals;\n  " + directiveInit + "\n  " + detectorInit + "\n}\n" + type + ".prototype.dehydrate = function() {\n  " + pipeOnDestroy + "\n  " + fieldDefinitions + "\n  " + LOCALS_ACCESSOR + " = null;\n}\n" + type + ".prototype.hydrated = function() {\n  return " + CONTEXT_ACCESSOR + " !== " + UTIL + ".unitialized();\n}\n");
+    return ("\n" + type + ".prototype.hydrate = function(context, locals, directives) {\n  " + MODE_ACCESSOR + " = \"" + mode + "\";\n  " + CONTEXT_ACCESSOR + " = context;\n  " + LOCALS_ACCESSOR + " = locals;\n  " + directiveInit + "\n  " + detectorInit + "\n}\n" + type + ".prototype.dehydrate = function() {\n  " + pipeOnDestroy + "\n  " + fieldDefinitions + "\n  " + LOCALS_ACCESSOR + " = null;\n}\n" + type + ".prototype.hydrated = function() {\n  return " + CONTEXT_ACCESSOR + " !== " + UTIL + ".uninitialized();\n}\n");
   }
   function detectChangesTemplate(type, body) {
     return ("\n" + type + ".prototype.detectChangesInRecords = function(throwOnChange) {\n  " + body + "\n}\n");
@@ -8361,7 +8466,7 @@ System.register("angular2/src/change_detection/change_detection_jit_generator", 
     return ("\n" + localDefinitions + "\n" + changeDefinitions + "\nvar " + TEMP_LOCAL + ";\nvar " + IS_CHANGED_LOCAL + " = false;\nvar " + CURRENT_PROTO + ";\nvar " + CHANGES_LOCAL + " = null;\n\ncontext = " + CONTEXT_ACCESSOR + ";\n" + records + "\n");
   }
   function pipeCheckTemplate(protoIndex, context, bindingPropagationConfig, pipe, pipeType, oldValue, newValue, change, update, addToChanges, lastInDirective) {
-    return ("\n" + CURRENT_PROTO + " = " + PROTOS_ACCESSOR + "[" + protoIndex + "];\nif (" + pipe + " === " + UTIL + ".unitialized()) {\n  " + pipe + " = " + PIPE_REGISTRY_ACCESSOR + ".get('" + pipeType + "', " + context + ", " + bindingPropagationConfig + ");\n} else if (!" + pipe + ".supports(" + context + ")) {\n  " + pipe + ".onDestroy();\n  " + pipe + " = " + PIPE_REGISTRY_ACCESSOR + ".get('" + pipeType + "', " + context + ", " + bindingPropagationConfig + ");\n}\n\n" + newValue + " = " + pipe + ".transform(" + context + ");\nif (" + oldValue + " !== " + newValue + ") {\n  " + newValue + " = " + UTIL + ".unwrapValue(" + newValue + ");\n  " + change + " = true;\n  " + update + "\n  " + addToChanges + "\n  " + oldValue + " = " + newValue + ";\n}\n" + lastInDirective + "\n");
+    return ("\n" + CURRENT_PROTO + " = " + PROTOS_ACCESSOR + "[" + protoIndex + "];\nif (" + pipe + " === " + UTIL + ".uninitialized()) {\n  " + pipe + " = " + PIPE_REGISTRY_ACCESSOR + ".get('" + pipeType + "', " + context + ", " + bindingPropagationConfig + ");\n} else if (!" + pipe + ".supports(" + context + ")) {\n  " + pipe + ".onDestroy();\n  " + pipe + " = " + PIPE_REGISTRY_ACCESSOR + ".get('" + pipeType + "', " + context + ", " + bindingPropagationConfig + ");\n}\n\n" + newValue + " = " + pipe + ".transform(" + context + ");\nif (" + oldValue + " !== " + newValue + ") {\n  " + newValue + " = " + UTIL + ".unwrapValue(" + newValue + ");\n  " + change + " = true;\n  " + update + "\n  " + addToChanges + "\n  " + oldValue + " = " + newValue + ";\n}\n" + lastInDirective + "\n");
   }
   function referenceCheckTemplate(protoIndex, assignment, oldValue, newValue, change, update, addToChanges, lastInDirective) {
     return ("\n" + CURRENT_PROTO + " = " + PROTOS_ACCESSOR + "[" + protoIndex + "];\n" + assignment + "\nif (" + newValue + " !== " + oldValue + " || (" + newValue + " !== " + newValue + ") && (" + oldValue + " !== " + oldValue + ")) {\n  " + change + " = true;\n  " + update + "\n  " + addToChanges + "\n  " + oldValue + " = " + newValue + ";\n}\n" + lastInDirective + "\n");
@@ -8381,7 +8486,7 @@ System.register("angular2/src/change_detection/change_detection_jit_generator", 
   }
   function fieldDefinitionsTemplate(names) {
     return names.map((function(n) {
-      return (n + " = " + UTIL + ".unitialized();");
+      return (n + " = " + UTIL + ".uninitialized();");
     })).join("\n");
   }
   function ifChangedGuardTemplate(changeNames, body) {
@@ -9925,13 +10030,229 @@ System.register("angular2/src/change_detection/pipes/promise_pipe", ["angular2/s
   };
 });
 
+System.register("angular2/src/change_detection/pipes/uppercase_pipe", ["angular2/src/facade/lang", "angular2/src/change_detection/pipes/pipe"], function($__export) {
+  "use strict";
+  var __moduleName = "angular2/src/change_detection/pipes/uppercase_pipe";
+  var isString,
+      StringWrapper,
+      Pipe,
+      __esModule,
+      UpperCasePipe,
+      UpperCaseFactory;
+  return {
+    setters: [function($__m) {
+      isString = $__m.isString;
+      StringWrapper = $__m.StringWrapper;
+    }, function($__m) {
+      Pipe = $__m.Pipe;
+    }],
+    execute: function() {
+      __esModule = true;
+      $__export("__esModule", __esModule);
+      UpperCasePipe = (function($__super) {
+        function UpperCasePipe() {
+          $traceurRuntime.superConstructor(UpperCasePipe).call(this);
+          this._latestValue = null;
+        }
+        return ($traceurRuntime.createClass)(UpperCasePipe, {
+          supports: function(str) {
+            return isString(str);
+          },
+          onDestroy: function() {
+            this._latestValue = null;
+          },
+          transform: function(value) {
+            if (this._latestValue !== value) {
+              this._latestValue = value;
+              return StringWrapper.toUpperCase(value);
+            } else {
+              return this._latestValue;
+            }
+          }
+        }, {}, $__super);
+      }(Pipe));
+      $__export("UpperCasePipe", UpperCasePipe);
+      UpperCaseFactory = (function() {
+        function UpperCaseFactory() {}
+        return ($traceurRuntime.createClass)(UpperCaseFactory, {
+          supports: function(str) {
+            return isString(str);
+          },
+          create: function() {
+            return new UpperCasePipe();
+          }
+        }, {});
+      }());
+      $__export("UpperCaseFactory", UpperCaseFactory);
+    }
+  };
+});
+
+System.register("angular2/src/change_detection/pipes/lowercase_pipe", ["angular2/src/facade/lang", "angular2/src/change_detection/pipes/pipe"], function($__export) {
+  "use strict";
+  var __moduleName = "angular2/src/change_detection/pipes/lowercase_pipe";
+  var isString,
+      StringWrapper,
+      Pipe,
+      __esModule,
+      LowerCasePipe,
+      LowerCaseFactory;
+  return {
+    setters: [function($__m) {
+      isString = $__m.isString;
+      StringWrapper = $__m.StringWrapper;
+    }, function($__m) {
+      Pipe = $__m.Pipe;
+    }],
+    execute: function() {
+      __esModule = true;
+      $__export("__esModule", __esModule);
+      LowerCasePipe = (function($__super) {
+        function LowerCasePipe() {
+          $traceurRuntime.superConstructor(LowerCasePipe).call(this);
+          this._latestValue = null;
+        }
+        return ($traceurRuntime.createClass)(LowerCasePipe, {
+          supports: function(str) {
+            return isString(str);
+          },
+          onDestroy: function() {
+            this._latestValue = null;
+          },
+          transform: function(value) {
+            if (this._latestValue !== value) {
+              this._latestValue = value;
+              return StringWrapper.toLowerCase(value);
+            } else {
+              return this._latestValue;
+            }
+          }
+        }, {}, $__super);
+      }(Pipe));
+      $__export("LowerCasePipe", LowerCasePipe);
+      LowerCaseFactory = (function() {
+        function LowerCaseFactory() {}
+        return ($traceurRuntime.createClass)(LowerCaseFactory, {
+          supports: function(str) {
+            return isString(str);
+          },
+          create: function() {
+            return new LowerCasePipe();
+          }
+        }, {});
+      }());
+      $__export("LowerCaseFactory", LowerCaseFactory);
+    }
+  };
+});
+
+System.register("angular2/src/change_detection/pipes/json_pipe", ["angular2/src/facade/lang", "angular2/src/change_detection/pipes/pipe"], function($__export) {
+  "use strict";
+  var __moduleName = "angular2/src/change_detection/pipes/json_pipe";
+  var __decorate,
+      __metadata,
+      isPresent,
+      CONST,
+      Json,
+      Pipe,
+      PipeFactory,
+      __esModule,
+      JsonPipe,
+      JsonPipeFactory;
+  return {
+    setters: [function($__m) {
+      isPresent = $__m.isPresent;
+      CONST = $__m.CONST;
+      Json = $__m.Json;
+    }, function($__m) {
+      Pipe = $__m.Pipe;
+      PipeFactory = $__m.PipeFactory;
+    }],
+    execute: function() {
+      __decorate = (this && this.__decorate) || function(decorators, target, key, desc) {
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+          return Reflect.decorate(decorators, target, key, desc);
+        switch (arguments.length) {
+          case 2:
+            return decorators.reduceRight(function(o, d) {
+              return (d && d(o)) || o;
+            }, target);
+          case 3:
+            return decorators.reduceRight(function(o, d) {
+              return (d && d(target, key)), void 0;
+            }, void 0);
+          case 4:
+            return decorators.reduceRight(function(o, d) {
+              return (d && d(target, key, o)) || o;
+            }, desc);
+        }
+      };
+      __metadata = (this && this.__metadata) || function(k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
+          return Reflect.metadata(k, v);
+      };
+      __esModule = true;
+      $__export("__esModule", __esModule);
+      JsonPipe = (function($__super) {
+        function JsonPipe() {
+          $traceurRuntime.superConstructor(JsonPipe).call(this);
+          this._latestRef = null;
+          this._latestValue = null;
+        }
+        return ($traceurRuntime.createClass)(JsonPipe, {
+          onDestroy: function() {
+            if (isPresent(this._latestValue)) {
+              this._latestRef = null;
+              this._latestValue = null;
+            }
+          },
+          supports: function(obj) {
+            return true;
+          },
+          transform: function(value) {
+            if (value === this._latestRef) {
+              return this._latestValue;
+            } else {
+              return this._prettyPrint(value);
+            }
+          },
+          _prettyPrint: function(value) {
+            this._latestRef = value;
+            this._latestValue = Json.stringify(value);
+            return this._latestValue;
+          }
+        }, {}, $__super);
+      }(Pipe));
+      $__export("JsonPipe", JsonPipe);
+      JsonPipeFactory = (function($__super) {
+        function $__0() {
+          $traceurRuntime.superConstructor($__0).call(this);
+        }
+        return ($traceurRuntime.createClass)($__0, {
+          supports: function(obj) {
+            return true;
+          },
+          create: function(cdRef) {
+            return new JsonPipe();
+          }
+        }, {}, $__super);
+      }(PipeFactory));
+      $__export("JsonPipeFactory", JsonPipeFactory);
+      $__export("JsonPipeFactory", JsonPipeFactory = __decorate([CONST(), __metadata('design:paramtypes', [])], JsonPipeFactory));
+    }
+  };
+});
+
 System.register("angular2/src/core/annotations_impl/visibility", ["angular2/src/facade/lang", "angular2/src/di/annotations_impl"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/core/annotations_impl/visibility";
   var CONST,
       DependencyAnnotation,
+      Visibility,
+      Self,
       Parent,
-      Ancestor;
+      Ancestor,
+      Unbounded;
   return {
     setters: [function($__m) {
       CONST = $__m.CONST;
@@ -9939,24 +10260,61 @@ System.register("angular2/src/core/annotations_impl/visibility", ["angular2/src/
       DependencyAnnotation = $__m.DependencyAnnotation;
     }],
     execute: function() {
+      Visibility = (function($__super) {
+        function Visibility(depth, crossComponentBoundaries) {
+          $traceurRuntime.superConstructor(Visibility).call(this);
+          this.depth = depth;
+          this.crossComponentBoundaries = crossComponentBoundaries;
+        }
+        return ($traceurRuntime.createClass)(Visibility, {shouldIncludeSelf: function() {
+            return this.depth === 0;
+          }}, {}, $__super);
+      }(DependencyAnnotation));
+      $__export("Visibility", Visibility);
+      Object.defineProperty(Visibility, "annotations", {get: function() {
+          return [new CONST()];
+        }});
+      Object.defineProperty(Visibility, "parameters", {get: function() {
+          return [[assert.type.number], [assert.type.boolean]];
+        }});
+      Self = (function($__super) {
+        function Self() {
+          $traceurRuntime.superConstructor(Self).call(this, 0, false);
+        }
+        return ($traceurRuntime.createClass)(Self, {}, {}, $__super);
+      }(Visibility));
+      $__export("Self", Self);
+      Object.defineProperty(Self, "annotations", {get: function() {
+          return [new CONST()];
+        }});
       Parent = (function($__super) {
         function Parent() {
-          $traceurRuntime.superConstructor(Parent).call(this);
+          $traceurRuntime.superConstructor(Parent).call(this, 1, false);
         }
         return ($traceurRuntime.createClass)(Parent, {}, {}, $__super);
-      }(DependencyAnnotation));
+      }(Visibility));
       $__export("Parent", Parent);
       Object.defineProperty(Parent, "annotations", {get: function() {
           return [new CONST()];
         }});
       Ancestor = (function($__super) {
         function Ancestor() {
-          $traceurRuntime.superConstructor(Ancestor).call(this);
+          $traceurRuntime.superConstructor(Ancestor).call(this, 999999, false);
         }
         return ($traceurRuntime.createClass)(Ancestor, {}, {}, $__super);
-      }(DependencyAnnotation));
+      }(Visibility));
       $__export("Ancestor", Ancestor);
       Object.defineProperty(Ancestor, "annotations", {get: function() {
+          return [new CONST()];
+        }});
+      Unbounded = (function($__super) {
+        function Unbounded() {
+          $traceurRuntime.superConstructor(Unbounded).call(this, 999999, true);
+        }
+        return ($traceurRuntime.createClass)(Unbounded, {}, {}, $__super);
+      }(Visibility));
+      $__export("Unbounded", Unbounded);
+      Object.defineProperty(Unbounded, "annotations", {get: function() {
           return [new CONST()];
         }});
     }
@@ -10013,6 +10371,29 @@ System.register("angular2/src/core/annotations_impl/view", ["angular2/src/facade
       Object.defineProperty(View, "annotations", {get: function() {
           return [new CONST()];
         }});
+    }
+  };
+});
+
+System.register("angular2/src/di/forward_ref", [], function($__export) {
+  "use strict";
+  var __moduleName = "angular2/src/di/forward_ref";
+  function forwardRef(forwardRefFn) {
+    forwardRefFn.__forward_ref__ = forwardRef;
+    return forwardRefFn;
+  }
+  function resolveForwardRef(type) {
+    if (typeof type == 'function' && type.hasOwnProperty('__forward_ref__') && type.__forward_ref__ === forwardRef) {
+      return type();
+    } else {
+      return type;
+    }
+  }
+  $__export("forwardRef", forwardRef);
+  $__export("resolveForwardRef", resolveForwardRef);
+  return {
+    setters: [],
+    execute: function() {
     }
   };
 });
@@ -10590,6 +10971,7 @@ System.register("angular2/src/core/annotations_impl/annotations", ["angular2/src
               hostAttributes = $__1.hostAttributes,
               hostActions = $__1.hostActions,
               lifecycle = $__1.lifecycle,
+              hostInjector = $__1.hostInjector,
               compileChildren = ($__2 = $__1.compileChildren) === void 0 ? true : $__2;
           $traceurRuntime.superConstructor(Directive).call(this);
           this.selector = selector;
@@ -10601,6 +10983,7 @@ System.register("angular2/src/core/annotations_impl/annotations", ["angular2/src
           this.hostActions = hostActions;
           this.lifecycle = lifecycle;
           this.compileChildren = compileChildren;
+          this.hostInjector = hostInjector;
         }
         return ($traceurRuntime.createClass)(Directive, {hasLifecycleHook: function(hook) {
             return isPresent(this.lifecycle) ? ListWrapper.contains(this.lifecycle, hook) : false;
@@ -10625,11 +11008,12 @@ System.register("angular2/src/core/annotations_impl/annotations", ["angular2/src
               hostProperties = $__1.hostProperties,
               hostAttributes = $__1.hostAttributes,
               hostActions = $__1.hostActions,
-              injectables = $__1.injectables,
+              appInjector = $__1.appInjector,
               lifecycle = $__1.lifecycle,
+              hostInjector = $__1.hostInjector,
+              viewInjector = $__1.viewInjector,
               changeDetection = ($__2 = $__1.changeDetection) === void 0 ? DEFAULT : $__2,
-              compileChildren = ($__3 = $__1.compileChildren) === void 0 ? true : $__3,
-              publishAs = $__1.publishAs;
+              compileChildren = ($__3 = $__1.compileChildren) === void 0 ? true : $__3;
           $traceurRuntime.superConstructor(Component).call(this, {
             selector: selector,
             properties: properties,
@@ -10638,12 +11022,13 @@ System.register("angular2/src/core/annotations_impl/annotations", ["angular2/src
             hostProperties: hostProperties,
             hostAttributes: hostAttributes,
             hostActions: hostActions,
+            hostInjector: hostInjector,
             lifecycle: lifecycle,
             compileChildren: compileChildren
           });
           this.changeDetection = changeDetection;
-          this.injectables = injectables;
-          this.publishAs = publishAs;
+          this.appInjector = appInjector;
+          this.viewInjector = viewInjector;
         }
         return ($traceurRuntime.createClass)(Component, {}, {}, $__super);
       }(Directive));
@@ -10657,63 +11042,6 @@ System.register("angular2/src/core/annotations_impl/annotations", ["angular2/src
       $__export("onChange", onChange);
       onAllChangesDone = "onAllChangesDone";
       $__export("onAllChangesDone", onAllChangesDone);
-    }
-  };
-});
-
-System.register("angular2/src/core/compiler/directive_metadata", ["angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/core/annotations_impl/annotations", "angular2/di"], function($__export) {
-  "use strict";
-  var __moduleName = "angular2/src/core/compiler/directive_metadata";
-  var Type,
-      List,
-      Directive,
-      ResolvedBinding,
-      DirectiveMetadata;
-  return {
-    setters: [function($__m) {
-      Type = $__m.Type;
-    }, function($__m) {
-      List = $__m.List;
-    }, function($__m) {
-      Directive = $__m.Directive;
-    }, function($__m) {
-      ResolvedBinding = $__m.ResolvedBinding;
-    }],
-    execute: function() {
-      DirectiveMetadata = (function() {
-        function DirectiveMetadata(type, annotation, resolvedInjectables) {
-          this.annotation = annotation;
-          this.type = type;
-          this.resolvedInjectables = resolvedInjectables;
-        }
-        return ($traceurRuntime.createClass)(DirectiveMetadata, {}, {});
-      }());
-      $__export("DirectiveMetadata", DirectiveMetadata);
-      Object.defineProperty(DirectiveMetadata, "parameters", {get: function() {
-          return [[Type], [Directive], [assert.genericType(List, ResolvedBinding)]];
-        }});
-    }
-  };
-});
-
-System.register("angular2/src/facade/math", ["angular2/src/facade/lang"], function($__export) {
-  "use strict";
-  var __moduleName = "angular2/src/facade/math";
-  var global,
-      __esModule,
-      Math,
-      NaN;
-  return {
-    setters: [function($__m) {
-      global = $__m.global;
-    }],
-    execute: function() {
-      __esModule = true;
-      $__export("__esModule", __esModule);
-      Math = global.Math;
-      $__export("Math", Math);
-      NaN = typeof NaN;
-      $__export("NaN", NaN);
     }
   };
 });
@@ -10864,7 +11192,7 @@ System.register("angular2/src/render/api", ["angular2/src/facade/lang", "angular
             return 1;
           },
           get EMBEDDED_VIEW_TYPE() {
-            return 1;
+            return 2;
           }
         });
       }());
@@ -10875,16 +11203,22 @@ System.register("angular2/src/render/api", ["angular2/src/facade/lang", "angular
               id = $__2.id,
               selector = $__2.selector,
               compileChildren = $__2.compileChildren,
+              events = $__2.events,
               hostListeners = $__2.hostListeners,
               hostProperties = $__2.hostProperties,
               hostAttributes = $__2.hostAttributes,
               hostActions = $__2.hostActions,
               properties = $__2.properties,
               readAttributes = $__2.readAttributes,
-              type = $__2.type;
+              type = $__2.type,
+              callOnDestroy = $__2.callOnDestroy,
+              callOnChange = $__2.callOnChange,
+              callOnAllChangesDone = $__2.callOnAllChangesDone,
+              changeDetection = $__2.changeDetection;
           this.id = id;
           this.selector = selector;
           this.compileChildren = isPresent(compileChildren) ? compileChildren : true;
+          this.events = events;
           this.hostListeners = hostListeners;
           this.hostProperties = hostProperties;
           this.hostAttributes = hostAttributes;
@@ -10892,6 +11226,10 @@ System.register("angular2/src/render/api", ["angular2/src/facade/lang", "angular
           this.properties = properties;
           this.readAttributes = readAttributes;
           this.type = type;
+          this.callOnDestroy = callOnDestroy;
+          this.callOnChange = callOnChange;
+          this.callOnAllChangesDone = callOnAllChangesDone;
+          this.changeDetection = changeDetection;
         }
         return ($traceurRuntime.createClass)(DirectiveMetadata, {}, {
           get DIRECTIVE_TYPE() {
@@ -10946,10 +11284,10 @@ System.register("angular2/src/render/api", ["angular2/src/facade/lang", "angular
       Renderer = (function() {
         function Renderer() {}
         return ($traceurRuntime.createClass)(Renderer, {
-          createInPlaceHostView: function(parentHostViewRef, hostElementSelector, hostProtoViewRef) {
+          createRootHostView: function(hostProtoViewRef, hostElementSelector) {
             return null;
           },
-          destroyInPlaceHostView: function(parentHostViewRef, hostViewRef) {},
+          detachFreeHostView: function(parentHostViewRef, hostViewRef) {},
           createView: function(protoViewRef) {
             return null;
           },
@@ -10967,10 +11305,10 @@ System.register("angular2/src/render/api", ["angular2/src/facade/lang", "angular
         }, {});
       }());
       $__export("Renderer", Renderer);
-      Object.defineProperty(Renderer.prototype.createInPlaceHostView, "parameters", {get: function() {
-          return [[RenderViewRef], [assert.type.string], [RenderProtoViewRef]];
+      Object.defineProperty(Renderer.prototype.createRootHostView, "parameters", {get: function() {
+          return [[RenderProtoViewRef], [assert.type.string]];
         }});
-      Object.defineProperty(Renderer.prototype.destroyInPlaceHostView, "parameters", {get: function() {
+      Object.defineProperty(Renderer.prototype.detachFreeHostView, "parameters", {get: function() {
           return [[RenderViewRef], [RenderViewRef]];
         }});
       Object.defineProperty(Renderer.prototype.createView, "parameters", {get: function() {
@@ -11404,7 +11742,7 @@ System.register("angular2/src/core/compiler/view_container_ref", ["angular2/src/
   };
 });
 
-System.register("angular2/src/core/compiler/view_manager_utils", ["angular2/di", "angular2/src/di/annotations_impl", "angular2/src/facade/collection", "angular2/src/core/compiler/element_injector", "angular2/src/facade/lang", "angular2/src/core/compiler/view", "angular2/src/core/compiler/view_manager", "angular2/src/render/api", "angular2/change_detection", "angular2/src/core/compiler/directive_metadata_reader"], function($__export) {
+System.register("angular2/src/core/compiler/view_manager_utils", ["angular2/di", "angular2/src/di/annotations_impl", "angular2/src/facade/collection", "angular2/src/core/compiler/element_injector", "angular2/src/facade/lang", "angular2/src/core/compiler/view", "angular2/src/core/compiler/view_manager", "angular2/src/render/api", "angular2/change_detection", "angular2/src/core/compiler/directive_resolver"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/core/compiler/view_manager_utils";
   var Injector,
@@ -11424,7 +11762,7 @@ System.register("angular2/src/core/compiler/view_manager_utils", ["angular2/di",
       Renderer,
       BindingPropagationConfig,
       Locals,
-      DirectiveMetadataReader,
+      DirectiveResolver,
       RenderViewRef,
       AppViewManagerUtils;
   return {
@@ -11456,12 +11794,12 @@ System.register("angular2/src/core/compiler/view_manager_utils", ["angular2/di",
       BindingPropagationConfig = $__m.BindingPropagationConfig;
       Locals = $__m.Locals;
     }, function($__m) {
-      DirectiveMetadataReader = $__m.DirectiveMetadataReader;
+      DirectiveResolver = $__m.DirectiveResolver;
     }],
     execute: function() {
       AppViewManagerUtils = (function() {
         function AppViewManagerUtils(metadataReader) {
-          this._metadataReader = metadataReader;
+          this._directiveResolver = metadataReader;
         }
         return ($traceurRuntime.createClass)(AppViewManagerUtils, {
           getComponentInstance: function(parentView, boundElementIndex) {
@@ -11521,22 +11859,21 @@ System.register("angular2/src/core/compiler/view_manager_utils", ["angular2/di",
             var component = this.getComponentInstance(hostView, boundElementIndex);
             this._hydrateView(componentView, injector, elementInjector, component, null);
           },
-          attachAndHydrateInPlaceHostView: function(parentComponentHostView, parentComponentBoundElementIndex, hostView) {
+          hydrateRootHostView: function(hostView) {
+            var injector = arguments[1] !== (void 0) ? arguments[1] : null;
+            this._hydrateView(hostView, injector, null, new Object(), null);
+          },
+          attachAndHydrateFreeHostView: function(parentComponentHostView, parentComponentBoundElementIndex, hostView) {
             var injector = arguments[3] !== (void 0) ? arguments[3] : null;
-            var hostElementInjector = null;
-            if (isPresent(parentComponentHostView)) {
-              hostElementInjector = parentComponentHostView.elementInjectors[parentComponentBoundElementIndex];
-              var parentView = parentComponentHostView.componentChildViews[parentComponentBoundElementIndex];
-              parentView.changeDetector.addChild(hostView.changeDetector);
-              ListWrapper.push(parentView.inPlaceHostViews, hostView);
-            }
+            var hostElementInjector = parentComponentHostView.elementInjectors[parentComponentBoundElementIndex];
+            var parentView = parentComponentHostView.componentChildViews[parentComponentBoundElementIndex];
+            parentView.changeDetector.addChild(hostView.changeDetector);
+            ListWrapper.push(parentView.freeHostViews, hostView);
             this._hydrateView(hostView, injector, hostElementInjector, new Object(), null);
           },
-          detachInPlaceHostView: function(parentView, hostView) {
-            if (isPresent(parentView)) {
-              parentView.changeDetector.removeChild(hostView.changeDetector);
-              ListWrapper.remove(parentView.inPlaceHostViews, hostView);
-            }
+          detachFreeHostView: function(parentView, hostView) {
+            parentView.changeDetector.removeChild(hostView.changeDetector);
+            ListWrapper.remove(parentView.freeHostViews, hostView);
           },
           attachViewInContainer: function(parentView, boundElementIndex, contextView, contextBoundElementIndex, atIndex, view) {
             if (isBlank(contextView)) {
@@ -11589,7 +11926,7 @@ System.register("angular2/src/core/compiler/view_manager_utils", ["angular2/di",
             if (isBlank(injector)) {
               injector = elementInjector.getLightDomAppInjector();
             }
-            var annotation = this._metadataReader.read(componentBinding.token).annotation;
+            var annotation = this._directiveResolver.resolve(componentBinding.token);
             var componentDirective = eli.DirectiveBinding.createFromBinding(componentBinding, annotation);
             elementInjector.dynamicallyCreateComponent(componentDirective, injector);
           },
@@ -11606,7 +11943,7 @@ System.register("angular2/src/core/compiler/view_manager_utils", ["angular2/di",
             for (var i = 0; i < binders.length; ++i) {
               var elementInjector = view.elementInjectors[i];
               if (isPresent(elementInjector)) {
-                elementInjector.instantiateDirectives(appInjector, hostElementInjector, view.preBuiltObjects[i]);
+                elementInjector.hydrate(appInjector, hostElementInjector, view.preBuiltObjects[i]);
                 this._setUpEventEmitters(view, elementInjector, i);
                 this._setUpHostActions(view, elementInjector, i);
                 var exportImplicitName = elementInjector.getExportImplicitName();
@@ -11646,7 +11983,7 @@ System.register("angular2/src/core/compiler/view_manager_utils", ["angular2/di",
             for (var i = 0; i < binders.length; ++i) {
               var elementInjector = view.elementInjectors[i];
               if (isPresent(elementInjector)) {
-                elementInjector.clearDirectives();
+                elementInjector.dehydrate();
               }
             }
             if (isPresent(view.locals)) {
@@ -11662,7 +11999,7 @@ System.register("angular2/src/core/compiler/view_manager_utils", ["angular2/di",
           return [new Injectable()];
         }});
       Object.defineProperty(AppViewManagerUtils, "parameters", {get: function() {
-          return [[DirectiveMetadataReader]];
+          return [[DirectiveResolver]];
         }});
       Object.defineProperty(AppViewManagerUtils.prototype.getComponentInstance, "parameters", {get: function() {
           return [[viewModule.AppView], [assert.type.number]];
@@ -11679,10 +12016,13 @@ System.register("angular2/src/core/compiler/view_manager_utils", ["angular2/di",
       Object.defineProperty(AppViewManagerUtils.prototype.hydrateComponentView, "parameters", {get: function() {
           return [[viewModule.AppView], [assert.type.number], [Injector]];
         }});
-      Object.defineProperty(AppViewManagerUtils.prototype.attachAndHydrateInPlaceHostView, "parameters", {get: function() {
+      Object.defineProperty(AppViewManagerUtils.prototype.hydrateRootHostView, "parameters", {get: function() {
+          return [[viewModule.AppView], [Injector]];
+        }});
+      Object.defineProperty(AppViewManagerUtils.prototype.attachAndHydrateFreeHostView, "parameters", {get: function() {
           return [[viewModule.AppView], [assert.type.number], [viewModule.AppView], [Injector]];
         }});
-      Object.defineProperty(AppViewManagerUtils.prototype.detachInPlaceHostView, "parameters", {get: function() {
+      Object.defineProperty(AppViewManagerUtils.prototype.detachFreeHostView, "parameters", {get: function() {
           return [[viewModule.AppView], [viewModule.AppView]];
         }});
       Object.defineProperty(AppViewManagerUtils.prototype.attachViewInContainer, "parameters", {get: function() {
@@ -12060,7 +12400,7 @@ System.register("angular2/src/core/compiler/component_url_mapper", ["angular2/sr
   };
 });
 
-System.register("angular2/src/core/compiler/proto_view_factory", ["angular2/src/di/annotations_impl", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/src/reflection/reflection", "angular2/change_detection", "angular2/src/core/annotations_impl/annotations", "angular2/src/render/api", "angular2/src/core/compiler/view", "angular2/src/core/compiler/element_injector"], function($__export) {
+System.register("angular2/src/core/compiler/proto_view_factory", ["angular2/src/di/annotations_impl", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/src/reflection/reflection", "angular2/change_detection", "angular2/src/render/api", "angular2/src/core/compiler/view", "angular2/src/core/compiler/element_injector"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/core/compiler/proto_view_factory";
   var Injectable,
@@ -12075,15 +12415,172 @@ System.register("angular2/src/core/compiler/proto_view_factory", ["angular2/src/
       BindingRecord,
       DirectiveRecord,
       ProtoChangeDetector,
-      Component,
+      DEFAULT,
+      ChangeDetectorDefinition,
       renderApi,
       AppProtoView,
       ProtoElementInjector,
       DirectiveBinding,
       BindingRecordsCreator,
       ProtoViewFactory,
-      SortedDirectives,
+      RenderProtoViewWithIndex,
       ParentProtoElementInjectorWithDistance;
+  function getChangeDetectorDefinitions(hostComponentMetadata, rootRenderProtoView, allRenderDirectiveMetadata) {
+    var nestedPvsWithIndex = _collectNestedProtoViews(rootRenderProtoView);
+    var nestedPvVariableBindings = _collectNestedProtoViewsVariableBindings(nestedPvsWithIndex);
+    var nestedPvVariableNames = _collectNestedProtoViewsVariableNames(nestedPvsWithIndex, nestedPvVariableBindings);
+    return _getChangeDetectorDefinitions(hostComponentMetadata, nestedPvsWithIndex, nestedPvVariableNames, allRenderDirectiveMetadata);
+  }
+  function _collectNestedProtoViews(renderProtoView) {
+    var parentIndex = arguments[1] !== (void 0) ? arguments[1] : null;
+    var boundElementIndex = arguments[2] !== (void 0) ? arguments[2] : null;
+    var result = arguments[3] !== (void 0) ? arguments[3] : null;
+    if (isBlank(result)) {
+      result = [];
+    }
+    ListWrapper.push(result, new RenderProtoViewWithIndex(renderProtoView, result.length, parentIndex, boundElementIndex));
+    var currentIndex = result.length - 1;
+    var childBoundElementIndex = 0;
+    ListWrapper.forEach(renderProtoView.elementBinders, (function(elementBinder) {
+      if (isPresent(elementBinder.nestedProtoView)) {
+        _collectNestedProtoViews(elementBinder.nestedProtoView, currentIndex, childBoundElementIndex, result);
+      }
+      childBoundElementIndex++;
+    }));
+    return result;
+  }
+  function _getChangeDetectorDefinitions(hostComponentMetadata, nestedPvsWithIndex, nestedPvVariableNames, allRenderDirectiveMetadata) {
+    return ListWrapper.map(nestedPvsWithIndex, (function(pvWithIndex) {
+      var elementBinders = pvWithIndex.renderProtoView.elementBinders;
+      var bindingRecordsCreator = new BindingRecordsCreator();
+      var bindingRecords = bindingRecordsCreator.getBindingRecords(elementBinders, allRenderDirectiveMetadata);
+      var directiveRecords = bindingRecordsCreator.getDirectiveRecords(elementBinders, allRenderDirectiveMetadata);
+      var strategyName = DEFAULT;
+      var typeString;
+      if (pvWithIndex.renderProtoView.type === renderApi.ProtoViewDto.COMPONENT_VIEW_TYPE) {
+        strategyName = hostComponentMetadata.changeDetection;
+        typeString = 'comp';
+      } else if (pvWithIndex.renderProtoView.type === renderApi.ProtoViewDto.HOST_VIEW_TYPE) {
+        typeString = 'host';
+      } else {
+        typeString = 'embedded';
+      }
+      var id = (hostComponentMetadata.id + "_" + typeString + "_" + pvWithIndex.index);
+      var variableNames = nestedPvVariableNames[pvWithIndex.index];
+      return new ChangeDetectorDefinition(id, strategyName, variableNames, bindingRecords, directiveRecords);
+    }));
+  }
+  function _createAppProtoView(renderProtoView, protoChangeDetector, variableBindings, allDirectives) {
+    var elementBinders = renderProtoView.elementBinders;
+    var protoView = new AppProtoView(renderProtoView.render, protoChangeDetector, variableBindings);
+    _createElementBinders(protoView, elementBinders, allDirectives);
+    _bindDirectiveEvents(protoView, elementBinders);
+    return protoView;
+  }
+  function _collectNestedProtoViewsVariableBindings(nestedPvsWithIndex) {
+    return ListWrapper.map(nestedPvsWithIndex, (function(pvWithIndex) {
+      return _createVariableBindings(pvWithIndex.renderProtoView);
+    }));
+  }
+  function _createVariableBindings(renderProtoView) {
+    var variableBindings = MapWrapper.create();
+    MapWrapper.forEach(renderProtoView.variableBindings, (function(mappedName, varName) {
+      MapWrapper.set(variableBindings, varName, mappedName);
+    }));
+    ListWrapper.forEach(renderProtoView.elementBinders, (function(binder) {
+      MapWrapper.forEach(binder.variableBindings, (function(mappedName, varName) {
+        MapWrapper.set(variableBindings, varName, mappedName);
+      }));
+    }));
+    return variableBindings;
+  }
+  function _collectNestedProtoViewsVariableNames(nestedPvsWithIndex, nestedPvVariableBindings) {
+    var nestedPvVariableNames = ListWrapper.createFixedSize(nestedPvsWithIndex.length);
+    ListWrapper.forEach(nestedPvsWithIndex, (function(pvWithIndex) {
+      var parentVariableNames = isPresent(pvWithIndex.parentIndex) ? nestedPvVariableNames[pvWithIndex.parentIndex] : null;
+      nestedPvVariableNames[pvWithIndex.index] = _createVariableNames(parentVariableNames, nestedPvVariableBindings[pvWithIndex.index]);
+    }));
+    return nestedPvVariableNames;
+  }
+  function _createVariableNames(parentVariableNames, variableBindings) {
+    var variableNames = isPresent(parentVariableNames) ? ListWrapper.clone(parentVariableNames) : [];
+    MapWrapper.forEach(variableBindings, (function(local, v) {
+      ListWrapper.push(variableNames, local);
+    }));
+    return variableNames;
+  }
+  function _createElementBinders(protoView, elementBinders, allDirectiveBindings) {
+    for (var i = 0; i < elementBinders.length; i++) {
+      var renderElementBinder = elementBinders[i];
+      var dirs = elementBinders[i].directives;
+      var parentPeiWithDistance = _findParentProtoElementInjectorWithDistance(i, protoView.elementBinders, elementBinders);
+      var directiveBindings = ListWrapper.map(dirs, (function(dir) {
+        return allDirectiveBindings[dir.directiveIndex];
+      }));
+      var componentDirectiveBinding = null;
+      if (directiveBindings.length > 0) {
+        if (directiveBindings[0].metadata.type === renderApi.DirectiveMetadata.COMPONENT_TYPE) {
+          componentDirectiveBinding = directiveBindings[0];
+        }
+      }
+      var protoElementInjector = _createProtoElementInjector(i, parentPeiWithDistance, renderElementBinder, componentDirectiveBinding, directiveBindings);
+      _createElementBinder(protoView, i, renderElementBinder, protoElementInjector, componentDirectiveBinding);
+    }
+  }
+  function _findParentProtoElementInjectorWithDistance(binderIndex, elementBinders, renderElementBinders) {
+    var distance = 0;
+    do {
+      var renderElementBinder = renderElementBinders[binderIndex];
+      binderIndex = renderElementBinder.parentIndex;
+      if (binderIndex !== -1) {
+        distance += renderElementBinder.distanceToParent;
+        var elementBinder = elementBinders[binderIndex];
+        if (isPresent(elementBinder.protoElementInjector)) {
+          return new ParentProtoElementInjectorWithDistance(elementBinder.protoElementInjector, distance);
+        }
+      }
+    } while (binderIndex !== -1);
+    return new ParentProtoElementInjectorWithDistance(null, -1);
+  }
+  function _createProtoElementInjector(binderIndex, parentPeiWithDistance, renderElementBinder, componentDirectiveBinding, directiveBindings) {
+    var protoElementInjector = null;
+    var hasVariables = MapWrapper.size(renderElementBinder.variableBindings) > 0;
+    if (directiveBindings.length > 0 || hasVariables) {
+      protoElementInjector = ProtoElementInjector.create(parentPeiWithDistance.protoElementInjector, binderIndex, directiveBindings, isPresent(componentDirectiveBinding), parentPeiWithDistance.distance);
+      protoElementInjector.attributes = renderElementBinder.readAttributes;
+      if (hasVariables) {
+        protoElementInjector.exportComponent = isPresent(componentDirectiveBinding);
+        protoElementInjector.exportElement = isBlank(componentDirectiveBinding);
+        var exportImplicitName = MapWrapper.get(renderElementBinder.variableBindings, '\$implicit');
+        if (isPresent(exportImplicitName)) {
+          protoElementInjector.exportImplicitName = exportImplicitName;
+        }
+      }
+    }
+    return protoElementInjector;
+  }
+  function _createElementBinder(protoView, boundElementIndex, renderElementBinder, protoElementInjector, componentDirectiveBinding) {
+    var parent = null;
+    if (renderElementBinder.parentIndex !== -1) {
+      parent = protoView.elementBinders[renderElementBinder.parentIndex];
+    }
+    var elBinder = protoView.bindElement(parent, renderElementBinder.distanceToParent, protoElementInjector, componentDirectiveBinding);
+    protoView.bindEvent(renderElementBinder.eventBindings, boundElementIndex, -1);
+    MapWrapper.forEach(renderElementBinder.variableBindings, (function(mappedName, varName) {
+      MapWrapper.set(protoView.protoLocals, mappedName, null);
+    }));
+    return elBinder;
+  }
+  function _bindDirectiveEvents(protoView, elementBinders) {
+    for (var boundElementIndex = 0; boundElementIndex < elementBinders.length; ++boundElementIndex) {
+      var dirs = elementBinders[boundElementIndex].directives;
+      for (var i = 0; i < dirs.length; i++) {
+        var directiveBinder = dirs[i];
+        protoView.bindEvent(directiveBinder.eventBindings, boundElementIndex, i);
+      }
+    }
+  }
+  $__export("getChangeDetectorDefinitions", getChangeDetectorDefinitions);
   return {
     setters: [function($__m) {
       Injectable = $__m.Injectable;
@@ -12102,8 +12599,8 @@ System.register("angular2/src/core/compiler/proto_view_factory", ["angular2/src/
       BindingRecord = $__m.BindingRecord;
       DirectiveRecord = $__m.DirectiveRecord;
       ProtoChangeDetector = $__m.ProtoChangeDetector;
-    }, function($__m) {
-      Component = $__m.Component;
+      DEFAULT = $__m.DEFAULT;
+      ChangeDetectorDefinition = $__m.ChangeDetectorDefinition;
     }, function($__m) {
       renderApi = $__m;
     }, function($__m) {
@@ -12119,209 +12616,110 @@ System.register("angular2/src/core/compiler/proto_view_factory", ["angular2/src/
           this._textNodeIndex = 0;
         }
         return ($traceurRuntime.createClass)(BindingRecordsCreator, {
-          getBindingRecords: function(elementBinders, sortedDirectives) {
+          getBindingRecords: function(elementBinders, allDirectiveMetadatas) {
             var bindings = [];
             for (var boundElementIndex = 0; boundElementIndex < elementBinders.length; boundElementIndex++) {
               var renderElementBinder = elementBinders[boundElementIndex];
-              bindings = ListWrapper.concat(bindings, this._createTextNodeRecords(renderElementBinder));
-              bindings = ListWrapper.concat(bindings, this._createElementPropertyRecords(boundElementIndex, renderElementBinder));
-              bindings = ListWrapper.concat(bindings, this._createDirectiveRecords(boundElementIndex, sortedDirectives[boundElementIndex]));
+              this._createTextNodeRecords(bindings, renderElementBinder);
+              this._createElementPropertyRecords(bindings, boundElementIndex, renderElementBinder);
+              this._createDirectiveRecords(bindings, boundElementIndex, renderElementBinder.directives, allDirectiveMetadatas);
             }
             return bindings;
           },
-          getDirectiveRecords: function(sortedDirectives) {
+          getDirectiveRecords: function(elementBinders, allDirectiveMetadatas) {
             var directiveRecords = [];
-            for (var elementIndex = 0; elementIndex < sortedDirectives.length; ++elementIndex) {
-              var dirs = sortedDirectives[elementIndex].directives;
+            for (var elementIndex = 0; elementIndex < elementBinders.length; ++elementIndex) {
+              var dirs = elementBinders[elementIndex].directives;
               for (var dirIndex = 0; dirIndex < dirs.length; ++dirIndex) {
-                ListWrapper.push(directiveRecords, this._getDirectiveRecord(elementIndex, dirIndex, dirs[dirIndex]));
+                ListWrapper.push(directiveRecords, this._getDirectiveRecord(elementIndex, dirIndex, allDirectiveMetadatas[dirs[dirIndex].directiveIndex]));
               }
             }
             return directiveRecords;
           },
-          _createTextNodeRecords: function(renderElementBinder) {
+          _createTextNodeRecords: function(bindings, renderElementBinder) {
             var $__0 = this;
             if (isBlank(renderElementBinder.textBindings))
-              return [];
-            return ListWrapper.map(renderElementBinder.textBindings, (function(b) {
-              return BindingRecord.createForTextNode(b, $__0._textNodeIndex++);
+              return ;
+            ListWrapper.forEach(renderElementBinder.textBindings, (function(b) {
+              ListWrapper.push(bindings, BindingRecord.createForTextNode(b, $__0._textNodeIndex++));
             }));
           },
-          _createElementPropertyRecords: function(boundElementIndex, renderElementBinder) {
-            var res = [];
+          _createElementPropertyRecords: function(bindings, boundElementIndex, renderElementBinder) {
             MapWrapper.forEach(renderElementBinder.propertyBindings, (function(astWithSource, propertyName) {
-              ListWrapper.push(res, BindingRecord.createForElement(astWithSource, boundElementIndex, propertyName));
+              ListWrapper.push(bindings, BindingRecord.createForElement(astWithSource, boundElementIndex, propertyName));
             }));
-            return res;
           },
-          _createDirectiveRecords: function(boundElementIndex, sortedDirectives) {
+          _createDirectiveRecords: function(bindings, boundElementIndex, directiveBinders, allDirectiveMetadatas) {
             var $__0 = this;
-            var res = [];
-            for (var i = 0; i < sortedDirectives.renderDirectives.length; i++) {
-              var directiveBinder = sortedDirectives.renderDirectives[i];
+            for (var i = 0; i < directiveBinders.length; i++) {
+              var directiveBinder = directiveBinders[i];
+              var directiveMetadata = allDirectiveMetadatas[directiveBinder.directiveIndex];
               MapWrapper.forEach(directiveBinder.propertyBindings, (function(astWithSource, propertyName) {
                 var setter = reflector.setter(propertyName);
-                var directiveRecord = $__0._getDirectiveRecord(boundElementIndex, i, sortedDirectives.directives[i]);
-                var b = BindingRecord.createForDirective(astWithSource, propertyName, setter, directiveRecord);
-                ListWrapper.push(res, b);
+                var directiveRecord = $__0._getDirectiveRecord(boundElementIndex, i, directiveMetadata);
+                ListWrapper.push(bindings, BindingRecord.createForDirective(astWithSource, propertyName, setter, directiveRecord));
               }));
               MapWrapper.forEach(directiveBinder.hostPropertyBindings, (function(astWithSource, propertyName) {
                 var dirIndex = new DirectiveIndex(boundElementIndex, i);
-                var b = BindingRecord.createForHostProperty(dirIndex, astWithSource, propertyName);
-                ListWrapper.push(res, b);
+                ListWrapper.push(bindings, BindingRecord.createForHostProperty(dirIndex, astWithSource, propertyName));
               }));
             }
-            return res;
           },
-          _getDirectiveRecord: function(boundElementIndex, directiveIndex, binding) {
+          _getDirectiveRecord: function(boundElementIndex, directiveIndex, directiveMetadata) {
             var id = boundElementIndex * 100 + directiveIndex;
             if (!MapWrapper.contains(this._directiveRecordsMap, id)) {
-              var changeDetection = binding.changeDetection;
-              MapWrapper.set(this._directiveRecordsMap, id, new DirectiveRecord(new DirectiveIndex(boundElementIndex, directiveIndex), binding.callOnAllChangesDone, binding.callOnChange, changeDetection));
+              var changeDetection = directiveMetadata.changeDetection;
+              MapWrapper.set(this._directiveRecordsMap, id, new DirectiveRecord(new DirectiveIndex(boundElementIndex, directiveIndex), directiveMetadata.callOnAllChangesDone, directiveMetadata.callOnChange, changeDetection));
             }
             return MapWrapper.get(this._directiveRecordsMap, id);
           }
         }, {});
       }());
       Object.defineProperty(BindingRecordsCreator.prototype.getBindingRecords, "parameters", {get: function() {
-          return [[assert.genericType(List, renderApi.ElementBinder)], [assert.genericType(List, SortedDirectives)]];
+          return [[assert.genericType(List, renderApi.ElementBinder)], [assert.genericType(List, renderApi.DirectiveMetadata)]];
         }});
       Object.defineProperty(BindingRecordsCreator.prototype.getDirectiveRecords, "parameters", {get: function() {
-          return [[assert.genericType(List, SortedDirectives)]];
+          return [[assert.genericType(List, renderApi.ElementBinder)], [assert.genericType(List, renderApi.DirectiveMetadata)]];
         }});
       Object.defineProperty(BindingRecordsCreator.prototype._createTextNodeRecords, "parameters", {get: function() {
-          return [[renderApi.ElementBinder]];
+          return [[assert.genericType(List, BindingRecord)], [renderApi.ElementBinder]];
         }});
       Object.defineProperty(BindingRecordsCreator.prototype._createElementPropertyRecords, "parameters", {get: function() {
-          return [[assert.type.number], [renderApi.ElementBinder]];
+          return [[assert.genericType(List, BindingRecord)], [assert.type.number], [renderApi.ElementBinder]];
         }});
       Object.defineProperty(BindingRecordsCreator.prototype._createDirectiveRecords, "parameters", {get: function() {
-          return [[assert.type.number], [SortedDirectives]];
+          return [[assert.genericType(List, BindingRecord)], [assert.type.number], [assert.genericType(List, renderApi.DirectiveBinder)], [assert.genericType(List, renderApi.DirectiveMetadata)]];
         }});
       Object.defineProperty(BindingRecordsCreator.prototype._getDirectiveRecord, "parameters", {get: function() {
-          return [[assert.type.number], [assert.type.number], [DirectiveBinding]];
+          return [[assert.type.number], [assert.type.number], [renderApi.DirectiveMetadata]];
         }});
       ProtoViewFactory = (function() {
         function ProtoViewFactory(changeDetection) {
           this._changeDetection = changeDetection;
         }
-        return ($traceurRuntime.createClass)(ProtoViewFactory, {
-          createProtoView: function(parentProtoView, componentBinding, renderProtoView, directives) {
-            var elementBinders = renderProtoView.elementBinders;
-            var sortedDirectives = ListWrapper.map(elementBinders, (function(b) {
-              return new SortedDirectives(b.directives, directives);
+        return ($traceurRuntime.createClass)(ProtoViewFactory, {createAppProtoViews: function(hostComponentBinding, rootRenderProtoView, allDirectives) {
+            var $__0 = this;
+            var allRenderDirectiveMetadata = ListWrapper.map(allDirectives, (function(directiveBinding) {
+              return directiveBinding.metadata;
             }));
-            var variableBindings = this._createVariableBindings(renderProtoView);
-            var protoLocals = this._createProtoLocals(variableBindings);
-            var variableNames = this._createVariableNames(parentProtoView, protoLocals);
-            var protoChangeDetector = this._createProtoChangeDetector(elementBinders, sortedDirectives, componentBinding, variableNames);
-            var protoView = new AppProtoView(renderProtoView.render, protoChangeDetector, variableBindings, protoLocals, variableNames);
-            this._createElementBinders(protoView, elementBinders, sortedDirectives);
-            this._bindDirectiveEvents(protoView, sortedDirectives);
-            return protoView;
-          },
-          _createProtoLocals: function(varBindings) {
-            var protoLocals = MapWrapper.create();
-            MapWrapper.forEach(varBindings, (function(mappedName, varName) {
-              MapWrapper.set(protoLocals, mappedName, null);
+            var nestedPvsWithIndex = _collectNestedProtoViews(rootRenderProtoView);
+            var nestedPvVariableBindings = _collectNestedProtoViewsVariableBindings(nestedPvsWithIndex);
+            var nestedPvVariableNames = _collectNestedProtoViewsVariableNames(nestedPvsWithIndex, nestedPvVariableBindings);
+            var changeDetectorDefs = _getChangeDetectorDefinitions(hostComponentBinding.metadata, nestedPvsWithIndex, nestedPvVariableNames, allRenderDirectiveMetadata);
+            var protoChangeDetectors = ListWrapper.map(changeDetectorDefs, (function(changeDetectorDef) {
+              return $__0._changeDetection.createProtoChangeDetector(changeDetectorDef);
             }));
-            return protoLocals;
-          },
-          _createVariableBindings: function(renderProtoView) {
-            var variableBindings = MapWrapper.create();
-            MapWrapper.forEach(renderProtoView.variableBindings, (function(mappedName, varName) {
-              MapWrapper.set(variableBindings, varName, mappedName);
-            }));
-            ListWrapper.forEach(renderProtoView.elementBinders, (function(binder) {
-              MapWrapper.forEach(binder.variableBindings, (function(mappedName, varName) {
-                MapWrapper.set(variableBindings, varName, mappedName);
-              }));
-            }));
-            return variableBindings;
-          },
-          _createVariableNames: function(parentProtoView, protoLocals) {
-            var variableNames = isPresent(parentProtoView) ? ListWrapper.clone(parentProtoView.variableNames) : [];
-            MapWrapper.forEach(protoLocals, (function(v, local) {
-              ListWrapper.push(variableNames, local);
-            }));
-            return variableNames;
-          },
-          _createProtoChangeDetector: function(elementBinders, sortedDirectives, componentBinding, variableNames) {
-            var bindingRecordsCreator = new BindingRecordsCreator();
-            var bindingRecords = bindingRecordsCreator.getBindingRecords(elementBinders, sortedDirectives);
-            var directiveRecords = bindingRecordsCreator.getDirectiveRecords(sortedDirectives);
-            var changeDetection = null;
-            var name = 'root';
-            if (isPresent(componentBinding)) {
-              var componentAnnotation = componentBinding.annotation;
-              changeDetection = componentAnnotation.changeDetection;
-              name = 'dummy';
-            }
-            return this._changeDetection.createProtoChangeDetector(name, bindingRecords, variableNames, directiveRecords, changeDetection);
-          },
-          _createElementBinders: function(protoView, elementBinders, sortedDirectives) {
-            for (var i = 0; i < elementBinders.length; i++) {
-              var renderElementBinder = elementBinders[i];
-              var dirs = sortedDirectives[i];
-              var parentPeiWithDistance = this._findParentProtoElementInjectorWithDistance(i, protoView.elementBinders, elementBinders);
-              var protoElementInjector = this._createProtoElementInjector(i, parentPeiWithDistance, dirs, renderElementBinder);
-              this._createElementBinder(protoView, i, renderElementBinder, protoElementInjector, dirs);
-            }
-          },
-          _findParentProtoElementInjectorWithDistance: function(binderIndex, elementBinders, renderElementBinders) {
-            var distance = 0;
-            do {
-              var renderElementBinder = renderElementBinders[binderIndex];
-              binderIndex = renderElementBinder.parentIndex;
-              if (binderIndex !== -1) {
-                distance += renderElementBinder.distanceToParent;
-                var elementBinder = elementBinders[binderIndex];
-                if (isPresent(elementBinder.protoElementInjector)) {
-                  return new ParentProtoElementInjectorWithDistance(elementBinder.protoElementInjector, distance);
-                }
+            var appProtoViews = ListWrapper.createFixedSize(nestedPvsWithIndex.length);
+            ListWrapper.forEach(nestedPvsWithIndex, (function(pvWithIndex) {
+              var appProtoView = _createAppProtoView(pvWithIndex.renderProtoView, protoChangeDetectors[pvWithIndex.index], nestedPvVariableBindings[pvWithIndex.index], allDirectives);
+              if (isPresent(pvWithIndex.parentIndex)) {
+                var parentView = appProtoViews[pvWithIndex.parentIndex];
+                parentView.elementBinders[pvWithIndex.boundElementIndex].nestedProtoView = appProtoView;
               }
-            } while (binderIndex !== -1);
-            return new ParentProtoElementInjectorWithDistance(null, -1);
-          },
-          _createProtoElementInjector: function(binderIndex, parentPeiWithDistance, sortedDirectives, renderElementBinder) {
-            var protoElementInjector = null;
-            var hasVariables = MapWrapper.size(renderElementBinder.variableBindings) > 0;
-            if (sortedDirectives.directives.length > 0 || hasVariables) {
-              protoElementInjector = new ProtoElementInjector(parentPeiWithDistance.protoElementInjector, binderIndex, sortedDirectives.directives, isPresent(sortedDirectives.componentDirective), parentPeiWithDistance.distance);
-              protoElementInjector.attributes = renderElementBinder.readAttributes;
-              if (hasVariables) {
-                protoElementInjector.exportComponent = isPresent(sortedDirectives.componentDirective);
-                protoElementInjector.exportElement = isBlank(sortedDirectives.componentDirective);
-                var exportImplicitName = MapWrapper.get(renderElementBinder.variableBindings, '\$implicit');
-                if (isPresent(exportImplicitName)) {
-                  protoElementInjector.exportImplicitName = exportImplicitName;
-                }
-              }
-            }
-            return protoElementInjector;
-          },
-          _createElementBinder: function(protoView, boundElementIndex, renderElementBinder, protoElementInjector, sortedDirectives) {
-            var parent = null;
-            if (renderElementBinder.parentIndex !== -1) {
-              parent = protoView.elementBinders[renderElementBinder.parentIndex];
-            }
-            var elBinder = protoView.bindElement(parent, renderElementBinder.distanceToParent, protoElementInjector, sortedDirectives.componentDirective);
-            protoView.bindEvent(renderElementBinder.eventBindings, boundElementIndex, -1);
-            MapWrapper.forEach(renderElementBinder.variableBindings, (function(mappedName, varName) {
-              MapWrapper.set(protoView.protoLocals, mappedName, null);
+              appProtoViews[pvWithIndex.index] = appProtoView;
             }));
-            return elBinder;
-          },
-          _bindDirectiveEvents: function(protoView, sortedDirectives) {
-            for (var boundElementIndex = 0; boundElementIndex < sortedDirectives.length; ++boundElementIndex) {
-              var dirs = sortedDirectives[boundElementIndex].renderDirectives;
-              for (var i = 0; i < dirs.length; i++) {
-                var directiveBinder = dirs[i];
-                protoView.bindEvent(directiveBinder.eventBindings, boundElementIndex, i);
-              }
-            }
-          }
-        }, {});
+            return appProtoViews;
+          }}, {});
       }());
       $__export("ProtoViewFactory", ProtoViewFactory);
       Object.defineProperty(ProtoViewFactory, "annotations", {get: function() {
@@ -12330,35 +12728,42 @@ System.register("angular2/src/core/compiler/proto_view_factory", ["angular2/src/
       Object.defineProperty(ProtoViewFactory, "parameters", {get: function() {
           return [[ChangeDetection]];
         }});
-      Object.defineProperty(ProtoViewFactory.prototype.createProtoView, "parameters", {get: function() {
-          return [[AppProtoView], [DirectiveBinding], [renderApi.ProtoViewDto], [assert.genericType(List, DirectiveBinding)]];
+      Object.defineProperty(ProtoViewFactory.prototype.createAppProtoViews, "parameters", {get: function() {
+          return [[DirectiveBinding], [renderApi.ProtoViewDto], [assert.genericType(List, DirectiveBinding)]];
         }});
-      Object.defineProperty(ProtoViewFactory.prototype._createProtoLocals, "parameters", {get: function() {
-          return [[Map]];
+      Object.defineProperty(getChangeDetectorDefinitions, "parameters", {get: function() {
+          return [[renderApi.DirectiveMetadata], [renderApi.ProtoViewDto], [assert.genericType(List, renderApi.DirectiveMetadata)]];
         }});
-      Object.defineProperty(ProtoViewFactory.prototype._bindDirectiveEvents, "parameters", {get: function() {
-          return [[], [assert.genericType(List, SortedDirectives)]];
+      Object.defineProperty(_collectNestedProtoViews, "parameters", {get: function() {
+          return [[renderApi.ProtoViewDto], [assert.type.number], [], [assert.genericType(List, RenderProtoViewWithIndex)]];
         }});
-      SortedDirectives = (function() {
-        function SortedDirectives(renderDirectives, allDirectives) {
-          var $__0 = this;
-          this.renderDirectives = [];
-          this.directives = [];
-          this.componentDirective = null;
-          ListWrapper.forEach(renderDirectives, (function(renderDirectiveBinder) {
-            var directiveBinding = allDirectives[renderDirectiveBinder.directiveIndex];
-            if (directiveBinding.annotation instanceof Component) {
-              $__0.componentDirective = directiveBinding;
-              ListWrapper.insert($__0.renderDirectives, 0, renderDirectiveBinder);
-              ListWrapper.insert($__0.directives, 0, directiveBinding);
-            } else {
-              ListWrapper.push($__0.renderDirectives, renderDirectiveBinder);
-              ListWrapper.push($__0.directives, directiveBinding);
-            }
-          }));
+      Object.defineProperty(_getChangeDetectorDefinitions, "parameters", {get: function() {
+          return [[renderApi.DirectiveMetadata], [assert.genericType(List, RenderProtoViewWithIndex)], [assert.genericType(List, assert.genericType(List, assert.type.string))], [assert.genericType(List, renderApi.DirectiveMetadata)]];
+        }});
+      Object.defineProperty(_createAppProtoView, "parameters", {get: function() {
+          return [[renderApi.ProtoViewDto], [ProtoChangeDetector], [assert.genericType(Map, assert.type.string, assert.type.string)], [assert.genericType(List, DirectiveBinding)]];
+        }});
+      Object.defineProperty(_collectNestedProtoViewsVariableBindings, "parameters", {get: function() {
+          return [[assert.genericType(List, RenderProtoViewWithIndex)]];
+        }});
+      Object.defineProperty(_collectNestedProtoViewsVariableNames, "parameters", {get: function() {
+          return [[assert.genericType(List, RenderProtoViewWithIndex)], [assert.genericType(List, assert.genericType(Map, assert.type.string, assert.type.string))]];
+        }});
+      Object.defineProperty(_bindDirectiveEvents, "parameters", {get: function() {
+          return [[], [assert.genericType(List, renderApi.ElementBinder)]];
+        }});
+      RenderProtoViewWithIndex = (function() {
+        function RenderProtoViewWithIndex(renderProtoView, index, parentIndex, boundElementIndex) {
+          this.renderProtoView = renderProtoView;
+          this.index = index;
+          this.parentIndex = parentIndex;
+          this.boundElementIndex = boundElementIndex;
         }
-        return ($traceurRuntime.createClass)(SortedDirectives, {}, {});
+        return ($traceurRuntime.createClass)(RenderProtoViewWithIndex, {}, {});
       }());
+      Object.defineProperty(RenderProtoViewWithIndex, "parameters", {get: function() {
+          return [[renderApi.ProtoViewDto], [assert.type.number], [assert.type.number], [assert.type.number]];
+        }});
       ParentProtoElementInjectorWithDistance = (function() {
         function ParentProtoElementInjectorWithDistance(protoElementInjector, distance) {
           this.protoElementInjector = protoElementInjector;
@@ -13819,15 +14224,29 @@ System.register("angular2/src/core/compiler/dynamic_component_loader", ["angular
               return new ComponentRef(location, component, dispose);
             }));
           },
-          loadIntoNewLocation: function(typeOrBinding, parentComponentLocation, elementSelector) {
-            var injector = arguments[3] !== (void 0) ? arguments[3] : null;
+          loadAsRoot: function(typeOrBinding) {
+            var overrideSelector = arguments[1] !== (void 0) ? arguments[1] : null;
+            var injector = arguments[2] !== (void 0) ? arguments[2] : null;
             var $__0 = this;
             return this._compiler.compileInHost(this._getBinding(typeOrBinding)).then((function(hostProtoViewRef) {
-              var hostViewRef = $__0._viewManager.createInPlaceHostView(parentComponentLocation, elementSelector, hostProtoViewRef, injector);
+              var hostViewRef = $__0._viewManager.createRootHostView(hostProtoViewRef, overrideSelector, injector);
               var newLocation = new ElementRef(hostViewRef, 0);
               var component = $__0._viewManager.getComponent(newLocation);
               var dispose = (function() {
-                $__0._viewManager.destroyInPlaceHostView(parentComponentLocation, hostViewRef);
+                $__0._viewManager.destroyRootHostView(hostViewRef);
+              });
+              return new ComponentRef(newLocation, component, dispose);
+            }));
+          },
+          loadIntoNewLocation: function(typeOrBinding, parentComponentLocation) {
+            var injector = arguments[2] !== (void 0) ? arguments[2] : null;
+            var $__0 = this;
+            return this._compiler.compileInHost(this._getBinding(typeOrBinding)).then((function(hostProtoViewRef) {
+              var hostViewRef = $__0._viewManager.createFreeHostView(parentComponentLocation, hostProtoViewRef, injector);
+              var newLocation = new ElementRef(hostViewRef, 0);
+              var component = $__0._viewManager.getComponent(newLocation);
+              var dispose = (function() {
+                $__0._viewManager.destroyFreeHostView(parentComponentLocation, hostViewRef);
               });
               return new ComponentRef(newLocation, component, dispose);
             }));
@@ -13869,8 +14288,11 @@ System.register("angular2/src/core/compiler/dynamic_component_loader", ["angular
       Object.defineProperty(DynamicComponentLoader.prototype.loadIntoExistingLocation, "parameters", {get: function() {
           return [[], [ElementRef], [Injector]];
         }});
+      Object.defineProperty(DynamicComponentLoader.prototype.loadAsRoot, "parameters", {get: function() {
+          return [[], [], [Injector]];
+        }});
       Object.defineProperty(DynamicComponentLoader.prototype.loadIntoNewLocation, "parameters", {get: function() {
-          return [[], [ElementRef], [assert.type.string], [Injector]];
+          return [[], [ElementRef], [Injector]];
         }});
       Object.defineProperty(DynamicComponentLoader.prototype.loadNextToExistingLocation, "parameters", {get: function() {
           return [[], [ElementRef], [Injector]];
@@ -13969,7 +14391,6 @@ System.register("angular2/src/render/dom/dom_renderer", ["angular2/src/di/annota
       RenderProtoViewRef,
       RenderViewRef,
       DOCUMENT_TOKEN,
-      _DOCUMENT_SELECTOR_REGEX,
       DomRenderer;
   return {
     setters: [function($__m) {
@@ -14016,7 +14437,6 @@ System.register("angular2/src/render/dom/dom_renderer", ["angular2/src/di/annota
     execute: function() {
       DOCUMENT_TOKEN = 'DocumentToken';
       $__export("DOCUMENT_TOKEN", DOCUMENT_TOKEN);
-      _DOCUMENT_SELECTOR_REGEX = RegExpWrapper.create('\\:document(.+)');
       DomRenderer = (function($__super) {
         function DomRenderer(eventManager, shadowDomStrategy, document) {
           $traceurRuntime.superConstructor(DomRenderer).call(this);
@@ -14025,26 +14445,15 @@ System.register("angular2/src/render/dom/dom_renderer", ["angular2/src/di/annota
           this._document = document;
         }
         return ($traceurRuntime.createClass)(DomRenderer, {
-          createInPlaceHostView: function(parentHostViewRef, hostElementSelector, hostProtoViewRef) {
-            var containerNode;
-            var documentSelectorMatch = RegExpWrapper.firstMatch(_DOCUMENT_SELECTOR_REGEX, hostElementSelector);
-            if (isPresent(documentSelectorMatch)) {
-              containerNode = this._document;
-              hostElementSelector = documentSelectorMatch[1];
-            } else if (isPresent(parentHostViewRef)) {
-              var parentHostView = resolveInternalDomView(parentHostViewRef);
-              containerNode = parentHostView.shadowRoot;
-            } else {
-              containerNode = this._document;
-            }
-            var element = DOM.querySelector(containerNode, hostElementSelector);
+          createRootHostView: function(hostProtoViewRef, hostElementSelector) {
+            var hostProtoView = resolveInternalDomProtoView(hostProtoViewRef);
+            var element = DOM.querySelector(this._document, hostElementSelector);
             if (isBlank(element)) {
               throw new BaseException(("The selector \"" + hostElementSelector + "\" did not match any elements"));
             }
-            var hostProtoView = resolveInternalDomProtoView(hostProtoViewRef);
             return new DomViewRef(this._createView(hostProtoView, element));
           },
-          destroyInPlaceHostView: function(parentHostViewRef, hostViewRef) {
+          detachFreeHostView: function(parentHostViewRef, hostViewRef) {
             var hostView = resolveInternalDomView(hostViewRef);
             this._removeViewNodes(hostView);
           },
@@ -14071,6 +14480,10 @@ System.register("angular2/src/render/dom/dom_renderer", ["angular2/src/di/annota
             this._removeViewNodes(componentView);
             componentView.rootNodes = rootNodes;
             this._moveViewNodesIntoParent(componentView.shadowRoot, componentView);
+          },
+          getHostElement: function(hostViewRef) {
+            var hostView = resolveInternalDomView(hostViewRef);
+            return hostView.boundElements[0];
           },
           detachComponentView: function(hostViewRef, boundElementIndex, componentViewRef) {
             var hostView = resolveInternalDomView(hostViewRef);
@@ -14288,10 +14701,10 @@ System.register("angular2/src/render/dom/dom_renderer", ["angular2/src/di/annota
       Object.defineProperty(DomRenderer, "parameters", {get: function() {
           return [[EventManager], [ShadowDomStrategy], [new Inject(DOCUMENT_TOKEN)]];
         }});
-      Object.defineProperty(DomRenderer.prototype.createInPlaceHostView, "parameters", {get: function() {
-          return [[RenderViewRef], [assert.type.string], [RenderProtoViewRef]];
+      Object.defineProperty(DomRenderer.prototype.createRootHostView, "parameters", {get: function() {
+          return [[RenderProtoViewRef], [assert.type.string]];
         }});
-      Object.defineProperty(DomRenderer.prototype.destroyInPlaceHostView, "parameters", {get: function() {
+      Object.defineProperty(DomRenderer.prototype.detachFreeHostView, "parameters", {get: function() {
           return [[RenderViewRef], [RenderViewRef]];
         }});
       Object.defineProperty(DomRenderer.prototype.createView, "parameters", {get: function() {
@@ -14305,6 +14718,9 @@ System.register("angular2/src/render/dom/dom_renderer", ["angular2/src/di/annota
         }});
       Object.defineProperty(DomRenderer.prototype.setComponentViewRootNodes, "parameters", {get: function() {
           return [[RenderViewRef], [List]];
+        }});
+      Object.defineProperty(DomRenderer.prototype.getHostElement, "parameters", {get: function() {
+          return [[RenderViewRef]];
         }});
       Object.defineProperty(DomRenderer.prototype.detachComponentView, "parameters", {get: function() {
           return [[RenderViewRef], [assert.type.number], [RenderViewRef]];
@@ -14575,7 +14991,7 @@ System.register("angular2/src/render/dom/compiler/property_binding_parser", ["an
       dashCaseToCamelCase = $__m.dashCaseToCamelCase;
     }],
     execute: function() {
-      BIND_NAME_REGEXP = RegExpWrapper.create('^(?:(?:(?:(bind-)|(var-|#)|(on-))(.+))|\\[([^\\]]+)\\]|\\(([^\\)]+)\\))$');
+      BIND_NAME_REGEXP = RegExpWrapper.create('^(?:(?:(?:(bind-)|(var-|#)|(on-)|(bindon-))(.+))|\\[\\(([^\\)]+)\\)\\]|\\[([^\\]]+)\\]|\\(([^\\)]+)\\))$');
       PropertyBindingParser = (function($__super) {
         function PropertyBindingParser(parser) {
           $traceurRuntime.superConstructor(PropertyBindingParser).call(this);
@@ -14590,17 +15006,23 @@ System.register("angular2/src/render/dom/compiler/property_binding_parser", ["an
               var bindParts = RegExpWrapper.firstMatch(BIND_NAME_REGEXP, attrName);
               if (isPresent(bindParts)) {
                 if (isPresent(bindParts[1])) {
-                  $__0._bindProperty(bindParts[4], attrValue, current, newAttrs);
+                  $__0._bindProperty(bindParts[5], attrValue, current, newAttrs);
                 } else if (isPresent(bindParts[2])) {
-                  var identifier = bindParts[4];
+                  var identifier = bindParts[5];
                   var value = attrValue == '' ? '\$implicit' : attrValue;
                   $__0._bindVariable(identifier, value, current, newAttrs);
                 } else if (isPresent(bindParts[3])) {
-                  $__0._bindEvent(bindParts[4], attrValue, current, newAttrs);
-                } else if (isPresent(bindParts[5])) {
+                  $__0._bindEvent(bindParts[5], attrValue, current, newAttrs);
+                } else if (isPresent(bindParts[4])) {
                   $__0._bindProperty(bindParts[5], attrValue, current, newAttrs);
+                  $__0._bindAssignmentEvent(bindParts[5], attrValue, current, newAttrs);
                 } else if (isPresent(bindParts[6])) {
-                  $__0._bindEvent(bindParts[6], attrValue, current, newAttrs);
+                  $__0._bindProperty(bindParts[6], attrValue, current, newAttrs);
+                  $__0._bindAssignmentEvent(bindParts[6], attrValue, current, newAttrs);
+                } else if (isPresent(bindParts[7])) {
+                  $__0._bindProperty(bindParts[7], attrValue, current, newAttrs);
+                } else if (isPresent(bindParts[8])) {
+                  $__0._bindEvent(bindParts[8], attrValue, current, newAttrs);
                 }
               } else {
                 var expr = $__0._parser.parseInterpolation(attrValue, current.elementDescription);
@@ -14626,6 +15048,9 @@ System.register("angular2/src/render/dom/compiler/property_binding_parser", ["an
             binder.bindProperty(camelCaseName, ast);
             MapWrapper.set(newAttrs, name, ast.source);
           },
+          _bindAssignmentEvent: function(name, expression, current, newAttrs) {
+            this._bindEvent(name, (expression + "=$event"), current, newAttrs);
+          },
           _bindEvent: function(name, expression, current, newAttrs) {
             current.bindElement().bindEvent(dashCaseToCamelCase(name), this._parser.parseAction(expression, current.elementDescription));
           }
@@ -14645,6 +15070,9 @@ System.register("angular2/src/render/dom/compiler/property_binding_parser", ["an
           return [[], [], [CompileElement], []];
         }});
       Object.defineProperty(PropertyBindingParser.prototype._bindPropertyAst, "parameters", {get: function() {
+          return [[], [], [CompileElement], []];
+        }});
+      Object.defineProperty(PropertyBindingParser.prototype._bindAssignmentEvent, "parameters", {get: function() {
           return [[], [], [CompileElement], []];
         }});
       Object.defineProperty(PropertyBindingParser.prototype._bindEvent, "parameters", {get: function() {
@@ -15322,7 +15750,7 @@ System.register("angular2/src/core/application_tokens", ["angular2/di"], functio
   var __moduleName = "angular2/src/core/application_tokens";
   var OpaqueToken,
       appComponentRefToken,
-      appComponentAnnotatedTypeToken;
+      appComponentTypeToken;
   return {
     setters: [function($__m) {
       OpaqueToken = $__m.OpaqueToken;
@@ -15330,8 +15758,8 @@ System.register("angular2/src/core/application_tokens", ["angular2/di"], functio
     execute: function() {
       appComponentRefToken = new OpaqueToken('ComponentRef');
       $__export("appComponentRefToken", appComponentRefToken);
-      appComponentAnnotatedTypeToken = new OpaqueToken('AppComponentAnnotatedType');
-      $__export("appComponentAnnotatedTypeToken", appComponentAnnotatedTypeToken);
+      appComponentTypeToken = new OpaqueToken('RootComponent');
+      $__export("appComponentTypeToken", appComponentTypeToken);
     }
   };
 });
@@ -15554,9 +15982,9 @@ System.register("angular2/src/core/annotations/decorators", ["angular2/src/core/
   };
 });
 
-System.register("angular2/src/directives/for", ["angular2/src/core/annotations_impl/annotations", "angular2/src/core/compiler/view_container_ref", "angular2/src/core/compiler/view_ref", "angular2/src/facade/lang", "angular2/src/facade/collection"], function($__export) {
+System.register("angular2/src/directives/ng_for", ["angular2/src/core/annotations_impl/annotations", "angular2/src/core/compiler/view_container_ref", "angular2/src/core/compiler/view_ref", "angular2/src/facade/lang", "angular2/src/facade/collection"], function($__export) {
   "use strict";
-  var __moduleName = "angular2/src/directives/for";
+  var __moduleName = "angular2/src/directives/ng_for";
   var Directive,
       ViewContainerRef,
       ViewRef,
@@ -15564,7 +15992,7 @@ System.register("angular2/src/directives/for", ["angular2/src/core/annotations_i
       isPresent,
       isBlank,
       ListWrapper,
-      For,
+      NgFor,
       RecordViewTuple;
   return {
     setters: [function($__m) {
@@ -15581,12 +16009,12 @@ System.register("angular2/src/directives/for", ["angular2/src/core/annotations_i
       ListWrapper = $__m.ListWrapper;
     }],
     execute: function() {
-      For = (function() {
-        function For(viewContainer, protoViewRef) {
+      NgFor = (function() {
+        function NgFor(viewContainer, protoViewRef) {
           this.viewContainer = viewContainer;
           this.protoViewRef = protoViewRef;
         }
-        return ($traceurRuntime.createClass)(For, {
+        return ($traceurRuntime.createClass)(NgFor, {
           set iterableChanges(changes) {
             if (isBlank(changes)) {
               this.viewContainer.clear();
@@ -15599,11 +16027,11 @@ System.register("angular2/src/directives/for", ["angular2/src/core/annotations_i
             changes.forEachMovedItem((function(movedRecord) {
               return ListWrapper.push(recordViewTuples, new RecordViewTuple(movedRecord, null));
             }));
-            var insertTuples = For.bulkRemove(recordViewTuples, this.viewContainer);
+            var insertTuples = NgFor.bulkRemove(recordViewTuples, this.viewContainer);
             changes.forEachAddedItem((function(addedRecord) {
               return ListWrapper.push(insertTuples, new RecordViewTuple(addedRecord, null));
             }));
-            For.bulkInsert(insertTuples, this.viewContainer, this.protoViewRef);
+            NgFor.bulkInsert(insertTuples, this.viewContainer, this.protoViewRef);
             for (var i = 0; i < insertTuples.length; i++) {
               this.perViewChange(insertTuples[i].view, insertTuples[i].record);
             }
@@ -15645,14 +16073,14 @@ System.register("angular2/src/directives/for", ["angular2/src/core/annotations_i
           }
         });
       }());
-      $__export("For", For);
-      Object.defineProperty(For, "annotations", {get: function() {
+      $__export("NgFor", NgFor);
+      Object.defineProperty(NgFor, "annotations", {get: function() {
           return [new Directive({
-            selector: '[for][of]',
-            properties: {'iterableChanges': 'of | iterableDiff'}
+            selector: '[ng-for][ng-for-of]',
+            properties: {'iterableChanges': 'ngForOf | iterableDiff'}
           })];
         }});
-      Object.defineProperty(For, "parameters", {get: function() {
+      Object.defineProperty(NgFor, "parameters", {get: function() {
           return [[ViewContainerRef], [ProtoViewRef]];
         }});
       RecordViewTuple = (function() {
@@ -15666,14 +16094,14 @@ System.register("angular2/src/directives/for", ["angular2/src/core/annotations_i
   };
 });
 
-System.register("angular2/src/directives/if", ["angular2/src/core/annotations_impl/annotations", "angular2/src/core/compiler/view_container_ref", "angular2/src/core/compiler/view_ref", "angular2/src/facade/lang"], function($__export) {
+System.register("angular2/src/directives/ng_if", ["angular2/src/core/annotations_impl/annotations", "angular2/src/core/compiler/view_container_ref", "angular2/src/core/compiler/view_ref", "angular2/src/facade/lang"], function($__export) {
   "use strict";
-  var __moduleName = "angular2/src/directives/if";
+  var __moduleName = "angular2/src/directives/ng_if";
   var Directive,
       ViewContainerRef,
       ProtoViewRef,
       isBlank,
-      If;
+      NgIf;
   return {
     setters: [function($__m) {
       Directive = $__m.Directive;
@@ -15685,13 +16113,13 @@ System.register("angular2/src/directives/if", ["angular2/src/core/annotations_im
       isBlank = $__m.isBlank;
     }],
     execute: function() {
-      If = (function() {
-        function If(viewContainer, protoViewRef) {
+      NgIf = (function() {
+        function NgIf(viewContainer, protoViewRef) {
           this.viewContainer = viewContainer;
           this.prevCondition = null;
           this.protoViewRef = protoViewRef;
         }
-        return ($traceurRuntime.createClass)(If, {set condition(newCondition) {
+        return ($traceurRuntime.createClass)(NgIf, {set ngIf(newCondition) {
             if (newCondition && (isBlank(this.prevCondition) || !this.prevCondition)) {
               this.prevCondition = true;
               this.viewContainer.create(this.protoViewRef);
@@ -15701,38 +16129,38 @@ System.register("angular2/src/directives/if", ["angular2/src/core/annotations_im
             }
           }}, {});
       }());
-      $__export("If", If);
-      Object.defineProperty(If, "annotations", {get: function() {
+      $__export("NgIf", NgIf);
+      Object.defineProperty(NgIf, "annotations", {get: function() {
           return [new Directive({
-            selector: '[if]',
-            properties: {'condition': 'if'}
+            selector: '[ng-if]',
+            properties: {'ngIf': 'ngIf'}
           })];
         }});
-      Object.defineProperty(If, "parameters", {get: function() {
+      Object.defineProperty(NgIf, "parameters", {get: function() {
           return [[ViewContainerRef], [ProtoViewRef]];
         }});
     }
   };
 });
 
-System.register("angular2/src/directives/non_bindable", ["angular2/src/core/annotations_impl/annotations"], function($__export) {
+System.register("angular2/src/directives/ng_non_bindable", ["angular2/src/core/annotations_impl/annotations"], function($__export) {
   "use strict";
-  var __moduleName = "angular2/src/directives/non_bindable";
+  var __moduleName = "angular2/src/directives/ng_non_bindable";
   var Directive,
-      NonBindable;
+      NgNonBindable;
   return {
     setters: [function($__m) {
       Directive = $__m.Directive;
     }],
     execute: function() {
-      NonBindable = (function() {
-        function NonBindable() {}
-        return ($traceurRuntime.createClass)(NonBindable, {}, {});
+      NgNonBindable = (function() {
+        function NgNonBindable() {}
+        return ($traceurRuntime.createClass)(NgNonBindable, {}, {});
       }());
-      $__export("NonBindable", NonBindable);
-      Object.defineProperty(NonBindable, "annotations", {get: function() {
+      $__export("NgNonBindable", NgNonBindable);
+      Object.defineProperty(NgNonBindable, "annotations", {get: function() {
           return [new Directive({
-            selector: '[non-bindable]',
+            selector: '[ng-non-bindable]',
             compileChildren: false
           })];
         }});
@@ -15740,9 +16168,9 @@ System.register("angular2/src/directives/non_bindable", ["angular2/src/core/anno
   };
 });
 
-System.register("angular2/src/directives/switch", ["angular2/src/core/annotations_impl/annotations", "angular2/src/core/compiler/view_container_ref", "angular2/src/core/compiler/view_ref", "angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/core/annotations_impl/visibility"], function($__export) {
+System.register("angular2/src/directives/ng_switch", ["angular2/src/core/annotations_impl/annotations", "angular2/src/core/compiler/view_container_ref", "angular2/src/core/compiler/view_ref", "angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/core/annotations_impl/visibility"], function($__export) {
   "use strict";
-  var __moduleName = "angular2/src/directives/switch";
+  var __moduleName = "angular2/src/directives/ng_switch";
   var Directive,
       ViewContainerRef,
       ProtoViewRef,
@@ -15755,9 +16183,9 @@ System.register("angular2/src/directives/switch", ["angular2/src/core/annotation
       Map,
       Parent,
       SwitchView,
-      Switch,
-      SwitchWhen,
-      SwitchDefault,
+      NgSwitch,
+      NgSwitchWhen,
+      NgSwitchDefault,
       _whenDefault;
   return {
     setters: [function($__m) {
@@ -15796,14 +16224,14 @@ System.register("angular2/src/directives/switch", ["angular2/src/core/annotation
       Object.defineProperty(SwitchView, "parameters", {get: function() {
           return [[ViewContainerRef], [ProtoViewRef]];
         }});
-      Switch = (function() {
-        function Switch() {
+      NgSwitch = (function() {
+        function NgSwitch() {
           this._valueViews = MapWrapper.create();
           this._activeViews = ListWrapper.create();
           this._useDefault = false;
         }
-        return ($traceurRuntime.createClass)(Switch, {
-          set value(value) {
+        return ($traceurRuntime.createClass)(NgSwitch, {
+          set ngSwitch(value) {
             this._emptyAllActiveViews();
             this._useDefault = false;
             var views = MapWrapper.get(this._valueViews, value);
@@ -15868,63 +16296,63 @@ System.register("angular2/src/directives/switch", ["angular2/src/core/annotation
           }
         }, {});
       }());
-      $__export("Switch", Switch);
-      Object.defineProperty(Switch, "annotations", {get: function() {
+      $__export("NgSwitch", NgSwitch);
+      Object.defineProperty(NgSwitch, "annotations", {get: function() {
           return [new Directive({
-            selector: '[switch]',
-            properties: {'value': 'switch'}
+            selector: '[ng-switch]',
+            properties: {'ngSwitch': 'ngSwitch'}
           })];
         }});
-      Object.defineProperty(Switch.prototype._onWhenValueChanged, "parameters", {get: function() {
+      Object.defineProperty(NgSwitch.prototype._onWhenValueChanged, "parameters", {get: function() {
           return [[], [], [SwitchView]];
         }});
-      Object.defineProperty(Switch.prototype._activateViews, "parameters", {get: function() {
+      Object.defineProperty(NgSwitch.prototype._activateViews, "parameters", {get: function() {
           return [[assert.genericType(List, SwitchView)]];
         }});
-      Object.defineProperty(Switch.prototype._registerView, "parameters", {get: function() {
+      Object.defineProperty(NgSwitch.prototype._registerView, "parameters", {get: function() {
           return [[], [SwitchView]];
         }});
-      Object.defineProperty(Switch.prototype._deregisterView, "parameters", {get: function() {
+      Object.defineProperty(NgSwitch.prototype._deregisterView, "parameters", {get: function() {
           return [[], [SwitchView]];
         }});
-      SwitchWhen = (function() {
-        function SwitchWhen(viewContainer, protoViewRef, sswitch) {
+      NgSwitchWhen = (function() {
+        function NgSwitchWhen(viewContainer, protoViewRef, sswitch) {
           this._value = _whenDefault;
           this._switch = sswitch;
           this._view = new SwitchView(viewContainer, protoViewRef);
         }
-        return ($traceurRuntime.createClass)(SwitchWhen, {
+        return ($traceurRuntime.createClass)(NgSwitchWhen, {
           onDestroy: function() {
             this._switch;
           },
-          set when(value) {
+          set ngSwitchWhen(value) {
             this._switch._onWhenValueChanged(this._value, value, this._view);
             this._value = value;
           }
         }, {});
       }());
-      $__export("SwitchWhen", SwitchWhen);
-      Object.defineProperty(SwitchWhen, "annotations", {get: function() {
+      $__export("NgSwitchWhen", NgSwitchWhen);
+      Object.defineProperty(NgSwitchWhen, "annotations", {get: function() {
           return [new Directive({
-            selector: '[switch-when]',
-            properties: {'when': 'switch-when'}
+            selector: '[ng-switch-when]',
+            properties: {'ngSwitchWhen': 'ngSwitchWhen'}
           })];
         }});
-      Object.defineProperty(SwitchWhen, "parameters", {get: function() {
-          return [[ViewContainerRef], [ProtoViewRef], [Switch, new Parent()]];
+      Object.defineProperty(NgSwitchWhen, "parameters", {get: function() {
+          return [[ViewContainerRef], [ProtoViewRef], [NgSwitch, new Parent()]];
         }});
-      SwitchDefault = (function() {
-        function SwitchDefault(viewContainer, protoViewRef, sswitch) {
+      NgSwitchDefault = (function() {
+        function NgSwitchDefault(viewContainer, protoViewRef, sswitch) {
           sswitch._registerView(_whenDefault, new SwitchView(viewContainer, protoViewRef));
         }
-        return ($traceurRuntime.createClass)(SwitchDefault, {}, {});
+        return ($traceurRuntime.createClass)(NgSwitchDefault, {}, {});
       }());
-      $__export("SwitchDefault", SwitchDefault);
-      Object.defineProperty(SwitchDefault, "annotations", {get: function() {
-          return [new Directive({selector: '[switch-default]'})];
+      $__export("NgSwitchDefault", NgSwitchDefault);
+      Object.defineProperty(NgSwitchDefault, "annotations", {get: function() {
+          return [new Directive({selector: '[ng-switch-default]'})];
         }});
-      Object.defineProperty(SwitchDefault, "parameters", {get: function() {
-          return [[ViewContainerRef], [ProtoViewRef], [Switch, new Parent()]];
+      Object.defineProperty(NgSwitchDefault, "parameters", {get: function() {
+          return [[ViewContainerRef], [ProtoViewRef], [NgSwitch, new Parent()]];
         }});
       _whenDefault = new Object();
     }
@@ -16086,7 +16514,6 @@ System.register("angular2/src/forms/directives", ["angular2/src/core/annotations
   "use strict";
   var __moduleName = "angular2/src/forms/directives";
   var Directive,
-      onChange,
       Ancestor,
       ElementRef,
       Optional,
@@ -16094,18 +16521,34 @@ System.register("angular2/src/forms/directives", ["angular2/src/core/annotations
       isPresent,
       isString,
       CONST_EXPR,
+      isBlank,
+      BaseException,
       ListWrapper,
       ControlGroup,
+      Control,
+      isControl,
       Validators,
       DefaultValueAccessor,
       CheckboxControlValueAccessor,
       ControlDirective,
       ControlGroupDirective,
       formDirectives;
+  function _lookupControl(groupDirective, controlOrName) {
+    if (isControl(controlOrName)) {
+      return controlOrName;
+    }
+    if (isBlank(groupDirective)) {
+      throw new BaseException(("No control group found for \"" + controlOrName + "\""));
+    }
+    var control = groupDirective.findControl(controlOrName);
+    if (isBlank(control)) {
+      throw new BaseException(("Cannot find control \"" + controlOrName + "\""));
+    }
+    return control;
+  }
   return {
     setters: [function($__m) {
       Directive = $__m.Directive;
-      onChange = $__m.onChange;
     }, function($__m) {
       Ancestor = $__m.Ancestor;
     }, function($__m) {
@@ -16118,14 +16561,21 @@ System.register("angular2/src/forms/directives", ["angular2/src/core/annotations
       isPresent = $__m.isPresent;
       isString = $__m.isString;
       CONST_EXPR = $__m.CONST_EXPR;
+      isBlank = $__m.isBlank;
+      BaseException = $__m.BaseException;
     }, function($__m) {
       ListWrapper = $__m.ListWrapper;
     }, function($__m) {
       ControlGroup = $__m.ControlGroup;
+      Control = $__m.Control;
+      isControl = $__m.isControl;
     }, function($__m) {
       Validators = $__m.Validators;
     }],
     execute: function() {
+      Object.defineProperty(_lookupControl, "parameters", {get: function() {
+          return [[ControlGroupDirective], [assert.type.any]];
+        }});
       DefaultValueAccessor = (function() {
         function DefaultValueAccessor() {
           this.onChange = (function(_) {});
@@ -16170,15 +16620,13 @@ System.register("angular2/src/forms/directives", ["angular2/src/core/annotations
       ControlDirective = (function() {
         function ControlDirective(groupDirective, valueAccessor) {
           this._groupDirective = groupDirective;
-          this.controlOrName = null;
+          this._controlOrName = null;
           this.valueAccessor = valueAccessor;
           this.validator = Validators.nullValidator;
         }
         return ($traceurRuntime.createClass)(ControlDirective, {
-          onChange: function(_) {
-            this._initialize();
-          },
-          _initialize: function() {
+          set controlOrName(controlOrName) {
+            this._controlOrName = controlOrName;
             if (isPresent(this._groupDirective)) {
               this._groupDirective.addDirective(this);
             }
@@ -16197,18 +16645,13 @@ System.register("angular2/src/forms/directives", ["angular2/src/core/annotations
             });
           },
           _control: function() {
-            if (isString(this.controlOrName)) {
-              return this._groupDirective.findControl(this.controlOrName);
-            } else {
-              return this.controlOrName;
-            }
+            return _lookupControl(this._groupDirective, this._controlOrName);
           }
         }, {});
       }());
       $__export("ControlDirective", ControlDirective);
       Object.defineProperty(ControlDirective, "annotations", {get: function() {
           return [new Directive({
-            lifecycle: [onChange],
             selector: '[control]',
             properties: {'controlOrName': 'control'}
           })];
@@ -16222,12 +16665,8 @@ System.register("angular2/src/forms/directives", ["angular2/src/core/annotations
           this._directives = ListWrapper.create();
         }
         return ($traceurRuntime.createClass)(ControlGroupDirective, {
-          set controlGroup(controlGroup) {
-            if (isString(controlGroup)) {
-              this._controlGroupName = controlGroup;
-            } else {
-              this._controlGroup = controlGroup;
-            }
+          set controlOrName(controlOrName) {
+            this._controlOrName = controlOrName;
             this._updateDomValue();
           },
           _updateDomValue: function() {
@@ -16242,11 +16681,7 @@ System.register("angular2/src/forms/directives", ["angular2/src/core/annotations
             return this._getControlGroup().controls[name];
           },
           _getControlGroup: function() {
-            if (isPresent(this._controlGroupName)) {
-              return this._groupDirective.findControl(this._controlGroupName);
-            } else {
-              return this._controlGroup;
-            }
+            return _lookupControl(this._groupDirective, this._controlOrName);
           }
         }, {});
       }());
@@ -16254,7 +16689,7 @@ System.register("angular2/src/forms/directives", ["angular2/src/core/annotations
       Object.defineProperty(ControlGroupDirective, "annotations", {get: function() {
           return [new Directive({
             selector: '[control-group]',
-            properties: {'controlGroup': 'control-group'}
+            properties: {'controlOrName': 'control-group'}
           })];
         }});
       Object.defineProperty(ControlGroupDirective, "parameters", {get: function() {
@@ -17032,62 +17467,6 @@ System.register("angular2/src/reflection/reflector", ["angular2/src/facade/colle
   };
 });
 
-System.register("angular2/src/change_detection/interfaces", ["angular2/src/change_detection/constants"], function($__export) {
-  "use strict";
-  var __moduleName = "angular2/src/change_detection/interfaces";
-  var DEFAULT,
-      __esModule,
-      ProtoChangeDetector,
-      ChangeDetection,
-      ChangeDispatcher,
-      ChangeDetector;
-  return {
-    setters: [function($__m) {
-      DEFAULT = $__m.DEFAULT;
-    }],
-    execute: function() {
-      __esModule = true;
-      $__export("__esModule", __esModule);
-      ProtoChangeDetector = (function() {
-        function ProtoChangeDetector() {}
-        return ($traceurRuntime.createClass)(ProtoChangeDetector, {instantiate: function(dispatcher) {
-            return null;
-          }}, {});
-      }());
-      $__export("ProtoChangeDetector", ProtoChangeDetector);
-      ChangeDetection = (function() {
-        function ChangeDetection() {}
-        return ($traceurRuntime.createClass)(ChangeDetection, {createProtoChangeDetector: function(name, bindingRecords, variableBindings, directiveRecords) {
-            var changeControlStrategy = arguments[4] !== (void 0) ? arguments[4] : DEFAULT;
-            return null;
-          }}, {});
-      }());
-      $__export("ChangeDetection", ChangeDetection);
-      ChangeDispatcher = (function() {
-        function ChangeDispatcher() {}
-        return ($traceurRuntime.createClass)(ChangeDispatcher, {notifyOnBinding: function(bindingRecord, value) {}}, {});
-      }());
-      $__export("ChangeDispatcher", ChangeDispatcher);
-      ChangeDetector = (function() {
-        function ChangeDetector() {}
-        return ($traceurRuntime.createClass)(ChangeDetector, {
-          addChild: function(cd) {},
-          addShadowDomChild: function(cd) {},
-          removeChild: function(cd) {},
-          removeShadowDomChild: function(cd) {},
-          remove: function() {},
-          hydrate: function(context, locals, directives) {},
-          dehydrate: function() {},
-          markPathToRootAsCheckOnce: function() {},
-          detectChanges: function() {},
-          checkNoChanges: function() {}
-        }, {});
-      }());
-      $__export("ChangeDetector", ChangeDetector);
-    }
-  };
-});
-
 System.register("angular2/src/change_detection/change_detection_util", ["angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/change_detection/exceptions", "angular2/src/change_detection/pipes/pipe", "angular2/src/change_detection/constants"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/change_detection/change_detection_util";
@@ -17145,7 +17524,7 @@ System.register("angular2/src/change_detection/change_detection_util", ["angular
       ChangeDetectionUtil = (function() {
         function ChangeDetectionUtil() {}
         return ($traceurRuntime.createClass)(ChangeDetectionUtil, {}, {
-          unitialized: function() {
+          uninitialized: function() {
             return uninitialized;
           },
           arrayFn0: function() {
@@ -17440,7 +17819,7 @@ System.register("angular2/src/facade/async", ["angular2/src/facade/lang", "rx"],
           resolve: function(obj) {
             return Promise.resolve(obj);
           },
-          reject: function(obj) {
+          reject: function(obj, _) {
             return Promise.reject(obj);
           },
           catchError: function(promise, onError) {
@@ -17468,7 +17847,16 @@ System.register("angular2/src/facade/async", ["angular2/src/facade/lang", "rx"],
             };
           },
           setTimeout: function(fn, millis) {
-            global.setTimeout(fn, millis);
+            return global.setTimeout(fn, millis);
+          },
+          clearTimeout: function(id) {
+            global.clearTimeout(id);
+          },
+          setInterval: function(fn, millis) {
+            return global.setInterval(fn, millis);
+          },
+          clearInterval: function(id) {
+            global.clearInterval(id);
           },
           isPromise: function(maybePromise) {
             return maybePromise instanceof Promise;
@@ -17583,6 +17971,8 @@ System.register("angular2/src/di/key", ["angular2/src/facade/collection", "angul
   var __moduleName = "angular2/src/di/key";
   var MapWrapper,
       stringify,
+      isBlank,
+      BaseException,
       TypeLiteral,
       Key,
       KeyRegistry,
@@ -17592,6 +17982,8 @@ System.register("angular2/src/di/key", ["angular2/src/facade/collection", "angul
       MapWrapper = $__m.MapWrapper;
     }, function($__m) {
       stringify = $__m.stringify;
+      isBlank = $__m.isBlank;
+      BaseException = $__m.BaseException;
     }, function($__m) {
       TypeLiteral = $__m.TypeLiteral;
       $__export("TypeLiteral", $__m.TypeLiteral);
@@ -17599,6 +17991,9 @@ System.register("angular2/src/di/key", ["angular2/src/facade/collection", "angul
     execute: function() {
       Key = (function() {
         function Key(token, id) {
+          if (isBlank(token)) {
+            throw new BaseException('Token must be defined!');
+          }
           this.token = token;
           this.id = id;
         }
@@ -18057,25 +18452,23 @@ System.register("angular2/src/dom/browser_adapter", ["angular2/src/facade/collec
   };
 });
 
-System.register("angular2/src/core/compiler/directive_metadata_reader", ["angular2/di", "angular2/src/di/annotations_impl", "angular2/src/facade/lang", "angular2/src/core/annotations_impl/annotations", "angular2/src/core/compiler/directive_metadata", "angular2/src/reflection/reflection"], function($__export) {
+System.register("angular2/src/core/compiler/directive_resolver", ["angular2/src/di/annotations_impl", "angular2/di", "angular2/src/facade/lang", "angular2/src/core/annotations_impl/annotations", "angular2/src/reflection/reflection"], function($__export) {
   "use strict";
-  var __moduleName = "angular2/src/core/compiler/directive_metadata_reader";
-  var Injector,
-      Injectable,
+  var __moduleName = "angular2/src/core/compiler/directive_resolver";
+  var Injectable,
+      resolveForwardRef,
       Type,
       isPresent,
       BaseException,
       stringify,
       Directive,
-      Component,
-      DirectiveMetadata,
       reflector,
-      DirectiveMetadataReader;
+      DirectiveResolver;
   return {
     setters: [function($__m) {
-      Injector = $__m.Injector;
-    }, function($__m) {
       Injectable = $__m.Injectable;
+    }, function($__m) {
+      resolveForwardRef = $__m.resolveForwardRef;
     }, function($__m) {
       Type = $__m.Type;
       isPresent = $__m.isPresent;
@@ -18083,37 +18476,30 @@ System.register("angular2/src/core/compiler/directive_metadata_reader", ["angula
       stringify = $__m.stringify;
     }, function($__m) {
       Directive = $__m.Directive;
-      Component = $__m.Component;
-    }, function($__m) {
-      DirectiveMetadata = $__m.DirectiveMetadata;
     }, function($__m) {
       reflector = $__m.reflector;
     }],
     execute: function() {
-      DirectiveMetadataReader = (function() {
-        function DirectiveMetadataReader() {}
-        return ($traceurRuntime.createClass)(DirectiveMetadataReader, {read: function(type) {
-            var annotations = reflector.annotations(type);
+      DirectiveResolver = (function() {
+        function DirectiveResolver() {}
+        return ($traceurRuntime.createClass)(DirectiveResolver, {resolve: function(type) {
+            var annotations = reflector.annotations(resolveForwardRef(type));
             if (isPresent(annotations)) {
               for (var i = 0; i < annotations.length; i++) {
                 var annotation = annotations[i];
                 if (annotation instanceof Directive) {
-                  var resolvedInjectables = null;
-                  if (annotation instanceof Component && isPresent(annotation.injectables)) {
-                    resolvedInjectables = Injector.resolve(annotation.injectables);
-                  }
-                  return new DirectiveMetadata(type, annotation, resolvedInjectables);
+                  return annotation;
                 }
               }
             }
             throw new BaseException(("No Directive annotation found on " + stringify(type)));
           }}, {});
       }());
-      $__export("DirectiveMetadataReader", DirectiveMetadataReader);
-      Object.defineProperty(DirectiveMetadataReader, "annotations", {get: function() {
+      $__export("DirectiveResolver", DirectiveResolver);
+      Object.defineProperty(DirectiveResolver, "annotations", {get: function() {
           return [new Injectable()];
         }});
-      Object.defineProperty(DirectiveMetadataReader.prototype.read, "parameters", {get: function() {
+      Object.defineProperty(DirectiveResolver.prototype.resolve, "parameters", {get: function() {
           return [[Type]];
         }});
     }
@@ -18859,10 +19245,11 @@ System.register("angular2/src/render/dom/view/proto_view_builder", ["angular2/sr
     }],
     execute: function() {
       ProtoViewBuilder = (function() {
-        function ProtoViewBuilder(rootElement) {
+        function ProtoViewBuilder(rootElement, type) {
           this.rootElement = rootElement;
           this.elements = [];
           this.variableBindings = MapWrapper.create();
+          this.type = type;
         }
         return ($traceurRuntime.createClass)(ProtoViewBuilder, {
           bindElement: function(element) {
@@ -18932,6 +19319,7 @@ System.register("angular2/src/render/dom/view/proto_view_builder", ["angular2/sr
                 element: this.rootElement,
                 elementBinders: renderElementBinders
               })),
+              type: this.type,
               elementBinders: apiElementBinders,
               variableBindings: this.variableBindings
             });
@@ -18939,6 +19327,9 @@ System.register("angular2/src/render/dom/view/proto_view_builder", ["angular2/sr
         }, {});
       }());
       $__export("ProtoViewBuilder", ProtoViewBuilder);
+      Object.defineProperty(ProtoViewBuilder, "parameters", {get: function() {
+          return [[], [assert.type.number]];
+        }});
       ElementBinderBuilder = (function() {
         function ElementBinderBuilder(index, element, description) {
           this.element = element;
@@ -18979,7 +19370,7 @@ System.register("angular2/src/render/dom/view/proto_view_builder", ["angular2/sr
             if (isPresent(this.nestedProtoView)) {
               throw new BaseException('Only one nested view per element is allowed');
             }
-            this.nestedProtoView = new ProtoViewBuilder(rootElement);
+            this.nestedProtoView = new ProtoViewBuilder(rootElement, api.ProtoViewDto.EMBEDDED_VIEW_TYPE);
             return this.nestedProtoView;
           },
           bindProperty: function(name, expression) {
@@ -19309,8 +19700,23 @@ System.register("angular2/src/render/dom/compiler/directive_parser", ["angular2/
               cssSelector.addAttribute(attrName, attrValue);
             }));
             var componentDirective;
+            var foundDirectiveIndices = [];
+            var elementBinder = null;
             this._selectorMatcher.match(cssSelector, (function(selector, directiveIndex) {
-              var elementBinder = current.bindElement();
+              elementBinder = current.bindElement();
+              var directive = $__0._directives[directiveIndex];
+              if (directive.type === DirectiveMetadata.COMPONENT_TYPE) {
+                ListWrapper.insert(foundDirectiveIndices, 0, directiveIndex);
+                if (isPresent(componentDirective)) {
+                  throw new BaseException(("Only one component directive is allowed per element - check " + current.elementDescription));
+                }
+                componentDirective = directive;
+                elementBinder.setComponentId(directive.id);
+              } else {
+                ListWrapper.push(foundDirectiveIndices, directiveIndex);
+              }
+            }));
+            ListWrapper.forEach(foundDirectiveIndices, (function(directiveIndex) {
               var directive = $__0._directives[directiveIndex];
               var directiveBinderBuilder = elementBinder.bindDirective(directiveIndex);
               current.compileChildren = current.compileChildren && directive.compileChildren;
@@ -19336,22 +19742,13 @@ System.register("angular2/src/render/dom/compiler/directive_parser", ["angular2/
               }
               if (isPresent(directive.hostAttributes)) {
                 MapWrapper.forEach(directive.hostAttributes, (function(hostAttrValue, hostAttrName) {
-                  if (!DOM.hasAttribute(current.element, hostAttrName)) {
-                    DOM.setAttribute(current.element, hostAttrName, hostAttrValue);
-                  }
+                  $__0._addHostAttribute(hostAttrName, hostAttrValue, current);
                 }));
               }
               if (isPresent(directive.readAttributes)) {
                 ListWrapper.forEach(directive.readAttributes, (function(attrName) {
                   elementBinder.readAttribute(attrName);
                 }));
-              }
-              if (directive.type === DirectiveMetadata.COMPONENT_TYPE) {
-                if (isPresent(componentDirective)) {
-                  throw new BaseException(("Only one component directive is allowed per element - check " + current.elementDescription));
-                }
-                componentDirective = directive;
-                elementBinder.setComponentId(directive.id);
               }
             }));
           },
@@ -19386,6 +19783,15 @@ System.register("angular2/src/render/dom/compiler/directive_parser", ["angular2/
           _bindHostProperty: function(hostPropertyName, directivePropertyName, compileElement, directiveBinderBuilder) {
             var ast = this._parser.parseBinding(directivePropertyName, ("hostProperties of " + compileElement.elementDescription));
             directiveBinderBuilder.bindHostProperty(hostPropertyName, ast);
+          },
+          _addHostAttribute: function(attrName, attrValue, compileElement) {
+            if (StringWrapper.equals(attrName, 'class')) {
+              ListWrapper.forEach(attrValue.split(' '), (function(className) {
+                DOM.addClass(compileElement.element, className);
+              }));
+            } else if (!DOM.hasAttribute(compileElement.element, attrName)) {
+              DOM.setAttribute(compileElement.element, attrName, attrValue);
+            }
           },
           _splitBindConfig: function(bindConfig) {
             return ListWrapper.map(bindConfig.split('|'), (function(s) {
@@ -19429,16 +19835,16 @@ System.register("angular2/annotations", ["angular2/src/core/annotations/annotati
   };
 });
 
-System.register("angular2/directives", ["angular2/src/facade/lang", "angular2/src/directives/for", "angular2/src/directives/if", "angular2/src/directives/non_bindable", "angular2/src/directives/switch", "angular2/src/directives/class"], function($__export) {
+System.register("angular2/directives", ["angular2/src/facade/lang", "angular2/src/directives/ng_for", "angular2/src/directives/ng_if", "angular2/src/directives/ng_non_bindable", "angular2/src/directives/ng_switch", "angular2/src/directives/class"], function($__export) {
   "use strict";
   var __moduleName = "angular2/directives";
   var CONST_EXPR,
-      For,
-      If,
-      NonBindable,
-      Switch,
-      SwitchWhen,
-      SwitchDefault,
+      NgFor,
+      NgIf,
+      NgNonBindable,
+      NgSwitch,
+      NgSwitchWhen,
+      NgSwitchDefault,
       coreDirectives;
   var $__exportNames = {coreDirectives: true};
   var $__exportNames = {coreDirectives: true};
@@ -19449,27 +19855,27 @@ System.register("angular2/directives", ["angular2/src/facade/lang", "angular2/sr
     setters: [function($__m) {
       CONST_EXPR = $__m.CONST_EXPR;
     }, function($__m) {
-      For = $__m.For;
+      NgFor = $__m.NgFor;
       Object.keys($__m).forEach(function(p) {
         if (!$__exportNames[p])
           $__export(p, $__m[p]);
       });
     }, function($__m) {
-      If = $__m.If;
+      NgIf = $__m.NgIf;
       Object.keys($__m).forEach(function(p) {
         if (!$__exportNames[p])
           $__export(p, $__m[p]);
       });
     }, function($__m) {
-      NonBindable = $__m.NonBindable;
+      NgNonBindable = $__m.NgNonBindable;
       Object.keys($__m).forEach(function(p) {
         if (!$__exportNames[p])
           $__export(p, $__m[p]);
       });
     }, function($__m) {
-      Switch = $__m.Switch;
-      SwitchWhen = $__m.SwitchWhen;
-      SwitchDefault = $__m.SwitchDefault;
+      NgSwitch = $__m.NgSwitch;
+      NgSwitchWhen = $__m.NgSwitchWhen;
+      NgSwitchDefault = $__m.NgSwitchDefault;
       Object.keys($__m).forEach(function(p) {
         if (!$__exportNames[p])
           $__export(p, $__m[p]);
@@ -19481,7 +19887,7 @@ System.register("angular2/directives", ["angular2/src/facade/lang", "angular2/sr
       });
     }],
     execute: function() {
-      coreDirectives = CONST_EXPR([For, If, NonBindable, Switch, SwitchWhen, SwitchDefault]);
+      coreDirectives = CONST_EXPR([NgFor, NgIf, NgNonBindable, NgSwitch, NgSwitchWhen, NgSwitchDefault]);
       $__export("coreDirectives", coreDirectives);
     }
   };
@@ -19505,6 +19911,10 @@ System.register("angular2/src/forms/model", ["angular2/src/facade/lang", "angula
       Control,
       ControlGroup,
       ControlArray;
+  function isControl(c) {
+    return c instanceof AbstractControl;
+  }
+  $__export("isControl", isControl);
   return {
     setters: [function($__m) {
       isPresent = $__m.isPresent;
@@ -19525,6 +19935,9 @@ System.register("angular2/src/forms/model", ["angular2/src/facade/lang", "angula
       $__export("VALID", VALID);
       INVALID = "INVALID";
       $__export("INVALID", INVALID);
+      Object.defineProperty(isControl, "parameters", {get: function() {
+          return [[Object]];
+        }});
       AbstractControl = (function() {
         function AbstractControl(validator) {
           this.validator = validator;
@@ -20253,7 +20666,7 @@ System.register("angular2/src/change_detection/pipes/observable_pipe", ["angular
   };
 });
 
-System.register("angular2/src/di/binding", ["angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/reflection/reflection", "angular2/src/di/key", "angular2/src/di/annotations_impl", "angular2/src/di/exceptions"], function($__export) {
+System.register("angular2/src/di/binding", ["angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/reflection/reflection", "angular2/src/di/key", "angular2/src/di/annotations_impl", "angular2/src/di/exceptions", "angular2/src/di/forward_ref"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/di/binding";
   var __decorate,
@@ -20271,6 +20684,7 @@ System.register("angular2/src/di/binding", ["angular2/src/facade/lang", "angular
       Optional,
       DependencyAnnotation,
       NoAnnotationError,
+      resolveForwardRef,
       Dependency,
       _EMPTY_LIST,
       Binding,
@@ -20281,7 +20695,7 @@ System.register("angular2/src/di/binding", ["angular2/src/facade/lang", "angular
   }
   function _constructDependencies(factoryFunction, dependencies) {
     return isBlank(dependencies) ? _dependenciesFor(factoryFunction) : ListWrapper.map(dependencies, (function(t) {
-      return Dependency.fromKey(Key.get(t));
+      return Dependency.fromKey(Key.get(resolveForwardRef(t)));
     }));
   }
   function _dependenciesFor(typeOrFunc) {
@@ -20324,6 +20738,7 @@ System.register("angular2/src/di/binding", ["angular2/src/facade/lang", "angular
         ListWrapper.push(depProps, paramAnnotation);
       }
     }
+    token = resolveForwardRef(token);
     if (isPresent(token)) {
       return _createDependency(token, asPromise, lazy, optional, depProps);
     } else {
@@ -20354,6 +20769,8 @@ System.register("angular2/src/di/binding", ["angular2/src/facade/lang", "angular
       DependencyAnnotation = $__m.DependencyAnnotation;
     }, function($__m) {
       NoAnnotationError = $__m.NoAnnotationError;
+    }, function($__m) {
+      resolveForwardRef = $__m.resolveForwardRef;
     }],
     execute: function() {
       __decorate = (this && this.__decorate) || function(decorators, target, key, desc) {
@@ -20413,8 +20830,9 @@ System.register("angular2/src/di/binding", ["angular2/src/facade/lang", "angular
           var resolvedDeps;
           var isAsync = false;
           if (isPresent(this.toClass)) {
-            factoryFn = reflector.factory(this.toClass);
-            resolvedDeps = _dependenciesFor(this.toClass);
+            var toClass = resolveForwardRef(this.toClass);
+            factoryFn = reflector.factory(toClass);
+            resolvedDeps = _dependenciesFor(toClass);
           } else if (isPresent(this.toAlias)) {
             factoryFn = (function(aliasInstance) {
               return aliasInstance;
@@ -20433,7 +20851,7 @@ System.register("angular2/src/di/binding", ["angular2/src/facade/lang", "angular
             });
             resolvedDeps = _EMPTY_LIST;
           }
-          return new ResolvedBinding(Key.get(this.token), factoryFn, resolvedDeps, isAsync);
+          return new ResolvedBinding(Key.get(resolveForwardRef(this.token)), factoryFn, resolvedDeps, isAsync);
         }}, {}));
       $__export("Binding", Binding);
       $__export("Binding", Binding = __decorate([CONST(), __metadata('design:paramtypes', [Object, Object])], Binding));
@@ -21992,9 +22410,17 @@ System.register("angular2/src/change_detection/parser/parser", ["angular2/src/di
           },
           parseTemplateBindings: function() {
             var bindings = [];
+            var prefix = null;
             while (this.index < this.tokens.length) {
               var keyIsVar = this.optionalKeywordVar();
               var key = this.expectTemplateBindingKey();
+              if (!keyIsVar) {
+                if (prefix == null) {
+                  prefix = key;
+                } else {
+                  key = prefix + '-' + key;
+                }
+              }
               this.optionalCharacter($COLON);
               var name = null;
               var expression = null;
@@ -22035,9 +22461,8 @@ System.register("angular2/src/change_detection/parser/parser", ["angular2/src/di
 System.register("angular2/src/change_detection/proto_change_detector", ["angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/change_detection/parser/ast", "angular2/src/change_detection/interfaces", "angular2/src/change_detection/change_detection_util", "angular2/src/change_detection/dynamic_change_detector", "angular2/src/change_detection/change_detection_jit_generator", "angular2/src/change_detection/directive_record", "angular2/src/change_detection/coalesce", "angular2/src/change_detection/proto_record"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/change_detection/proto_change_detector";
-  var isPresent,
-      isBlank,
-      BaseException,
+  var BaseException,
+      isPresent,
       isString,
       ListWrapper,
       ImplicitReceiver,
@@ -22218,9 +22643,8 @@ System.register("angular2/src/change_detection/proto_change_detector", ["angular
   }
   return {
     setters: [function($__m) {
-      isPresent = $__m.isPresent;
-      isBlank = $__m.isBlank;
       BaseException = $__m.BaseException;
+      isPresent = $__m.isPresent;
       isString = $__m.isString;
     }, function($__m) {
       ListWrapper = $__m.ListWrapper;
@@ -22255,60 +22679,47 @@ System.register("angular2/src/change_detection/proto_change_detector", ["angular
       __esModule = true;
       $__export("__esModule", __esModule);
       DynamicProtoChangeDetector = (function($__super) {
-        function DynamicProtoChangeDetector(_pipeRegistry, _bindingRecords, _variableBindings, _directiveRecords, _changeControlStrategy) {
+        function DynamicProtoChangeDetector(_pipeRegistry, definition) {
           $traceurRuntime.superConstructor(DynamicProtoChangeDetector).call(this);
           this._pipeRegistry = _pipeRegistry;
-          this._bindingRecords = _bindingRecords;
-          this._variableBindings = _variableBindings;
-          this._directiveRecords = _directiveRecords;
-          this._changeControlStrategy = _changeControlStrategy;
+          this.definition = definition;
+          this._records = this._createRecords(definition);
         }
         return ($traceurRuntime.createClass)(DynamicProtoChangeDetector, {
           instantiate: function(dispatcher) {
-            this._createRecordsIfNecessary();
-            return new DynamicChangeDetector(this._changeControlStrategy, dispatcher, this._pipeRegistry, this._records, this._directiveRecords);
+            return new DynamicChangeDetector(this.definition.strategy, dispatcher, this._pipeRegistry, this._records, this.definition.directiveRecords);
           },
-          _createRecordsIfNecessary: function() {
-            var $__0 = this;
-            if (isBlank(this._records)) {
-              var recordBuilder = new ProtoRecordBuilder();
-              ListWrapper.forEach(this._bindingRecords, (function(b) {
-                recordBuilder.addAst(b, $__0._variableBindings);
-              }));
-              this._records = coalesce(recordBuilder.records);
-            }
+          _createRecords: function(definition) {
+            var recordBuilder = new ProtoRecordBuilder();
+            ListWrapper.forEach(definition.bindingRecords, (function(b) {
+              recordBuilder.addAst(b, definition.variableNames);
+            }));
+            return coalesce(recordBuilder.records);
           }
         }, {}, $__super);
       }(ProtoChangeDetector));
       $__export("DynamicProtoChangeDetector", DynamicProtoChangeDetector);
       _jitProtoChangeDetectorClassCounter = 0;
       JitProtoChangeDetector = (function($__super) {
-        function JitProtoChangeDetector(_pipeRegistry, _bindingRecords, _variableBindings, _directiveRecords, _changeControlStrategy) {
+        function JitProtoChangeDetector(_pipeRegistry, definition) {
           $traceurRuntime.superConstructor(JitProtoChangeDetector).call(this);
           this._pipeRegistry = _pipeRegistry;
-          this._bindingRecords = _bindingRecords;
-          this._variableBindings = _variableBindings;
-          this._directiveRecords = _directiveRecords;
-          this._changeControlStrategy = _changeControlStrategy;
-          this._factory = null;
+          this.definition = definition;
+          this._factory = this._createFactory(definition);
         }
         return ($traceurRuntime.createClass)(JitProtoChangeDetector, {
           instantiate: function(dispatcher) {
-            this._createFactoryIfNecessary();
             return this._factory(dispatcher, this._pipeRegistry);
           },
-          _createFactoryIfNecessary: function() {
-            var $__0 = this;
-            if (isBlank(this._factory)) {
-              var recordBuilder = new ProtoRecordBuilder();
-              ListWrapper.forEach(this._bindingRecords, (function(b) {
-                recordBuilder.addAst(b, $__0._variableBindings);
-              }));
-              var c = _jitProtoChangeDetectorClassCounter++;
-              var records = coalesce(recordBuilder.records);
-              var typeName = ("ChangeDetector" + c);
-              this._factory = new ChangeDetectorJITGenerator(typeName, this._changeControlStrategy, records, this._directiveRecords).generate();
-            }
+          _createFactory: function(definition) {
+            var recordBuilder = new ProtoRecordBuilder();
+            ListWrapper.forEach(definition.bindingRecords, (function(b) {
+              recordBuilder.addAst(b, definition.variableNames);
+            }));
+            var c = _jitProtoChangeDetectorClassCounter++;
+            var records = coalesce(recordBuilder.records);
+            var typeName = ("ChangeDetector" + c);
+            return new ChangeDetectorJITGenerator(typeName, definition.strategy, records, this.definition.directiveRecords).generate();
           }
         }, {}, $__super);
       }(ProtoChangeDetector));
@@ -22318,31 +22729,29 @@ System.register("angular2/src/change_detection/proto_change_detector", ["angular
           this.records = [];
         }
         return ($traceurRuntime.createClass)(ProtoRecordBuilder, {addAst: function(b) {
-            var variableBindings = arguments[1] !== (void 0) ? arguments[1] : null;
-            var last = ListWrapper.last(this.records);
-            if (isPresent(last) && last.bindingRecord.directiveRecord == b.directiveRecord) {
-              last.lastInDirective = false;
+            var variableNames = arguments[1] !== (void 0) ? arguments[1] : null;
+            var oldLast = ListWrapper.last(this.records);
+            if (isPresent(oldLast) && oldLast.bindingRecord.directiveRecord == b.directiveRecord) {
+              oldLast.lastInDirective = false;
             }
-            var pr = _ConvertAstIntoProtoRecords.convert(b, this.records.length, variableBindings);
-            if (!ListWrapper.isEmpty(pr)) {
-              var last = ListWrapper.last(pr);
-              last.lastInBinding = true;
-              last.lastInDirective = true;
-              this.records = ListWrapper.concat(this.records, pr);
+            _ConvertAstIntoProtoRecords.append(this.records, b, variableNames);
+            var newLast = ListWrapper.last(this.records);
+            if (isPresent(newLast) && newLast !== oldLast) {
+              newLast.lastInBinding = true;
+              newLast.lastInDirective = true;
             }
           }}, {});
       }());
       _ConvertAstIntoProtoRecords = (function() {
-        function _ConvertAstIntoProtoRecords(bindingRecord, contextIndex, expressionAsString, variableBindings) {
-          this.bindingRecord = bindingRecord;
-          this.contextIndex = contextIndex;
-          this.expressionAsString = expressionAsString;
-          this.variableBindings = variableBindings;
-          this.protoRecords = [];
+        function _ConvertAstIntoProtoRecords(_records, _bindingRecord, _expressionAsString, _variableNames) {
+          this._records = _records;
+          this._bindingRecord = _bindingRecord;
+          this._expressionAsString = _expressionAsString;
+          this._variableNames = _variableNames;
         }
         return ($traceurRuntime.createClass)(_ConvertAstIntoProtoRecords, {
           visitImplicitReceiver: function(ast) {
-            return this.bindingRecord.implicitReceiver;
+            return this._bindingRecord.implicitReceiver;
           },
           visitInterpolation: function(ast) {
             var args = this._visitAll(ast.expressions);
@@ -22353,17 +22762,16 @@ System.register("angular2/src/change_detection/proto_change_detector", ["angular
           },
           visitAccessMember: function(ast) {
             var receiver = ast.receiver.visit(this);
-            if (isPresent(this.variableBindings) && ListWrapper.contains(this.variableBindings, ast.name) && ast.receiver instanceof ImplicitReceiver) {
+            if (isPresent(this._variableNames) && ListWrapper.contains(this._variableNames, ast.name) && ast.receiver instanceof ImplicitReceiver) {
               return this._addRecord(RECORD_TYPE_LOCAL, ast.name, ast.name, [], null, receiver);
             } else {
               return this._addRecord(RECORD_TYPE_PROPERTY, ast.name, ast.getter, [], null, receiver);
             }
           },
           visitMethodCall: function(ast) {
-            ;
             var receiver = ast.receiver.visit(this);
             var args = this._visitAll(ast.args);
-            if (isPresent(this.variableBindings) && ListWrapper.contains(this.variableBindings, ast.name)) {
+            if (isPresent(this._variableNames) && ListWrapper.contains(this._variableNames, ast.name)) {
               var target = this._addRecord(RECORD_TYPE_LOCAL, ast.name, ast.name, [], null, receiver);
               return this._addRecord(RECORD_TYPE_INVOKE_CLOSURE, "closure", null, args, null, target);
             } else {
@@ -22415,25 +22823,24 @@ System.register("angular2/src/change_detection/proto_change_detector", ["angular
             return res;
           },
           _addRecord: function(type, name, funcOrValue, args, fixedArgs, context) {
-            var selfIndex = ++this.contextIndex;
+            var selfIndex = this._records.length + 1;
             if (context instanceof DirectiveIndex) {
-              ListWrapper.push(this.protoRecords, new ProtoRecord(type, name, funcOrValue, args, fixedArgs, -1, context, selfIndex, this.bindingRecord, this.expressionAsString, false, false));
+              ListWrapper.push(this._records, new ProtoRecord(type, name, funcOrValue, args, fixedArgs, -1, context, selfIndex, this._bindingRecord, this._expressionAsString, false, false));
             } else {
-              ListWrapper.push(this.protoRecords, new ProtoRecord(type, name, funcOrValue, args, fixedArgs, context, null, selfIndex, this.bindingRecord, this.expressionAsString, false, false));
+              ListWrapper.push(this._records, new ProtoRecord(type, name, funcOrValue, args, fixedArgs, context, null, selfIndex, this._bindingRecord, this._expressionAsString, false, false));
             }
             return selfIndex;
           }
-        }, {convert: function(b, contextIndex, variableBindings) {
-            var c = new _ConvertAstIntoProtoRecords(b, contextIndex, b.ast.toString(), variableBindings);
+        }, {append: function(records, b, variableNames) {
+            var c = new _ConvertAstIntoProtoRecords(records, b, b.ast.toString(), variableNames);
             b.ast.visit(c);
-            return c.protoRecords;
           }});
       }());
     }
   };
 });
 
-System.register("angular2/src/change_detection/change_detection", ["angular2/src/change_detection/proto_change_detector", "angular2/src/change_detection/pipes/pipe_registry", "angular2/src/change_detection/pipes/iterable_changes", "angular2/src/change_detection/pipes/keyvalue_changes", "angular2/src/change_detection/pipes/observable_pipe", "angular2/src/change_detection/pipes/promise_pipe", "angular2/src/change_detection/pipes/null_pipe", "angular2/src/change_detection/constants", "angular2/src/change_detection/interfaces", "angular2/src/di/decorators"], function($__export) {
+System.register("angular2/src/change_detection/change_detection", ["angular2/src/change_detection/proto_change_detector", "angular2/src/change_detection/pipes/pipe_registry", "angular2/src/change_detection/pipes/iterable_changes", "angular2/src/change_detection/pipes/keyvalue_changes", "angular2/src/change_detection/pipes/observable_pipe", "angular2/src/change_detection/pipes/promise_pipe", "angular2/src/change_detection/pipes/uppercase_pipe", "angular2/src/change_detection/pipes/lowercase_pipe", "angular2/src/change_detection/pipes/json_pipe", "angular2/src/change_detection/pipes/null_pipe", "angular2/src/change_detection/interfaces", "angular2/src/di/decorators", "angular2/src/facade/collection", "angular2/src/facade/lang"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/change_detection/change_detection";
   var __decorate,
@@ -22445,15 +22852,24 @@ System.register("angular2/src/change_detection/change_detection", ["angular2/src
       KeyValueChangesFactory,
       ObservablePipeFactory,
       PromisePipeFactory,
+      UpperCaseFactory,
+      LowerCaseFactory,
+      JsonPipeFactory,
       NullPipeFactory,
-      DEFAULT,
       ChangeDetection,
       Injectable,
+      StringMapWrapper,
+      isPresent,
       __esModule,
       keyValDiff,
       iterableDiff,
       async,
+      uppercase,
+      lowercase,
+      json,
       defaultPipes,
+      preGeneratedProtoDetectors,
+      PreGeneratedChangeDetection,
       DynamicChangeDetection,
       JitChangeDetection,
       defaultPipeRegistry;
@@ -22472,13 +22888,21 @@ System.register("angular2/src/change_detection/change_detection", ["angular2/src
     }, function($__m) {
       PromisePipeFactory = $__m.PromisePipeFactory;
     }, function($__m) {
-      NullPipeFactory = $__m.NullPipeFactory;
+      UpperCaseFactory = $__m.UpperCaseFactory;
     }, function($__m) {
-      DEFAULT = $__m.DEFAULT;
+      LowerCaseFactory = $__m.LowerCaseFactory;
+    }, function($__m) {
+      JsonPipeFactory = $__m.JsonPipeFactory;
+    }, function($__m) {
+      NullPipeFactory = $__m.NullPipeFactory;
     }, function($__m) {
       ChangeDetection = $__m.ChangeDetection;
     }, function($__m) {
       Injectable = $__m.Injectable;
+    }, function($__m) {
+      StringMapWrapper = $__m.StringMapWrapper;
+    }, function($__m) {
+      isPresent = $__m.isPresent;
     }],
     execute: function() {
       __decorate = (this && this.__decorate) || function(decorators, target, key, desc) {
@@ -22511,20 +22935,46 @@ System.register("angular2/src/change_detection/change_detection", ["angular2/src
       $__export("iterableDiff", iterableDiff);
       async = [new ObservablePipeFactory(), new PromisePipeFactory(), new NullPipeFactory()];
       $__export("async", async);
+      uppercase = [new UpperCaseFactory(), new NullPipeFactory()];
+      $__export("uppercase", uppercase);
+      lowercase = [new LowerCaseFactory(), new NullPipeFactory()];
+      $__export("lowercase", lowercase);
+      json = [new JsonPipeFactory(), new NullPipeFactory()];
+      $__export("json", json);
       defaultPipes = {
         "iterableDiff": iterableDiff,
         "keyValDiff": keyValDiff,
-        "async": async
+        "async": async,
+        "uppercase": uppercase,
+        "lowercase": lowercase,
+        "json": json
       };
       $__export("defaultPipes", defaultPipes);
+      preGeneratedProtoDetectors = {};
+      $__export("preGeneratedProtoDetectors", preGeneratedProtoDetectors);
+      PreGeneratedChangeDetection = (function($__super) {
+        function PreGeneratedChangeDetection(registry, protoChangeDetectors) {
+          $traceurRuntime.superConstructor(PreGeneratedChangeDetection).call(this);
+          this.registry = registry;
+          this._dynamicChangeDetection = new DynamicChangeDetection(registry);
+          this._protoChangeDetectors = isPresent(protoChangeDetectors) ? protoChangeDetectors : preGeneratedProtoDetectors;
+        }
+        return ($traceurRuntime.createClass)(PreGeneratedChangeDetection, {createProtoChangeDetector: function(definition) {
+            var id = definition.id;
+            if (StringMapWrapper.contains(this._protoChangeDetectors, id)) {
+              return StringMapWrapper.get(this._protoChangeDetectors, id)(this.registry);
+            }
+            return this._dynamicChangeDetection.createProtoChangeDetector(definition);
+          }}, {}, $__super);
+      }(ChangeDetection));
+      $__export("PreGeneratedChangeDetection", PreGeneratedChangeDetection);
       DynamicChangeDetection = (function($__super) {
         function $__0(registry) {
           $traceurRuntime.superConstructor($__0).call(this);
           this.registry = registry;
         }
-        return ($traceurRuntime.createClass)($__0, {createProtoChangeDetector: function(name, bindingRecords, variableBindings, directiveRecords) {
-            var changeControlStrategy = arguments[4] !== (void 0) ? arguments[4] : DEFAULT;
-            return new DynamicProtoChangeDetector(this.registry, bindingRecords, variableBindings, directiveRecords, changeControlStrategy);
+        return ($traceurRuntime.createClass)($__0, {createProtoChangeDetector: function(definition) {
+            return new DynamicProtoChangeDetector(this.registry, definition);
           }}, {}, $__super);
       }(ChangeDetection));
       $__export("DynamicChangeDetection", DynamicChangeDetection);
@@ -22534,9 +22984,8 @@ System.register("angular2/src/change_detection/change_detection", ["angular2/src
           $traceurRuntime.superConstructor($__0).call(this);
           this.registry = registry;
         }
-        return ($traceurRuntime.createClass)($__0, {createProtoChangeDetector: function(name, bindingRecords, variableBindings, directiveRecords) {
-            var changeControlStrategy = arguments[4] !== (void 0) ? arguments[4] : DEFAULT;
-            return new JitProtoChangeDetector(this.registry, bindingRecords, variableBindings, directiveRecords, changeControlStrategy);
+        return ($traceurRuntime.createClass)($__0, {createProtoChangeDetector: function(definition) {
+            return new JitProtoChangeDetector(this.registry, definition);
           }}, {}, $__super);
       }(ChangeDetection));
       $__export("JitChangeDetection", JitChangeDetection);
@@ -22547,7 +22996,7 @@ System.register("angular2/src/change_detection/change_detection", ["angular2/src
   };
 });
 
-System.register("angular2/src/di/injector", ["angular2/src/facade/collection", "angular2/src/di/binding", "angular2/src/di/exceptions", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/src/di/key"], function($__export) {
+System.register("angular2/src/di/injector", ["angular2/src/facade/collection", "angular2/src/di/binding", "angular2/src/di/exceptions", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/src/di/key", "angular2/src/di/forward_ref"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/di/injector";
   var List,
@@ -22569,6 +23018,7 @@ System.register("angular2/src/di/injector", ["angular2/src/facade/collection", "
       isBlank,
       PromiseWrapper,
       Key,
+      resolveForwardRef,
       _constructing,
       _notFound,
       _Waiting,
@@ -22578,10 +23028,10 @@ System.register("angular2/src/di/injector", ["angular2/src/facade/collection", "
   function _isWaiting(obj) {
     return obj instanceof _Waiting;
   }
-  function _resolveBindings(bindings) {
+  function resolveBindings(bindings) {
     var resolvedList = ListWrapper.createFixedSize(bindings.length);
     for (var i = 0; i < bindings.length; i++) {
-      var unresolved = bindings[i];
+      var unresolved = resolveForwardRef(bindings[i]);
       var resolved = void 0;
       if (unresolved instanceof ResolvedBinding) {
         resolved = unresolved;
@@ -22590,7 +23040,7 @@ System.register("angular2/src/di/injector", ["angular2/src/facade/collection", "
       } else if (unresolved instanceof Binding) {
         resolved = unresolved.resolve();
       } else if (unresolved instanceof List) {
-        resolved = _resolveBindings(unresolved);
+        resolved = resolveBindings(unresolved);
       } else if (unresolved instanceof BindingBuilder) {
         throw new InvalidBindingError(unresolved.token);
       } else {
@@ -22599,6 +23049,14 @@ System.register("angular2/src/di/injector", ["angular2/src/facade/collection", "
       resolvedList[i] = resolved;
     }
     return resolvedList;
+  }
+  function flattenBindings(bindings) {
+    var map = _flattenBindings(bindings, MapWrapper.create());
+    var res = ListWrapper.create();
+    MapWrapper.forEach(map, (function(binding, keyId) {
+      return ListWrapper.push(res, binding);
+    }));
+    return res;
   }
   function _createListOfBindings(flattenedBindings) {
     var bindings = ListWrapper.createFixedSize(Key.numberOfKeys + 1);
@@ -22617,6 +23075,7 @@ System.register("angular2/src/di/injector", ["angular2/src/facade/collection", "
     });
     return res;
   }
+  $__export("resolveBindings", resolveBindings);
   return {
     setters: [function($__m) {
       List = $__m.List;
@@ -22643,6 +23102,8 @@ System.register("angular2/src/di/injector", ["angular2/src/facade/collection", "
       PromiseWrapper = $__m.PromiseWrapper;
     }, function($__m) {
       Key = $__m.Key;
+    }, function($__m) {
+      resolveForwardRef = $__m.resolveForwardRef;
     }],
     execute: function() {
       _constructing = new Object();
@@ -22746,7 +23207,7 @@ System.register("angular2/src/di/injector", ["angular2/src/facade/collection", "
           }
         }, {
           resolve: function(bindings) {
-            var resolvedBindings = _resolveBindings(bindings);
+            var resolvedBindings = resolveBindings(bindings);
             var flatten = _flattenBindings(resolvedBindings, MapWrapper.create());
             return _createListOfBindings(flatten);
           },
@@ -22833,8 +23294,8 @@ System.register("angular2/src/di/injector", ["angular2/src/facade/collection", "
             this.injector._markAsConstructing(key);
             var deps = this.injector._resolveDependencies(key, binding, true);
             var depsPromise = PromiseWrapper.all(deps);
-            var promise = PromiseWrapper.then(depsPromise, null, (function(e) {
-              return $__0._errorHandler(key, e);
+            var promise = PromiseWrapper.then(depsPromise, null, (function(e, s) {
+              return $__0._errorHandler(key, e, s);
             })).then((function(deps) {
               return $__0._findOrCreate(key, binding, deps);
             })).then((function(instance) {
@@ -22843,10 +23304,10 @@ System.register("angular2/src/di/injector", ["angular2/src/facade/collection", "
             this.injector._setInstance(key, new _Waiting(promise));
             return promise;
           },
-          _errorHandler: function(key, e) {
+          _errorHandler: function(key, e, stack) {
             if (e instanceof AbstractBindingError)
               e.addKey(key);
-            return PromiseWrapper.reject(e);
+            return PromiseWrapper.reject(e, stack);
           },
           _findOrCreate: function(key, binding, deps) {
             try {
@@ -22913,10 +23374,11 @@ System.register("angular2/src/core/compiler/element_ref", ["angular2/src/dom/dom
   };
 });
 
-System.register("angular2/src/render/dom/compiler/compile_pipeline", ["angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/dom/dom_adapter", "angular2/src/render/dom/compiler/compile_element", "angular2/src/render/dom/compiler/compile_control", "angular2/src/render/dom/compiler/compile_step", "angular2/src/render/dom/view/proto_view_builder"], function($__export) {
+System.register("angular2/src/render/dom/compiler/compile_pipeline", ["angular2/src/facade/lang", "angular2/src/facade/collection", "angular2/src/dom/dom_adapter", "angular2/src/render/dom/compiler/compile_element", "angular2/src/render/dom/compiler/compile_control", "angular2/src/render/dom/compiler/compile_step", "angular2/src/render/dom/view/proto_view_builder", "angular2/src/render/api"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/render/dom/compiler/compile_pipeline";
   var isPresent,
+      isBlank,
       List,
       ListWrapper,
       DOM,
@@ -22924,10 +23386,12 @@ System.register("angular2/src/render/dom/compiler/compile_pipeline", ["angular2/
       CompileControl,
       CompileStep,
       ProtoViewBuilder,
+      ProtoViewDto,
       CompilePipeline;
   return {
     setters: [function($__m) {
       isPresent = $__m.isPresent;
+      isBlank = $__m.isBlank;
     }, function($__m) {
       List = $__m.List;
       ListWrapper = $__m.ListWrapper;
@@ -22941,6 +23405,8 @@ System.register("angular2/src/render/dom/compiler/compile_pipeline", ["angular2/
       CompileStep = $__m.CompileStep;
     }, function($__m) {
       ProtoViewBuilder = $__m.ProtoViewBuilder;
+    }, function($__m) {
+      ProtoViewDto = $__m.ProtoViewDto;
     }],
     execute: function() {
       CompilePipeline = (function() {
@@ -22949,10 +23415,14 @@ System.register("angular2/src/render/dom/compiler/compile_pipeline", ["angular2/
         }
         return ($traceurRuntime.createClass)(CompilePipeline, {
           process: function(rootElement) {
-            var compilationCtxtDescription = arguments[1] !== (void 0) ? arguments[1] : '';
+            var protoViewType = arguments[1] !== (void 0) ? arguments[1] : null;
+            var compilationCtxtDescription = arguments[2] !== (void 0) ? arguments[2] : '';
+            if (isBlank(protoViewType)) {
+              protoViewType = ProtoViewDto.COMPONENT_VIEW_TYPE;
+            }
             var results = ListWrapper.create();
             var rootCompileElement = new CompileElement(rootElement, compilationCtxtDescription);
-            rootCompileElement.inheritedProtoView = new ProtoViewBuilder(rootElement);
+            rootCompileElement.inheritedProtoView = new ProtoViewBuilder(rootElement, protoViewType);
             rootCompileElement.isViewRoot = true;
             this._process(results, null, rootCompileElement, compilationCtxtDescription);
             return results;
@@ -22987,7 +23457,7 @@ System.register("angular2/src/render/dom/compiler/compile_pipeline", ["angular2/
           return [[assert.genericType(List, CompileStep)]];
         }});
       Object.defineProperty(CompilePipeline.prototype.process, "parameters", {get: function() {
-          return [[], [assert.type.string]];
+          return [[], [assert.type.number], [assert.type.string]];
         }});
       Object.defineProperty(CompilePipeline.prototype._process, "parameters", {get: function() {
           return [[], [CompileElement], [CompileElement], [assert.type.string]];
@@ -23022,6 +23492,7 @@ System.register("angular2/change_detection", ["angular2/src/change_detection/par
       $__export("ChangeDispatcher", $__m.ChangeDispatcher);
       $__export("ChangeDetector", $__m.ChangeDetector);
       $__export("ChangeDetection", $__m.ChangeDetection);
+      $__export("ChangeDetectorDefinition", $__m.ChangeDetectorDefinition);
     }, function($__m) {
       $__export("CHECK_ONCE", $__m.CHECK_ONCE);
       $__export("CHECK_ALWAYS", $__m.CHECK_ALWAYS);
@@ -23055,6 +23526,8 @@ System.register("angular2/change_detection", ["angular2/src/change_detection/par
       $__export("defaultPipes", $__m.defaultPipes);
       $__export("DynamicChangeDetection", $__m.DynamicChangeDetection);
       $__export("JitChangeDetection", $__m.JitChangeDetection);
+      $__export("PreGeneratedChangeDetection", $__m.PreGeneratedChangeDetection);
+      $__export("preGeneratedProtoDetectors", $__m.preGeneratedProtoDetectors);
       $__export("defaultPipeRegistry", $__m.defaultPipeRegistry);
     }],
     execute: function() {
@@ -23064,10 +23537,14 @@ System.register("angular2/change_detection", ["angular2/src/change_detection/par
   };
 });
 
-System.register("angular2/di", ["angular2/src/di/annotations", "angular2/src/di/decorators", "angular2/src/di/injector", "angular2/src/di/binding", "angular2/src/di/key", "angular2/src/di/exceptions", "angular2/src/di/opaque_token"], function($__export) {
+System.register("angular2/di", ["angular2/src/di/annotations", "angular2/src/di/decorators", "angular2/src/di/forward_ref", "angular2/src/di/injector", "angular2/src/di/binding", "angular2/src/di/key", "angular2/src/di/exceptions", "angular2/src/di/opaque_token"], function($__export) {
   "use strict";
   var __moduleName = "angular2/di";
   var __esModule;
+  var $__exportNames = {
+    __esModule: true,
+    undefined: true
+  };
   var $__exportNames = {
     __esModule: true,
     undefined: true
@@ -23088,6 +23565,12 @@ System.register("angular2/di", ["angular2/src/di/annotations", "angular2/src/di/
           $__export(p, $__m[p]);
       });
     }, function($__m) {
+      Object.keys($__m).forEach(function(p) {
+        if (!$__exportNames[p])
+          $__export(p, $__m[p]);
+      });
+    }, function($__m) {
+      $__export("resolveBindings", $__m.resolveBindings);
       $__export("Injector", $__m.Injector);
     }, function($__m) {
       $__export("Binding", $__m.Binding);
@@ -23204,31 +23687,38 @@ System.register("angular2/src/core/compiler/view_manager", ["angular2/di", "angu
             this._viewHydrateRecurse(componentView);
             return new ViewRef(componentView);
           },
-          createInPlaceHostView: function(parentComponentLocation, hostElementSelector, hostProtoViewRef, injector) {
+          createRootHostView: function(hostProtoViewRef, overrideSelector, injector) {
             var hostProtoView = internalProtoView(hostProtoViewRef);
-            var parentComponentHostView = null;
-            var parentComponentBoundElementIndex = null;
-            var parentRenderViewRef = null;
-            if (isPresent(parentComponentLocation)) {
-              parentComponentHostView = internalView(parentComponentLocation.parentView);
-              parentComponentBoundElementIndex = parentComponentLocation.boundElementIndex;
-              parentRenderViewRef = parentComponentHostView.componentChildViews[parentComponentBoundElementIndex].render;
+            var hostElementSelector = overrideSelector;
+            if (isBlank(hostElementSelector)) {
+              hostElementSelector = hostProtoView.elementBinders[0].componentDirective.metadata.selector;
             }
-            var hostRenderView = this._renderer.createInPlaceHostView(parentRenderViewRef, hostElementSelector, hostProtoView.render);
-            var hostView = this._utils.createView(hostProtoView, hostRenderView, this, this._renderer);
+            var renderView = this._renderer.createRootHostView(hostProtoView.render, hostElementSelector);
+            var hostView = this._utils.createView(hostProtoView, renderView, this, this._renderer);
             this._renderer.setEventDispatcher(hostView.render, hostView);
             this._createViewRecurse(hostView);
-            this._utils.attachAndHydrateInPlaceHostView(parentComponentHostView, parentComponentBoundElementIndex, hostView, injector);
+            this._utils.hydrateRootHostView(hostView, injector);
             this._viewHydrateRecurse(hostView);
             return new ViewRef(hostView);
           },
-          destroyInPlaceHostView: function(parentComponentLocation, hostViewRef) {
+          destroyRootHostView: function(hostViewRef) {
             var hostView = internalView(hostViewRef);
-            var parentView = null;
-            if (isPresent(parentComponentLocation)) {
-              parentView = internalView(parentComponentLocation.parentView).componentChildViews[parentComponentLocation.boundElementIndex];
-            }
-            this._destroyInPlaceHostView(parentView, hostView);
+            this._viewDehydrateRecurse(hostView, true);
+            this._renderer.destroyView(hostView.render);
+          },
+          createFreeHostView: function(parentComponentLocation, hostProtoViewRef, injector) {
+            var hostProtoView = internalProtoView(hostProtoViewRef);
+            var hostView = this._createPooledView(hostProtoView);
+            var parentComponentHostView = internalView(parentComponentLocation.parentView);
+            var parentComponentBoundElementIndex = parentComponentLocation.boundElementIndex;
+            this._utils.attachAndHydrateFreeHostView(parentComponentHostView, parentComponentBoundElementIndex, hostView, injector);
+            this._viewHydrateRecurse(hostView);
+            return new ViewRef(hostView);
+          },
+          destroyFreeHostView: function(parentComponentLocation, hostViewRef) {
+            var hostView = internalView(hostViewRef);
+            var parentView = internalView(parentComponentLocation.parentView).componentChildViews[parentComponentLocation.boundElementIndex];
+            this._destroyFreeHostView(parentView, hostView);
           },
           createViewInContainer: function(viewContainerLocation, atIndex, protoViewRef) {
             var context = arguments[3] !== (void 0) ? arguments[3] : null;
@@ -23308,14 +23798,11 @@ System.register("angular2/src/core/compiler/view_manager", ["angular2/di", "angu
             this._utils.detachComponentView(hostView, boundElementIndex);
             this._destroyPooledView(componentView);
           },
-          _destroyInPlaceHostView: function(parentView, hostView) {
-            var parentRenderViewRef = null;
-            if (isPresent(parentView)) {
-              parentRenderViewRef = parentView.render;
-            }
+          _destroyFreeHostView: function(parentView, hostView) {
             this._viewDehydrateRecurse(hostView, true);
-            this._utils.detachInPlaceHostView(parentView, hostView);
-            this._renderer.destroyInPlaceHostView(parentRenderViewRef, hostView.render);
+            this._renderer.detachFreeHostView(parentView.render, hostView.render);
+            this._utils.detachFreeHostView(parentView, hostView);
+            this._destroyPooledView(hostView);
           },
           _viewHydrateRecurse: function(view) {
             this._renderer.hydrateView(view.render);
@@ -23347,9 +23834,9 @@ System.register("angular2/src/core/compiler/view_manager", ["angular2/di", "angu
                 }
               }
             }
-            for (var i = view.inPlaceHostViews.length - 1; i >= 0; i--) {
-              var hostView = view.inPlaceHostViews[i];
-              this._destroyInPlaceHostView(view, hostView);
+            for (var i = view.freeHostViews.length - 1; i >= 0; i--) {
+              var hostView = view.freeHostViews[i];
+              this._destroyFreeHostView(view, hostView);
             }
           }
         }, {});
@@ -23373,10 +23860,16 @@ System.register("angular2/src/core/compiler/view_manager", ["angular2/di", "angu
       Object.defineProperty(AppViewManager.prototype.createDynamicComponentView, "parameters", {get: function() {
           return [[ElementRef], [ProtoViewRef], [Binding], [Injector]];
         }});
-      Object.defineProperty(AppViewManager.prototype.createInPlaceHostView, "parameters", {get: function() {
-          return [[ElementRef], [assert.type.string], [ProtoViewRef], [Injector]];
+      Object.defineProperty(AppViewManager.prototype.createRootHostView, "parameters", {get: function() {
+          return [[ProtoViewRef], [assert.type.string], [Injector]];
         }});
-      Object.defineProperty(AppViewManager.prototype.destroyInPlaceHostView, "parameters", {get: function() {
+      Object.defineProperty(AppViewManager.prototype.destroyRootHostView, "parameters", {get: function() {
+          return [[ViewRef]];
+        }});
+      Object.defineProperty(AppViewManager.prototype.createFreeHostView, "parameters", {get: function() {
+          return [[ElementRef], [ProtoViewRef], [Injector]];
+        }});
+      Object.defineProperty(AppViewManager.prototype.destroyFreeHostView, "parameters", {get: function() {
           return [[ElementRef], [ViewRef]];
         }});
       Object.defineProperty(AppViewManager.prototype.createViewInContainer, "parameters", {get: function() {
@@ -23476,7 +23969,7 @@ System.register("angular2/src/render/dom/compiler/compiler", ["angular2/src/di/a
             var $__0 = this;
             var tplPromise = this._templateLoader.load(template);
             return PromiseWrapper.then(tplPromise, (function(el) {
-              return $__0._compileTemplate(template, el);
+              return $__0._compileTemplate(template, el, ProtoViewDto.COMPONENT_VIEW_TYPE);
             }), (function(_) {
               throw new BaseException(("Failed to load the template \"" + template.componentId + "\""));
             }));
@@ -23489,12 +23982,12 @@ System.register("angular2/src/render/dom/compiler/compiler", ["angular2/src/di/a
               directives: [directiveMetadata]
             });
             var element = DOM.createElement(directiveMetadata.selector);
-            return this._compileTemplate(hostViewDef, element);
+            return this._compileTemplate(hostViewDef, element, ProtoViewDto.HOST_VIEW_TYPE);
           },
-          _compileTemplate: function(viewDef, tplElement) {
+          _compileTemplate: function(viewDef, tplElement, protoViewType) {
             var subTaskPromises = [];
             var pipeline = new CompilePipeline(this._stepFactory.createSteps(viewDef, subTaskPromises));
-            var compileElements = pipeline.process(tplElement, viewDef.componentId);
+            var compileElements = pipeline.process(tplElement, protoViewType, viewDef.componentId);
             var protoView = compileElements[0].inheritedProtoView.build();
             if (subTaskPromises.length > 0) {
               return PromiseWrapper.all(subTaskPromises).then((function(_) {
@@ -23517,7 +24010,7 @@ System.register("angular2/src/render/dom/compiler/compiler", ["angular2/src/di/a
           return [[DirectiveMetadata]];
         }});
       Object.defineProperty(DomCompiler.prototype._compileTemplate, "parameters", {get: function() {
-          return [[ViewDefinition], []];
+          return [[ViewDefinition], [], [assert.type.number]];
         }});
       DefaultDomCompiler = (function($__super) {
         function DefaultDomCompiler(parser, shadowDomStrategy, templateLoader) {
@@ -23536,7 +24029,7 @@ System.register("angular2/src/render/dom/compiler/compiler", ["angular2/src/di/a
   };
 });
 
-System.register("angular2/src/core/compiler/element_injector", ["angular2/src/facade/lang", "angular2/src/facade/async", "angular2/src/facade/math", "angular2/src/facade/collection", "angular2/di", "angular2/src/core/annotations_impl/visibility", "angular2/src/core/annotations_impl/di", "angular2/src/core/compiler/view", "angular2/src/core/compiler/view_manager", "angular2/src/core/compiler/view_container_ref", "angular2/src/core/compiler/element_ref", "angular2/src/core/compiler/view_ref", "angular2/src/core/annotations_impl/annotations", "angular2/change_detection", "angular2/src/core/compiler/query_list", "angular2/src/reflection/reflection"], function($__export) {
+System.register("angular2/src/core/compiler/element_injector", ["angular2/src/facade/lang", "angular2/src/facade/async", "angular2/src/facade/collection", "angular2/di", "angular2/src/core/annotations_impl/visibility", "angular2/src/core/annotations_impl/di", "angular2/src/core/compiler/view", "angular2/src/core/compiler/view_manager", "angular2/src/core/compiler/view_container_ref", "angular2/src/core/compiler/element_ref", "angular2/src/core/compiler/view_ref", "angular2/src/core/annotations_impl/annotations", "angular2/change_detection", "angular2/src/core/compiler/query_list", "angular2/src/reflection/reflection", "angular2/src/render/api"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/core/compiler/element_injector";
   var isPresent,
@@ -23547,7 +24040,6 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
       stringify,
       EventEmitter,
       ObservableWrapper,
-      Math,
       List,
       ListWrapper,
       MapWrapper,
@@ -23561,8 +24053,10 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
       NoBindingError,
       AbstractBindingError,
       CyclicDependencyError,
-      Parent,
-      Ancestor,
+      resolveForwardRef,
+      resolveBindings,
+      Visibility,
+      Self,
       Attribute,
       Query,
       viewModule,
@@ -23580,8 +24074,8 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
       ChangeDetectorRef,
       QueryList,
       reflector,
+      DirectiveMetadata,
       _MAX_DIRECTIVE_CONSTRUCTION_COUNTER,
-      MAX_DEPTH,
       _undefined,
       _staticKeys,
       StaticKeys,
@@ -23591,6 +24085,10 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
       PreBuiltObjects,
       EventEmitterAccessor,
       HostActionAccessor,
+      LIGHT_DOM,
+      SHADOW_DOM,
+      LIGHT_DOM_AND_SHADOW_DOM,
+      BindingData,
       ProtoElementInjector,
       ElementInjector,
       OutOfBoundsAccess,
@@ -23608,8 +24106,6 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
       EventEmitter = $__m.EventEmitter;
       ObservableWrapper = $__m.ObservableWrapper;
     }, function($__m) {
-      Math = $__m.Math;
-    }, function($__m) {
       List = $__m.List;
       ListWrapper = $__m.ListWrapper;
       MapWrapper = $__m.MapWrapper;
@@ -23624,9 +24120,11 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
       NoBindingError = $__m.NoBindingError;
       AbstractBindingError = $__m.AbstractBindingError;
       CyclicDependencyError = $__m.CyclicDependencyError;
+      resolveForwardRef = $__m.resolveForwardRef;
+      resolveBindings = $__m.resolveBindings;
     }, function($__m) {
-      Parent = $__m.Parent;
-      Ancestor = $__m.Ancestor;
+      Visibility = $__m.Visibility;
+      Self = $__m.Self;
     }, function($__m) {
       Attribute = $__m.Attribute;
       Query = $__m.Query;
@@ -23654,10 +24152,11 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
       QueryList = $__m.QueryList;
     }, function($__m) {
       reflector = $__m.reflector;
+    }, function($__m) {
+      DirectiveMetadata = $__m.DirectiveMetadata;
     }],
     execute: function() {
       _MAX_DIRECTIVE_CONSTRUCTION_COUNTER = 10;
-      MAX_DEPTH = Math.pow(2, 30) - 1;
       _undefined = new Object();
       StaticKeys = (function() {
         function StaticKeys() {
@@ -23795,9 +24294,10 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
           return [[TreeNode], [TreeNode]];
         }});
       DirectiveDependency = (function($__super) {
-        function DirectiveDependency(key, asPromise, lazy, optional, properties, depth, attributeName, queryDirective) {
+        function DirectiveDependency(key, asPromise, lazy, optional, properties, visibility, attributeName, queryDirective) {
           $traceurRuntime.superConstructor(DirectiveDependency).call(this, key, asPromise, lazy, optional, properties);
-          this.depth = depth;
+          this.visibility = visibility;
+          ;
           this.attributeName = attributeName;
           this.queryDirective = queryDirective;
           this._verify();
@@ -23812,20 +24312,15 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
               throw new BaseException('A directive injectable can contain only one of the following @Attribute or @Query.');
           }}, {
           createFrom: function(d) {
-            return new DirectiveDependency(d.key, d.asPromise, d.lazy, d.optional, d.properties, DirectiveDependency._depth(d.properties), DirectiveDependency._attributeName(d.properties), DirectiveDependency._query(d.properties));
+            return new DirectiveDependency(d.key, d.asPromise, d.lazy, d.optional, d.properties, DirectiveDependency._visibility(d.properties), DirectiveDependency._attributeName(d.properties), DirectiveDependency._query(d.properties));
           },
-          _depth: function(properties) {
+          _visibility: function(properties) {
             if (properties.length == 0)
-              return 0;
-            if (ListWrapper.any(properties, (function(p) {
-              return p instanceof Parent;
-            })))
-              return 1;
-            if (ListWrapper.any(properties, (function(p) {
-              return p instanceof Ancestor;
-            })))
-              return MAX_DEPTH;
-            return 0;
+              return new Self();
+            var p = ListWrapper.find(properties, (function(p) {
+              return p instanceof Visibility;
+            }));
+            return isPresent(p) ? p : new Self();
           },
           _attributeName: function(properties) {
             var p = ListWrapper.find(properties, (function(p) {
@@ -23837,51 +24332,84 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
             var p = ListWrapper.find(properties, (function(p) {
               return p instanceof Query;
             }));
-            return isPresent(p) ? p.directive : null;
+            return isPresent(p) ? resolveForwardRef(p.directive) : null;
           }
         }, $__super);
       }(Dependency));
       $__export("DirectiveDependency", DirectiveDependency);
       Object.defineProperty(DirectiveDependency, "parameters", {get: function() {
-          return [[Key], [assert.type.boolean], [assert.type.boolean], [assert.type.boolean], [List], [int], [assert.type.string], []];
+          return [[Key], [assert.type.boolean], [assert.type.boolean], [assert.type.boolean], [List], [Visibility], [assert.type.string], []];
         }});
       Object.defineProperty(DirectiveDependency.createFrom, "parameters", {get: function() {
           return [[Dependency]];
         }});
       DirectiveBinding = (function($__super) {
-        function DirectiveBinding(key, factory, dependencies, providedAsPromise, annotation) {
+        function DirectiveBinding(key, factory, dependencies, providedAsPromise, resolvedAppInjectables, resolvedHostInjectables, resolvedViewInjectables, metadata) {
           $traceurRuntime.superConstructor(DirectiveBinding).call(this, key, factory, dependencies, providedAsPromise);
-          this.callOnDestroy = isPresent(annotation) && annotation.hasLifecycleHook(onDestroy);
-          this.callOnChange = isPresent(annotation) && annotation.hasLifecycleHook(onChange);
-          this.callOnAllChangesDone = isPresent(annotation) && annotation.hasLifecycleHook(onAllChangesDone);
-          this.annotation = annotation;
-          if (annotation instanceof Component && isPresent(annotation.injectables)) {
-            this.resolvedInjectables = Injector.resolve(annotation.injectables);
-          }
+          this.resolvedAppInjectables = resolvedAppInjectables;
+          this.resolvedHostInjectables = resolvedHostInjectables;
+          this.resolvedViewInjectables = resolvedViewInjectables;
+          this.metadata = metadata;
         }
         return ($traceurRuntime.createClass)(DirectiveBinding, {
+          get callOnDestroy() {
+            return this.metadata.callOnDestroy;
+          },
+          get callOnChange() {
+            return this.metadata.callOnChange;
+          },
+          get callOnAllChangesDone() {
+            return this.metadata.callOnAllChangesDone;
+          },
           get displayName() {
             return this.key.displayName;
           },
           get eventEmitters() {
-            return isPresent(this.annotation) && isPresent(this.annotation.events) ? this.annotation.events : [];
+            return isPresent(this.metadata) && isPresent(this.metadata.events) ? this.metadata.events : [];
           },
           get hostActions() {
-            return isPresent(this.annotation) && isPresent(this.annotation.hostActions) ? this.annotation.hostActions : {};
+            return isPresent(this.metadata) && isPresent(this.metadata.hostActions) ? this.metadata.hostActions : MapWrapper.create();
           },
           get changeDetection() {
-            if (this.annotation instanceof Component) {
-              var c = this.annotation;
-              return c.changeDetection;
-            } else {
-              return null;
-            }
+            return this.metadata.changeDetection;
           }
         }, {
-          createFromBinding: function(b, annotation) {
-            var rb = b.resolve();
+          createFromBinding: function(binding, ann) {
+            if (isBlank(ann)) {
+              ann = new Directive();
+            }
+            var rb = binding.resolve();
             var deps = ListWrapper.map(rb.dependencies, DirectiveDependency.createFrom);
-            return new DirectiveBinding(rb.key, rb.factory, deps, rb.providedAsPromise, annotation);
+            var resolvedAppInjectables = ann instanceof Component && isPresent(ann.appInjector) ? Injector.resolve(ann.appInjector) : [];
+            var resolvedHostInjectables = isPresent(ann.hostInjector) ? resolveBindings(ann.hostInjector) : [];
+            var resolvedViewInjectables = ann instanceof Component && isPresent(ann.viewInjector) ? resolveBindings(ann.viewInjector) : [];
+            var metadata = new DirectiveMetadata({
+              id: stringify(rb.key.token),
+              type: ann instanceof Component ? DirectiveMetadata.COMPONENT_TYPE : DirectiveMetadata.DIRECTIVE_TYPE,
+              selector: ann.selector,
+              compileChildren: ann.compileChildren,
+              events: ann.events,
+              hostListeners: isPresent(ann.hostListeners) ? MapWrapper.createFromStringMap(ann.hostListeners) : null,
+              hostProperties: isPresent(ann.hostProperties) ? MapWrapper.createFromStringMap(ann.hostProperties) : null,
+              hostAttributes: isPresent(ann.hostAttributes) ? MapWrapper.createFromStringMap(ann.hostAttributes) : null,
+              hostActions: isPresent(ann.hostActions) ? MapWrapper.createFromStringMap(ann.hostActions) : null,
+              properties: isPresent(ann.properties) ? MapWrapper.createFromStringMap(ann.properties) : null,
+              readAttributes: DirectiveBinding._readAttributes(deps),
+              callOnDestroy: ann.hasLifecycleHook(onDestroy),
+              callOnChange: ann.hasLifecycleHook(onChange),
+              callOnAllChangesDone: ann.hasLifecycleHook(onAllChangesDone),
+              changeDetection: ann instanceof Component ? ann.changeDetection : null
+            });
+            return new DirectiveBinding(rb.key, rb.factory, deps, rb.providedAsPromise, resolvedAppInjectables, resolvedHostInjectables, resolvedViewInjectables, metadata);
+          },
+          _readAttributes: function(deps) {
+            var readAttributes = [];
+            ListWrapper.forEach(deps, (function(dep) {
+              if (isPresent(dep.attributeName)) {
+                ListWrapper.push(readAttributes, dep.attributeName);
+              }
+            }));
+            return readAttributes;
           },
           createFromType: function(type, annotation) {
             var binding = new Binding(type, {toClass: type});
@@ -23891,7 +24419,7 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
       }(ResolvedBinding));
       $__export("DirectiveBinding", DirectiveBinding);
       Object.defineProperty(DirectiveBinding, "parameters", {get: function() {
-          return [[Key], [Function], [List], [assert.type.boolean], [Directive]];
+          return [[Key], [Function], [List], [assert.type.boolean], [assert.genericType(List, ResolvedBinding)], [assert.genericType(List, ResolvedBinding)], [assert.genericType(List, ResolvedBinding)], [DirectiveMetadata]];
         }});
       Object.defineProperty(DirectiveBinding.createFromBinding, "parameters", {get: function() {
           return [[Binding], [Directive]];
@@ -23949,135 +24477,167 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
       Object.defineProperty(HostActionAccessor.prototype.subscribe, "parameters", {get: function() {
           return [[viewModule.AppView], [assert.type.number], [Object]];
         }});
+      LIGHT_DOM = 1;
+      SHADOW_DOM = 2;
+      LIGHT_DOM_AND_SHADOW_DOM = 3;
+      BindingData = (function() {
+        function BindingData(binding, visibility) {
+          this.binding = binding;
+          this.visibility = visibility;
+        }
+        return ($traceurRuntime.createClass)(BindingData, {
+          getKeyId: function() {
+            return this.binding.key.id;
+          },
+          createEventEmitterAccessors: function() {
+            if (!(this.binding instanceof DirectiveBinding))
+              return [];
+            var db = this.binding;
+            return ListWrapper.map(db.eventEmitters, (function(eventName) {
+              return new EventEmitterAccessor(eventName, reflector.getter(eventName));
+            }));
+          },
+          createHostActionAccessors: function() {
+            if (!(this.binding instanceof DirectiveBinding))
+              return [];
+            var res = [];
+            var db = this.binding;
+            MapWrapper.forEach(db.hostActions, (function(actionExpression, actionName) {
+              ListWrapper.push(res, new HostActionAccessor(actionExpression, reflector.getter(actionName)));
+            }));
+            return res;
+          }
+        }, {});
+      }());
+      Object.defineProperty(BindingData, "parameters", {get: function() {
+          return [[ResolvedBinding], [assert.type.number]];
+        }});
       ProtoElementInjector = (function() {
-        function ProtoElementInjector(parent, index, bindings) {
-          var firstBindingIsComponent = arguments[3] !== (void 0) ? arguments[3] : false;
-          var distanceToParent = arguments[4] !== (void 0) ? arguments[4] : 0;
+        function ProtoElementInjector(parent, index, bd, distanceToParent, firstBindingIsComponent) {
           this.parent = parent;
           this.index = index;
           this.distanceToParent = distanceToParent;
           this.exportComponent = false;
           this.exportElement = false;
-          this._binding0IsComponent = firstBindingIsComponent;
+          this._firstBindingIsComponent = firstBindingIsComponent;
           this._binding0 = null;
           this._keyId0 = null;
+          this._visibility0 = null;
           this._binding1 = null;
           this._keyId1 = null;
+          this._visibility1 = null;
           this._binding2 = null;
           this._keyId2 = null;
+          this._visibility2 = null;
           this._binding3 = null;
           this._keyId3 = null;
+          this._visibility3 = null;
           this._binding4 = null;
           this._keyId4 = null;
+          this._visibility4 = null;
           this._binding5 = null;
           this._keyId5 = null;
+          this._visibility5 = null;
           this._binding6 = null;
           this._keyId6 = null;
+          this._visibility6 = null;
           this._binding7 = null;
           this._keyId7 = null;
+          this._visibility7 = null;
           this._binding8 = null;
           this._keyId8 = null;
+          this._visibility8 = null;
           this._binding9 = null;
           this._keyId9 = null;
-          this.numberOfDirectives = bindings.length;
-          var length = bindings.length;
+          this._visibility9 = null;
+          var length = bd.length;
           this.eventEmitterAccessors = ListWrapper.createFixedSize(length);
           this.hostActionAccessors = ListWrapper.createFixedSize(length);
           if (length > 0) {
-            this._binding0 = this._createBinding(bindings[0]);
-            this._keyId0 = this._binding0.key.id;
-            this.eventEmitterAccessors[0] = this._createEventEmitterAccessors(this._binding0);
-            this.hostActionAccessors[0] = this._createHostActionAccessors(this._binding0);
+            this._binding0 = bd[0].binding;
+            this._keyId0 = bd[0].getKeyId();
+            this._visibility0 = bd[0].visibility;
+            this.eventEmitterAccessors[0] = bd[0].createEventEmitterAccessors();
+            this.hostActionAccessors[0] = bd[0].createHostActionAccessors();
           }
           if (length > 1) {
-            this._binding1 = this._createBinding(bindings[1]);
-            this._keyId1 = this._binding1.key.id;
-            this.eventEmitterAccessors[1] = this._createEventEmitterAccessors(this._binding1);
-            this.hostActionAccessors[1] = this._createHostActionAccessors(this._binding1);
+            this._binding1 = bd[1].binding;
+            this._keyId1 = bd[1].getKeyId();
+            this._visibility1 = bd[1].visibility;
+            this.eventEmitterAccessors[1] = bd[1].createEventEmitterAccessors();
+            this.hostActionAccessors[1] = bd[1].createHostActionAccessors();
           }
           if (length > 2) {
-            this._binding2 = this._createBinding(bindings[2]);
-            this._keyId2 = this._binding2.key.id;
-            this.eventEmitterAccessors[2] = this._createEventEmitterAccessors(this._binding2);
-            this.hostActionAccessors[2] = this._createHostActionAccessors(this._binding2);
+            this._binding2 = bd[2].binding;
+            this._keyId2 = bd[2].getKeyId();
+            this._visibility2 = bd[2].visibility;
+            this.eventEmitterAccessors[2] = bd[2].createEventEmitterAccessors();
+            this.hostActionAccessors[2] = bd[2].createHostActionAccessors();
           }
           if (length > 3) {
-            this._binding3 = this._createBinding(bindings[3]);
-            this._keyId3 = this._binding3.key.id;
-            this.eventEmitterAccessors[3] = this._createEventEmitterAccessors(this._binding3);
-            this.hostActionAccessors[3] = this._createHostActionAccessors(this._binding3);
+            this._binding3 = bd[3].binding;
+            this._keyId3 = bd[3].getKeyId();
+            this._visibility3 = bd[3].visibility;
+            this.eventEmitterAccessors[3] = bd[3].createEventEmitterAccessors();
+            this.hostActionAccessors[3] = bd[3].createHostActionAccessors();
           }
           if (length > 4) {
-            this._binding4 = this._createBinding(bindings[4]);
-            this._keyId4 = this._binding4.key.id;
-            this.eventEmitterAccessors[4] = this._createEventEmitterAccessors(this._binding4);
-            this.hostActionAccessors[4] = this._createHostActionAccessors(this._binding4);
+            this._binding4 = bd[4].binding;
+            this._keyId4 = bd[4].getKeyId();
+            this._visibility4 = bd[4].visibility;
+            this.eventEmitterAccessors[4] = bd[4].createEventEmitterAccessors();
+            this.hostActionAccessors[4] = bd[4].createHostActionAccessors();
           }
           if (length > 5) {
-            this._binding5 = this._createBinding(bindings[5]);
-            this._keyId5 = this._binding5.key.id;
-            this.eventEmitterAccessors[5] = this._createEventEmitterAccessors(this._binding5);
-            this.hostActionAccessors[5] = this._createHostActionAccessors(this._binding5);
+            this._binding5 = bd[5].binding;
+            this._keyId5 = bd[5].getKeyId();
+            this._visibility5 = bd[5].visibility;
+            this.eventEmitterAccessors[5] = bd[5].createEventEmitterAccessors();
+            this.hostActionAccessors[5] = bd[5].createHostActionAccessors();
           }
           if (length > 6) {
-            this._binding6 = this._createBinding(bindings[6]);
-            this._keyId6 = this._binding6.key.id;
-            this.eventEmitterAccessors[6] = this._createEventEmitterAccessors(this._binding6);
-            this.hostActionAccessors[6] = this._createHostActionAccessors(this._binding6);
+            this._binding6 = bd[6].binding;
+            this._keyId6 = bd[6].getKeyId();
+            this._visibility6 = bd[6].visibility;
+            this.eventEmitterAccessors[6] = bd[6].createEventEmitterAccessors();
+            this.hostActionAccessors[6] = bd[6].createHostActionAccessors();
           }
           if (length > 7) {
-            this._binding7 = this._createBinding(bindings[7]);
-            this._keyId7 = this._binding7.key.id;
-            this.eventEmitterAccessors[7] = this._createEventEmitterAccessors(this._binding7);
-            this.hostActionAccessors[7] = this._createHostActionAccessors(this._binding7);
+            this._binding7 = bd[7].binding;
+            this._keyId7 = bd[7].getKeyId();
+            this._visibility7 = bd[7].visibility;
+            this.eventEmitterAccessors[7] = bd[7].createEventEmitterAccessors();
+            this.hostActionAccessors[7] = bd[7].createHostActionAccessors();
           }
           if (length > 8) {
-            this._binding8 = this._createBinding(bindings[8]);
-            this._keyId8 = this._binding8.key.id;
-            this.eventEmitterAccessors[8] = this._createEventEmitterAccessors(this._binding8);
-            this.hostActionAccessors[8] = this._createHostActionAccessors(this._binding8);
+            this._binding8 = bd[8].binding;
+            this._keyId8 = bd[8].getKeyId();
+            this._visibility8 = bd[8].visibility;
+            this.eventEmitterAccessors[8] = bd[8].createEventEmitterAccessors();
+            this.hostActionAccessors[8] = bd[8].createHostActionAccessors();
           }
           if (length > 9) {
-            this._binding9 = this._createBinding(bindings[9]);
-            this._keyId9 = this._binding9.key.id;
-            this.eventEmitterAccessors[9] = this._createEventEmitterAccessors(this._binding9);
-            this.hostActionAccessors[9] = this._createHostActionAccessors(this._binding9);
+            this._binding9 = bd[9].binding;
+            this._keyId9 = bd[9].getKeyId();
+            this._visibility9 = bd[9].visibility;
+            this.eventEmitterAccessors[9] = bd[9].createEventEmitterAccessors();
+            this.hostActionAccessors[9] = bd[9].createHostActionAccessors();
           }
           if (length > 10) {
             throw 'Maximum number of directives per element has been reached.';
           }
         }
         return ($traceurRuntime.createClass)(ProtoElementInjector, {
-          _createEventEmitterAccessors: function(b) {
-            return ListWrapper.map(b.eventEmitters, (function(eventName) {
-              return new EventEmitterAccessor(eventName, reflector.getter(eventName));
-            }));
-          },
-          _createHostActionAccessors: function(b) {
-            var res = [];
-            StringMapWrapper.forEach(b.hostActions, (function(actionExpression, actionName) {
-              ListWrapper.push(res, new HostActionAccessor(actionExpression, reflector.getter(actionName)));
-            }));
-            return res;
-          },
           instantiate: function(parent) {
             return new ElementInjector(this, parent);
           },
           directParent: function() {
             return this.distanceToParent < 2 ? this.parent : null;
           },
-          _createBinding: function(bindingOrType) {
-            if (bindingOrType instanceof DirectiveBinding) {
-              return bindingOrType;
-            } else {
-              var b = bind(bindingOrType).toClass(bindingOrType);
-              return DirectiveBinding.createFromBinding(b, null);
-            }
-          },
           get hasBindings() {
             return isPresent(this._binding0);
           },
-          getDirectiveBindingAtIndex: function(index) {
+          getBindingAtIndex: function(index) {
             if (index == 0)
               return this._binding0;
             if (index == 1)
@@ -24100,22 +24660,62 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
               return this._binding9;
             throw new OutOfBoundsAccess(index);
           }
-        }, {});
+        }, {
+          create: function(parent, index, bindings, firstBindingIsComponent, distanceToParent) {
+            var bd = [];
+            ProtoElementInjector._createDirectiveBindingData(bindings, bd, firstBindingIsComponent);
+            ProtoElementInjector._createHostInjectorBindingData(bindings, bd);
+            if (firstBindingIsComponent) {
+              ProtoElementInjector._createViewInjectorBindingData(bindings, bd);
+            }
+            return new ProtoElementInjector(parent, index, bd, distanceToParent, firstBindingIsComponent);
+          },
+          _createDirectiveBindingData: function(bindings, bd, firstBindingIsComponent) {
+            if (firstBindingIsComponent) {
+              ListWrapper.push(bd, new BindingData(bindings[0], LIGHT_DOM_AND_SHADOW_DOM));
+              for (var i = 1; i < bindings.length; ++i) {
+                ListWrapper.push(bd, new BindingData(bindings[i], LIGHT_DOM));
+              }
+            } else {
+              ListWrapper.forEach(bindings, (function(b) {
+                ListWrapper.push(bd, new BindingData(b, LIGHT_DOM));
+              }));
+            }
+          },
+          _createHostInjectorBindingData: function(bindings, bd) {
+            ListWrapper.forEach(bindings, (function(b) {
+              ListWrapper.forEach(b.resolvedHostInjectables, (function(b) {
+                ListWrapper.push(bd, new BindingData(b, LIGHT_DOM));
+              }));
+            }));
+          },
+          _createViewInjectorBindingData: function(bindings, bd) {
+            ListWrapper.forEach(bindings[0].resolvedViewInjectables, (function(b) {
+              return ListWrapper.push(bd, new BindingData(b, SHADOW_DOM));
+            }));
+          }
+        });
       }());
       $__export("ProtoElementInjector", ProtoElementInjector);
       Object.defineProperty(ProtoElementInjector, "parameters", {get: function() {
+          return [[ProtoElementInjector], [int], [assert.genericType(List, BindingData)], [assert.type.number], [assert.type.boolean]];
+        }});
+      Object.defineProperty(ProtoElementInjector.create, "parameters", {get: function() {
           return [[ProtoElementInjector], [int], [List], [assert.type.boolean], [assert.type.number]];
         }});
-      Object.defineProperty(ProtoElementInjector.prototype._createEventEmitterAccessors, "parameters", {get: function() {
-          return [[DirectiveBinding]];
+      Object.defineProperty(ProtoElementInjector._createDirectiveBindingData, "parameters", {get: function() {
+          return [[List], [List], [assert.type.boolean]];
         }});
-      Object.defineProperty(ProtoElementInjector.prototype._createHostActionAccessors, "parameters", {get: function() {
-          return [[DirectiveBinding]];
+      Object.defineProperty(ProtoElementInjector._createHostInjectorBindingData, "parameters", {get: function() {
+          return [[List], [List]];
+        }});
+      Object.defineProperty(ProtoElementInjector._createViewInjectorBindingData, "parameters", {get: function() {
+          return [[List], [List]];
         }});
       Object.defineProperty(ProtoElementInjector.prototype.instantiate, "parameters", {get: function() {
           return [[ElementInjector]];
         }});
-      Object.defineProperty(ProtoElementInjector.prototype.getDirectiveBindingAtIndex, "parameters", {get: function() {
+      Object.defineProperty(ProtoElementInjector.prototype.getBindingAtIndex, "parameters", {get: function() {
           return [[int]];
         }});
       ElementInjector = (function($__super) {
@@ -24140,40 +24740,40 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
           this._buildQueries();
         }
         return ($traceurRuntime.createClass)(ElementInjector, {
-          clearDirectives: function() {
+          dehydrate: function() {
             this._host = null;
             this._preBuiltObjects = null;
             this._lightDomAppInjector = null;
             this._shadowDomAppInjector = null;
             var p = this._proto;
-            if (isPresent(p._binding0) && p._binding0.callOnDestroy) {
+            if (p._binding0 instanceof DirectiveBinding && p._binding0.callOnDestroy) {
               this._obj0.onDestroy();
             }
-            if (isPresent(p._binding1) && p._binding1.callOnDestroy) {
+            if (p._binding1 instanceof DirectiveBinding && p._binding1.callOnDestroy) {
               this._obj1.onDestroy();
             }
-            if (isPresent(p._binding2) && p._binding2.callOnDestroy) {
+            if (p._binding2 instanceof DirectiveBinding && p._binding2.callOnDestroy) {
               this._obj2.onDestroy();
             }
-            if (isPresent(p._binding3) && p._binding3.callOnDestroy) {
+            if (p._binding3 instanceof DirectiveBinding && p._binding3.callOnDestroy) {
               this._obj3.onDestroy();
             }
-            if (isPresent(p._binding4) && p._binding4.callOnDestroy) {
+            if (p._binding4 instanceof DirectiveBinding && p._binding4.callOnDestroy) {
               this._obj4.onDestroy();
             }
-            if (isPresent(p._binding5) && p._binding5.callOnDestroy) {
+            if (p._binding5 instanceof DirectiveBinding && p._binding5.callOnDestroy) {
               this._obj5.onDestroy();
             }
-            if (isPresent(p._binding6) && p._binding6.callOnDestroy) {
+            if (p._binding6 instanceof DirectiveBinding && p._binding6.callOnDestroy) {
               this._obj6.onDestroy();
             }
-            if (isPresent(p._binding7) && p._binding7.callOnDestroy) {
+            if (p._binding7 instanceof DirectiveBinding && p._binding7.callOnDestroy) {
               this._obj7.onDestroy();
             }
-            if (isPresent(p._binding8) && p._binding8.callOnDestroy) {
+            if (p._binding8 instanceof DirectiveBinding && p._binding8.callOnDestroy) {
               this._obj8.onDestroy();
             }
-            if (isPresent(p._binding9) && p._binding9.callOnDestroy) {
+            if (p._binding9 instanceof DirectiveBinding && p._binding9.callOnDestroy) {
               this._obj9.onDestroy();
             }
             if (isPresent(this._dynamicallyCreatedComponentBinding) && this._dynamicallyCreatedComponentBinding.callOnDestroy) {
@@ -24193,57 +24793,42 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
             this._dynamicallyCreatedComponentBinding = null;
             this._constructionCounter = 0;
           },
-          instantiateDirectives: function(lightDomAppInjector, host, preBuiltObjects) {
-            var $__0 = this;
-            var shadowDomAppInjector = null;
-            if (this._proto._binding0IsComponent) {
-              shadowDomAppInjector = this._createShadowDomAppInjector(this._proto._binding0, lightDomAppInjector);
-            }
-            this._host = host;
-            this._checkShadowDomAppInjector(shadowDomAppInjector);
-            this._preBuiltObjects = preBuiltObjects;
-            this._lightDomAppInjector = lightDomAppInjector;
-            this._shadowDomAppInjector = shadowDomAppInjector;
+          hydrate: function(injector, host, preBuiltObjects) {
             var p = this._proto;
-            if (isPresent(p._keyId0))
-              this._getDirectiveByKeyId(p._keyId0);
-            if (isPresent(shadowDomAppInjector)) {
-              var componentAnnotation = this._proto._binding0.annotation;
-              var publishAs = componentAnnotation.publishAs;
-              if (isPresent(publishAs) && publishAs.length > 0) {
-                this._shadowDomAppInjector = shadowDomAppInjector.resolveAndCreateChild(ListWrapper.map(publishAs, (function(token) {
-                  return bind(token).toValue($__0.getComponent());
-                })));
-              }
+            this._host = host;
+            this._lightDomAppInjector = injector;
+            this._preBuiltObjects = preBuiltObjects;
+            if (p._firstBindingIsComponent) {
+              this._shadowDomAppInjector = this._createShadowDomAppInjector(p._binding0, injector);
             }
+            this._checkShadowDomAppInjector(this._shadowDomAppInjector);
+            if (isPresent(p._keyId0))
+              this._getObjByKeyId(p._keyId0, LIGHT_DOM_AND_SHADOW_DOM);
             if (isPresent(p._keyId1))
-              this._getDirectiveByKeyId(p._keyId1);
+              this._getObjByKeyId(p._keyId1, LIGHT_DOM_AND_SHADOW_DOM);
             if (isPresent(p._keyId2))
-              this._getDirectiveByKeyId(p._keyId2);
+              this._getObjByKeyId(p._keyId2, LIGHT_DOM_AND_SHADOW_DOM);
             if (isPresent(p._keyId3))
-              this._getDirectiveByKeyId(p._keyId3);
+              this._getObjByKeyId(p._keyId3, LIGHT_DOM_AND_SHADOW_DOM);
             if (isPresent(p._keyId4))
-              this._getDirectiveByKeyId(p._keyId4);
+              this._getObjByKeyId(p._keyId4, LIGHT_DOM_AND_SHADOW_DOM);
             if (isPresent(p._keyId5))
-              this._getDirectiveByKeyId(p._keyId5);
+              this._getObjByKeyId(p._keyId5, LIGHT_DOM_AND_SHADOW_DOM);
             if (isPresent(p._keyId6))
-              this._getDirectiveByKeyId(p._keyId6);
+              this._getObjByKeyId(p._keyId6, LIGHT_DOM_AND_SHADOW_DOM);
             if (isPresent(p._keyId7))
-              this._getDirectiveByKeyId(p._keyId7);
+              this._getObjByKeyId(p._keyId7, LIGHT_DOM_AND_SHADOW_DOM);
             if (isPresent(p._keyId8))
-              this._getDirectiveByKeyId(p._keyId8);
+              this._getObjByKeyId(p._keyId8, LIGHT_DOM_AND_SHADOW_DOM);
             if (isPresent(p._keyId9))
-              this._getDirectiveByKeyId(p._keyId9);
+              this._getObjByKeyId(p._keyId9, LIGHT_DOM_AND_SHADOW_DOM);
           },
           _createShadowDomAppInjector: function(componentDirective, appInjector) {
-            var shadowDomAppInjector = null;
-            var injectables = componentDirective.resolvedInjectables;
-            if (isPresent(injectables)) {
-              shadowDomAppInjector = appInjector.createChildFromResolved(injectables);
+            if (!ListWrapper.isEmpty(componentDirective.resolvedAppInjectables)) {
+              return appInjector.createChildFromResolved(componentDirective.resolvedAppInjectables);
             } else {
-              shadowDomAppInjector = appInjector;
+              return appInjector;
             }
-            return shadowDomAppInjector;
           },
           dynamicallyCreateComponent: function(componentDirective, parentInjector) {
             this._shadowDomAppInjector = this._createShadowDomAppInjector(componentDirective, parentInjector);
@@ -24252,9 +24837,9 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
             return this._dynamicallyCreatedComponent;
           },
           _checkShadowDomAppInjector: function(shadowDomAppInjector) {
-            if (this._proto._binding0IsComponent && isBlank(shadowDomAppInjector)) {
+            if (this._proto._firstBindingIsComponent && isBlank(shadowDomAppInjector)) {
               throw new BaseException('A shadowDomAppInjector is required as this ElementInjector contains a component');
-            } else if (!this._proto._binding0IsComponent && isPresent(shadowDomAppInjector)) {
+            } else if (!this._proto._firstBindingIsComponent && isPresent(shadowDomAppInjector)) {
               throw new BaseException('No shadowDomAppInjector allowed as there is not component stored in this ElementInjector');
             }
           },
@@ -24262,13 +24847,13 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
             if (this._isDynamicallyLoadedComponent(token)) {
               return this._dynamicallyCreatedComponent;
             }
-            return this._getByKey(Key.get(token), 0, false, null);
+            return this._getByKey(Key.get(token), new Self(), false, null);
           },
           _isDynamicallyLoadedComponent: function(token) {
             return isPresent(this._dynamicallyCreatedComponentBinding) && Key.get(token) === this._dynamicallyCreatedComponentBinding.key;
           },
           hasDirective: function(type) {
-            return this._getDirectiveByKeyId(Key.get(type).id) !== _undefined;
+            return this._getObjByKeyId(Key.get(type).id, LIGHT_DOM_AND_SHADOW_DOM) !== _undefined;
           },
           getEventEmitterAccessors: function() {
             return this._proto.eventEmitterAccessors;
@@ -24277,11 +24862,7 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
             return this._proto.hostActionAccessors;
           },
           getComponent: function() {
-            if (this._proto._binding0IsComponent) {
-              return this._obj0;
-            } else {
-              throw new BaseException('There is no component stored in this ElementInjector');
-            }
+            return this._obj0;
           },
           getElementRef: function() {
             return new ElementRef(new ViewRef(this._preBuiltObjects.view), this._proto.index);
@@ -24296,7 +24877,7 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
             return this._proto.distanceToParent < 2 ? this.parent : null;
           },
           _isComponentKey: function(key) {
-            return this._proto._binding0IsComponent && key.id === this._proto._keyId0;
+            return this._proto._firstBindingIsComponent && key.id === this._proto._keyId0;
           },
           _isDynamicallyLoadedComponentKey: function(key) {
             return isPresent(this._dynamicallyCreatedComponentBinding) && key.id === this._dynamicallyCreatedComponentBinding.key.id;
@@ -24392,11 +24973,14 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
             }
             if (dep.key.id === StaticKeys.instance().protoViewId) {
               if (isBlank(this._preBuiltObjects.protoView)) {
+                if (dep.optional) {
+                  return null;
+                }
                 throw new NoBindingError(dep.key);
               }
               return new ProtoViewRef(this._preBuiltObjects.protoView);
             }
-            return this._getByKey(dep.key, dep.depth, dep.optional, requestor);
+            return this._getByKey(dep.key, dep.visibility, dep.optional, requestor);
           },
           _buildAttribute: function(dep) {
             var attributes = this._proto.attributes;
@@ -24574,21 +25158,39 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
             if (this._query2 == query)
               this._query2 = null;
           },
-          _getByKey: function(key, depth, optional, requestor) {
+          _getByKey: function(key, visibility, optional, requestor) {
             var ei = this;
-            if (!this._shouldIncludeSelf(depth)) {
+            var currentVisibility = LIGHT_DOM;
+            var depth = visibility.depth;
+            if (!visibility.shouldIncludeSelf()) {
               depth -= ei._proto.distanceToParent;
-              ei = ei._parent;
+              if (isPresent(ei._parent)) {
+                ei = ei._parent;
+              } else {
+                ei = ei._host;
+                if (!visibility.crossComponentBoundaries) {
+                  currentVisibility = SHADOW_DOM;
+                }
+              }
             }
             while (ei != null && depth >= 0) {
               var preBuiltObj = ei._getPreBuiltObjectByKeyId(key.id);
               if (preBuiltObj !== _undefined)
                 return preBuiltObj;
-              var dir = ei._getDirectiveByKeyId(key.id);
+              var dir = ei._getObjByKeyId(key.id, currentVisibility);
               if (dir !== _undefined)
                 return dir;
               depth -= ei._proto.distanceToParent;
-              ei = ei._parent;
+              if (currentVisibility === SHADOW_DOM)
+                break;
+              if (isPresent(ei._parent)) {
+                ei = ei._parent;
+              } else {
+                ei = ei._host;
+                if (!visibility.crossComponentBoundaries) {
+                  currentVisibility = SHADOW_DOM;
+                }
+              }
             }
             if (isPresent(this._host) && this._host._isComponentKey(key)) {
               return this._host.getComponent();
@@ -24607,72 +25209,69 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
               return this._lightDomAppInjector;
             }
           },
-          _shouldIncludeSelf: function(depth) {
-            return depth === 0;
-          },
           _getPreBuiltObjectByKeyId: function(keyId) {
             var staticKeys = StaticKeys.instance();
             if (keyId === staticKeys.viewManagerId)
               return this._preBuiltObjects.viewManager;
             return _undefined;
           },
-          _getDirectiveByKeyId: function(keyId) {
+          _getObjByKeyId: function(keyId, visibility) {
             var p = this._proto;
-            if (p._keyId0 === keyId) {
+            if (p._keyId0 === keyId && (p._visibility0 & visibility) > 0) {
               if (isBlank(this._obj0)) {
                 this._obj0 = this._new(p._binding0);
               }
               return this._obj0;
             }
-            if (p._keyId1 === keyId) {
+            if (p._keyId1 === keyId && (p._visibility1 & visibility) > 0) {
               if (isBlank(this._obj1)) {
                 this._obj1 = this._new(p._binding1);
               }
               return this._obj1;
             }
-            if (p._keyId2 === keyId) {
+            if (p._keyId2 === keyId && (p._visibility2 & visibility) > 0) {
               if (isBlank(this._obj2)) {
                 this._obj2 = this._new(p._binding2);
               }
               return this._obj2;
             }
-            if (p._keyId3 === keyId) {
+            if (p._keyId3 === keyId && (p._visibility3 & visibility) > 0) {
               if (isBlank(this._obj3)) {
                 this._obj3 = this._new(p._binding3);
               }
               return this._obj3;
             }
-            if (p._keyId4 === keyId) {
+            if (p._keyId4 === keyId && (p._visibility4 & visibility) > 0) {
               if (isBlank(this._obj4)) {
                 this._obj4 = this._new(p._binding4);
               }
               return this._obj4;
             }
-            if (p._keyId5 === keyId) {
+            if (p._keyId5 === keyId && (p._visibility5 & visibility) > 0) {
               if (isBlank(this._obj5)) {
                 this._obj5 = this._new(p._binding5);
               }
               return this._obj5;
             }
-            if (p._keyId6 === keyId) {
+            if (p._keyId6 === keyId && (p._visibility6 & visibility) > 0) {
               if (isBlank(this._obj6)) {
                 this._obj6 = this._new(p._binding6);
               }
               return this._obj6;
             }
-            if (p._keyId7 === keyId) {
+            if (p._keyId7 === keyId && (p._visibility7 & visibility) > 0) {
               if (isBlank(this._obj7)) {
                 this._obj7 = this._new(p._binding7);
               }
               return this._obj7;
             }
-            if (p._keyId8 === keyId) {
+            if (p._keyId8 === keyId && (p._visibility8 & visibility) > 0) {
               if (isBlank(this._obj8)) {
                 this._obj8 = this._new(p._binding8);
               }
               return this._obj8;
             }
-            if (p._keyId9 === keyId) {
+            if (p._keyId9 === keyId && (p._visibility9 & visibility) > 0) {
               if (isBlank(this._obj9)) {
                 this._obj9 = this._new(p._binding9);
               }
@@ -24733,7 +25332,7 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
       Object.defineProperty(ElementInjector, "parameters", {get: function() {
           return [[ProtoElementInjector], [ElementInjector]];
         }});
-      Object.defineProperty(ElementInjector.prototype.instantiateDirectives, "parameters", {get: function() {
+      Object.defineProperty(ElementInjector.prototype.hydrate, "parameters", {get: function() {
           return [[Injector], [ElementInjector], [PreBuiltObjects]];
         }});
       Object.defineProperty(ElementInjector.prototype._createShadowDomAppInjector, "parameters", {get: function() {
@@ -24785,19 +25384,16 @@ System.register("angular2/src/core/compiler/element_injector", ["angular2/src/fa
           return [[QueryRef]];
         }});
       Object.defineProperty(ElementInjector.prototype._getByKey, "parameters", {get: function() {
-          return [[Key], [assert.type.number], [assert.type.boolean], [Key]];
+          return [[Key], [Visibility], [assert.type.boolean], [Key]];
         }});
       Object.defineProperty(ElementInjector.prototype._appInjector, "parameters", {get: function() {
           return [[Key]];
         }});
-      Object.defineProperty(ElementInjector.prototype._shouldIncludeSelf, "parameters", {get: function() {
-          return [[int]];
-        }});
       Object.defineProperty(ElementInjector.prototype._getPreBuiltObjectByKeyId, "parameters", {get: function() {
           return [[int]];
         }});
-      Object.defineProperty(ElementInjector.prototype._getDirectiveByKeyId, "parameters", {get: function() {
-          return [[int]];
+      Object.defineProperty(ElementInjector.prototype._getObjByKeyId, "parameters", {get: function() {
+          return [[int], [assert.type.number]];
         }});
       Object.defineProperty(ElementInjector.prototype.getDirectiveAtIndex, "parameters", {get: function() {
           return [[int]];
@@ -24943,7 +25539,7 @@ System.register("angular2/src/core/compiler/view", ["angular2/src/facade/collect
           this.context = null;
           this.locals = new Locals(null, MapWrapper.clone(protoLocals));
           this.renderer = renderer;
-          this.inPlaceHostViews = [];
+          this.freeHostViews = [];
         }
         return ($traceurRuntime.createClass)(AppView, {
           init: function(changeDetector, elementInjectors, rootElementInjectors, preBuiltObjects, componentChildViews) {
@@ -25007,7 +25603,7 @@ System.register("angular2/src/core/compiler/view", ["angular2/src/facade/collect
                 }
                 var result = expr.eval(context, new Locals($__0.locals, locals));
                 if (isPresent(result)) {
-                  allowDefaultBehavior = allowDefaultBehavior && result;
+                  allowDefaultBehavior = allowDefaultBehavior && result == true;
                 }
               }));
             }
@@ -25047,12 +25643,17 @@ System.register("angular2/src/core/compiler/view", ["angular2/src/facade/collect
           return [[assert.type.number], [assert.type.string], [assert.genericType(Map, assert.type.string, assert.type.any)]];
         }});
       AppProtoView = (function() {
-        function AppProtoView(render, protoChangeDetector, variableBindings, protoLocals, variableNames) {
+        function AppProtoView(render, protoChangeDetector, variableBindings) {
+          var $__0 = this;
           this.render = render;
           this.elementBinders = [];
           this.variableBindings = variableBindings;
-          this.protoLocals = protoLocals;
-          this.variableNames = variableNames;
+          this.protoLocals = MapWrapper.create();
+          if (isPresent(variableBindings)) {
+            MapWrapper.forEach(variableBindings, (function(templateName, _) {
+              MapWrapper.set($__0.protoLocals, templateName, null);
+            }));
+          }
           this.protoChangeDetector = protoChangeDetector;
         }
         return ($traceurRuntime.createClass)(AppProtoView, {
@@ -25085,7 +25686,7 @@ System.register("angular2/src/core/compiler/view", ["angular2/src/facade/collect
       }());
       $__export("AppProtoView", AppProtoView);
       Object.defineProperty(AppProtoView, "parameters", {get: function() {
-          return [[renderApi.RenderProtoViewRef], [ProtoChangeDetector], [Map], [Map], [List]];
+          return [[renderApi.RenderProtoViewRef], [ProtoChangeDetector], [Map]];
         }});
       Object.defineProperty(AppProtoView.prototype.bindElement, "parameters", {get: function() {
           return [[ElementBinder], [int], [ProtoElementInjector], [DirectiveBinding]];
@@ -25097,10 +25698,11 @@ System.register("angular2/src/core/compiler/view", ["angular2/src/facade/collect
   };
 });
 
-System.register("angular2/src/core/compiler/compiler", ["angular2/di", "angular2/src/di/annotations_impl", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/src/facade/collection", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/core/annotations_impl/annotations", "angular2/src/core/compiler/view", "angular2/src/core/compiler/view_ref", "angular2/src/core/compiler/element_injector", "angular2/src/core/compiler/template_resolver", "angular2/src/core/annotations_impl/view", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/proto_view_factory", "angular2/src/services/url_resolver", "angular2/src/render/api"], function($__export) {
+System.register("angular2/src/core/compiler/compiler", ["angular2/di", "angular2/src/di/annotations_impl", "angular2/src/facade/lang", "angular2/src/facade/async", "angular2/src/facade/collection", "angular2/src/core/compiler/directive_resolver", "angular2/src/core/compiler/view", "angular2/src/core/compiler/element_binder", "angular2/src/core/compiler/view_ref", "angular2/src/core/compiler/element_injector", "angular2/src/core/compiler/template_resolver", "angular2/src/core/annotations_impl/view", "angular2/src/core/compiler/component_url_mapper", "angular2/src/core/compiler/proto_view_factory", "angular2/src/services/url_resolver", "angular2/src/render/api"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/core/compiler/compiler";
   var Binding,
+      resolveForwardRef,
       Injectable,
       Type,
       isBlank,
@@ -25114,10 +25716,9 @@ System.register("angular2/src/core/compiler/compiler", ["angular2/di", "angular2
       ListWrapper,
       Map,
       MapWrapper,
-      DirectiveMetadataReader,
-      Component,
-      Directive,
+      DirectiveResolver,
       AppProtoView,
+      ElementBinder,
       ProtoViewRef,
       DirectiveBinding,
       TemplateResolver,
@@ -25131,6 +25732,7 @@ System.register("angular2/src/core/compiler/compiler", ["angular2/di", "angular2
   return {
     setters: [function($__m) {
       Binding = $__m.Binding;
+      resolveForwardRef = $__m.resolveForwardRef;
     }, function($__m) {
       Injectable = $__m.Injectable;
     }, function($__m) {
@@ -25149,12 +25751,11 @@ System.register("angular2/src/core/compiler/compiler", ["angular2/di", "angular2
       Map = $__m.Map;
       MapWrapper = $__m.MapWrapper;
     }, function($__m) {
-      DirectiveMetadataReader = $__m.DirectiveMetadataReader;
-    }, function($__m) {
-      Component = $__m.Component;
-      Directive = $__m.Directive;
+      DirectiveResolver = $__m.DirectiveResolver;
     }, function($__m) {
       AppProtoView = $__m.AppProtoView;
+    }, function($__m) {
+      ElementBinder = $__m.ElementBinder;
     }, function($__m) {
       ProtoViewRef = $__m.ProtoViewRef;
     }, function($__m) {
@@ -25217,27 +25818,27 @@ System.register("angular2/src/core/compiler/compiler", ["angular2/di", "angular2
             if (directiveTypeOrBinding instanceof DirectiveBinding) {
               return directiveTypeOrBinding;
             } else if (directiveTypeOrBinding instanceof Binding) {
-              var meta = this._reader.read(directiveTypeOrBinding.token);
-              return DirectiveBinding.createFromBinding(directiveTypeOrBinding, meta.annotation);
+              var annotation = this._reader.resolve(directiveTypeOrBinding.token);
+              return DirectiveBinding.createFromBinding(directiveTypeOrBinding, annotation);
             } else {
-              var meta$__2 = this._reader.read(directiveTypeOrBinding);
-              return DirectiveBinding.createFromType(meta$__2.type, meta$__2.annotation);
+              var annotation$__2 = this._reader.resolve(directiveTypeOrBinding);
+              return DirectiveBinding.createFromType(directiveTypeOrBinding, annotation$__2);
             }
           },
           compileInHost: function(componentTypeOrBinding) {
             var $__0 = this;
             var componentBinding = this._bindDirective(componentTypeOrBinding);
-            this._assertTypeIsComponent(componentBinding);
-            var directiveMetadata = Compiler.buildRenderDirective(componentBinding);
+            Compiler._assertTypeIsComponent(componentBinding);
+            var directiveMetadata = componentBinding.metadata;
             return this._render.compileHost(directiveMetadata).then((function(hostRenderPv) {
-              return $__0._compileNestedProtoViews(null, null, hostRenderPv, [componentBinding], true);
+              return $__0._compileNestedProtoViews(componentBinding, hostRenderPv, [componentBinding]);
             })).then((function(appProtoView) {
               return new ProtoViewRef(appProtoView);
             }));
           },
           compile: function(component) {
             var componentBinding = this._bindDirective(component);
-            this._assertTypeIsComponent(componentBinding);
+            Compiler._assertTypeIsComponent(componentBinding);
             var protoView = this._compile(componentBinding);
             var pvPromise = PromiseWrapper.isPromise(protoView) ? protoView : PromiseWrapper.resolve(protoView);
             return pvPromise.then((function(appProtoView) {
@@ -25259,44 +25860,43 @@ System.register("angular2/src/core/compiler/compiler", ["angular2/di", "angular2
             if (isBlank(template)) {
               return null;
             }
-            var directives = ListWrapper.map(this._flattenDirectives(template), (function(directive) {
+            var directives = this._flattenDirectives(template);
+            for (var i = 0; i < directives.length; i++) {
+              if (!Compiler._isValidDirective(directives[i])) {
+                throw new BaseException(("Unexpected directive value '" + stringify(directives[i]) + "' on the View of component '" + stringify(component) + "'"));
+              }
+            }
+            var boundDirectives = ListWrapper.map(directives, (function(directive) {
               return $__0._bindDirective(directive);
             }));
-            var renderTemplate = this._buildRenderTemplate(component, template, directives);
+            var renderTemplate = this._buildRenderTemplate(component, template, boundDirectives);
             pvPromise = this._render.compile(renderTemplate).then((function(renderPv) {
-              return $__0._compileNestedProtoViews(null, componentBinding, renderPv, directives, true);
+              return $__0._compileNestedProtoViews(componentBinding, renderPv, boundDirectives);
             }));
             MapWrapper.set(this._compiling, component, pvPromise);
             return pvPromise;
           },
-          _compileNestedProtoViews: function(parentProtoView, componentBinding, renderPv, directives, isComponentRootView) {
+          _compileNestedProtoViews: function(componentBinding, renderPv, directives) {
             var $__0 = this;
-            var nestedPVPromises = [];
-            var protoView = this._protoViewFactory.createProtoView(parentProtoView, componentBinding, renderPv, directives);
-            if (isComponentRootView && isPresent(componentBinding)) {
+            var protoViews = this._protoViewFactory.createAppProtoViews(componentBinding, renderPv, directives);
+            var protoView = protoViews[0];
+            if (renderPv.type === renderApi.ProtoViewDto.COMPONENT_VIEW_TYPE && isPresent(componentBinding)) {
               var component = componentBinding.key.token;
               this._compilerCache.set(component, protoView);
               MapWrapper.delete(this._compiling, component);
             }
-            var binderIndex = 0;
-            ListWrapper.forEach(protoView.elementBinders, (function(elementBinder) {
+            var nestedPVPromises = [];
+            ListWrapper.forEach(this._collectComponentElementBinders(protoViews), (function(elementBinder) {
               var nestedComponent = elementBinder.componentDirective;
-              var nestedRenderProtoView = renderPv.elementBinders[binderIndex].nestedProtoView;
               var elementBinderDone = (function(nestedPv) {
                 elementBinder.nestedProtoView = nestedPv;
               });
-              var nestedCall = null;
-              if (isPresent(nestedComponent)) {
-                nestedCall = $__0._compile(nestedComponent);
-              } else if (isPresent(nestedRenderProtoView)) {
-                nestedCall = $__0._compileNestedProtoViews(protoView, componentBinding, nestedRenderProtoView, directives, false);
-              }
+              var nestedCall = $__0._compile(nestedComponent);
               if (PromiseWrapper.isPromise(nestedCall)) {
                 ListWrapper.push(nestedPVPromises, nestedCall.then(elementBinderDone));
               } else if (isPresent(nestedCall)) {
                 elementBinderDone(nestedCall);
               }
-              binderIndex++;
             }));
             var protoViewDone = (function(_) {
               return protoView;
@@ -25306,6 +25906,17 @@ System.register("angular2/src/core/compiler/compiler", ["angular2/di", "angular2
             } else {
               return protoViewDone(null);
             }
+          },
+          _collectComponentElementBinders: function(protoViews) {
+            var componentElementBinders = [];
+            ListWrapper.forEach(protoViews, (function(protoView) {
+              ListWrapper.forEach(protoView.elementBinders, (function(elementBinder) {
+                if (isPresent(elementBinder.componentDirective)) {
+                  ListWrapper.push(componentElementBinders, elementBinder);
+                }
+              }));
+            }));
+            return componentElementBinders;
           },
           _buildRenderTemplate: function(component, view, directives) {
             var componentUrl = this._urlResolver.resolve(this._appUrl, this._componentUrlMapper.getUrl(component));
@@ -25319,7 +25930,9 @@ System.register("angular2/src/core/compiler/compiler", ["angular2/di", "angular2
               componentId: stringify(component),
               absUrl: templateAbsUrl,
               template: view.template,
-              directives: ListWrapper.map(directives, Compiler.buildRenderDirective)
+              directives: ListWrapper.map(directives, (function(directiveBinding) {
+                return directiveBinding.metadata;
+              }))
             });
           },
           _flattenDirectives: function(template) {
@@ -25331,54 +25944,31 @@ System.register("angular2/src/core/compiler/compiler", ["angular2/di", "angular2
           },
           _flattenList: function(tree, out) {
             for (var i = 0; i < tree.length; i++) {
-              var item = tree[i];
+              var item = resolveForwardRef(tree[i]);
               if (ListWrapper.isList(item)) {
                 this._flattenList(item, out);
               } else {
                 ListWrapper.push(out, item);
               }
             }
+          }
+        }, {
+          _isValidDirective: function(value) {
+            return isPresent(value) && (value instanceof Type || value instanceof Binding);
           },
           _assertTypeIsComponent: function(directiveBinding) {
-            if (!(directiveBinding.annotation instanceof Component)) {
+            if (directiveBinding.metadata.type !== renderApi.DirectiveMetadata.COMPONENT_TYPE) {
               throw new BaseException(("Could not load '" + stringify(directiveBinding.key.token) + "' because it is not a component."));
             }
           }
-        }, {buildRenderDirective: function(directiveBinding) {
-            var ann = directiveBinding.annotation;
-            var renderType;
-            var compileChildren = ann.compileChildren;
-            if (ann instanceof Component) {
-              renderType = renderApi.DirectiveMetadata.COMPONENT_TYPE;
-            } else {
-              renderType = renderApi.DirectiveMetadata.DIRECTIVE_TYPE;
-            }
-            var readAttributes = [];
-            ListWrapper.forEach(directiveBinding.dependencies, (function(dep) {
-              if (isPresent(dep.attributeName)) {
-                ListWrapper.push(readAttributes, dep.attributeName);
-              }
-            }));
-            return new renderApi.DirectiveMetadata({
-              id: stringify(directiveBinding.key.token),
-              type: renderType,
-              selector: ann.selector,
-              compileChildren: compileChildren,
-              hostListeners: isPresent(ann.hostListeners) ? MapWrapper.createFromStringMap(ann.hostListeners) : null,
-              hostProperties: isPresent(ann.hostProperties) ? MapWrapper.createFromStringMap(ann.hostProperties) : null,
-              hostAttributes: isPresent(ann.hostAttributes) ? MapWrapper.createFromStringMap(ann.hostAttributes) : null,
-              hostActions: isPresent(ann.hostActions) ? MapWrapper.createFromStringMap(ann.hostActions) : null,
-              properties: isPresent(ann.properties) ? MapWrapper.createFromStringMap(ann.properties) : null,
-              readAttributes: readAttributes
-            });
-          }});
+        });
       }());
       $__export("Compiler", Compiler);
       Object.defineProperty(Compiler, "annotations", {get: function() {
           return [new Injectable()];
         }});
       Object.defineProperty(Compiler, "parameters", {get: function() {
-          return [[DirectiveMetadataReader], [CompilerCache], [TemplateResolver], [ComponentUrlMapper], [UrlResolver], [renderApi.RenderCompiler], [ProtoViewFactory]];
+          return [[DirectiveResolver], [CompilerCache], [TemplateResolver], [ComponentUrlMapper], [UrlResolver], [renderApi.RenderCompiler], [ProtoViewFactory]];
         }});
       Object.defineProperty(Compiler.prototype.compileInHost, "parameters", {get: function() {
           return [[assert.type.any]];
@@ -25389,20 +25979,26 @@ System.register("angular2/src/core/compiler/compiler", ["angular2/di", "angular2
       Object.defineProperty(Compiler.prototype._compile, "parameters", {get: function() {
           return [[DirectiveBinding]];
         }});
+      Object.defineProperty(Compiler.prototype._collectComponentElementBinders, "parameters", {get: function() {
+          return [[assert.genericType(List, AppProtoView)]];
+        }});
       Object.defineProperty(Compiler.prototype._flattenDirectives, "parameters", {get: function() {
           return [[View]];
         }});
       Object.defineProperty(Compiler.prototype._flattenList, "parameters", {get: function() {
-          return [[assert.genericType(List, assert.type.any)], [assert.genericType(List, Type)]];
+          return [[assert.genericType(List, assert.type.any)], [assert.genericType(List, assert.type.any)]];
         }});
-      Object.defineProperty(Compiler.prototype._assertTypeIsComponent, "parameters", {get: function() {
+      Object.defineProperty(Compiler._isValidDirective, "parameters", {get: function() {
+          return [[assert.type.any]];
+        }});
+      Object.defineProperty(Compiler._assertTypeIsComponent, "parameters", {get: function() {
           return [[DirectiveBinding]];
         }});
     }
   };
 });
 
-System.register("angular2/src/core/application", ["angular2/di", "angular2/src/facade/lang", "angular2/src/dom/browser_adapter", "angular2/src/dom/dom_adapter", "angular2/src/core/compiler/compiler", "angular2/src/reflection/reflection", "angular2/change_detection", "angular2/src/core/exception_handler", "angular2/src/render/dom/compiler/template_loader", "angular2/src/core/compiler/template_resolver", "angular2/src/core/compiler/directive_metadata_reader", "angular2/src/facade/collection", "angular2/src/facade/async", "angular2/src/core/zone/ng_zone", "angular2/src/core/life_cycle/life_cycle", "angular2/src/render/dom/shadow_dom/shadow_dom_strategy", "angular2/src/render/dom/shadow_dom/emulated_unscoped_shadow_dom_strategy", "angular2/src/services/xhr", "angular2/src/services/xhr_impl", "angular2/src/render/dom/events/event_manager", "angular2/src/render/dom/events/key_events", "angular2/src/render/dom/events/hammer_gestures", "angular2/src/di/binding", "angular2/src/core/compiler/component_url_mapper", "angular2/src/services/url_resolver", "angular2/src/render/dom/shadow_dom/style_url_resolver", "angular2/src/render/dom/shadow_dom/style_inliner", "angular2/src/core/compiler/dynamic_component_loader", "angular2/src/core/testability/testability", "angular2/src/core/compiler/view_pool", "angular2/src/core/compiler/view_manager", "angular2/src/core/compiler/view_manager_utils", "angular2/src/core/compiler/proto_view_factory", "angular2/src/render/api", "angular2/src/render/dom/dom_renderer", "angular2/src/render/dom/view/view", "angular2/src/render/dom/compiler/compiler", "angular2/src/core/compiler/view_ref", "angular2/src/core/application_tokens"], function($__export) {
+System.register("angular2/src/core/application", ["angular2/di", "angular2/src/facade/lang", "angular2/src/dom/browser_adapter", "angular2/src/dom/dom_adapter", "angular2/src/core/compiler/compiler", "angular2/src/reflection/reflection", "angular2/change_detection", "angular2/src/core/exception_handler", "angular2/src/render/dom/compiler/template_loader", "angular2/src/core/compiler/template_resolver", "angular2/src/core/compiler/directive_resolver", "angular2/src/facade/collection", "angular2/src/facade/async", "angular2/src/core/zone/ng_zone", "angular2/src/core/life_cycle/life_cycle", "angular2/src/render/dom/shadow_dom/shadow_dom_strategy", "angular2/src/render/dom/shadow_dom/emulated_unscoped_shadow_dom_strategy", "angular2/src/services/xhr", "angular2/src/services/xhr_impl", "angular2/src/render/dom/events/event_manager", "angular2/src/render/dom/events/key_events", "angular2/src/render/dom/events/hammer_gestures", "angular2/src/di/binding", "angular2/src/core/compiler/component_url_mapper", "angular2/src/services/url_resolver", "angular2/src/render/dom/shadow_dom/style_url_resolver", "angular2/src/render/dom/shadow_dom/style_inliner", "angular2/src/core/compiler/dynamic_component_loader", "angular2/src/core/testability/testability", "angular2/src/core/compiler/view_pool", "angular2/src/core/compiler/view_manager", "angular2/src/core/compiler/view_manager_utils", "angular2/src/core/compiler/proto_view_factory", "angular2/src/render/api", "angular2/src/render/dom/dom_renderer", "angular2/src/render/dom/view/view", "angular2/src/render/dom/compiler/compiler", "angular2/src/core/compiler/view_ref", "angular2/src/core/application_tokens"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/core/application";
   var Injector,
@@ -25431,7 +26027,7 @@ System.register("angular2/src/core/application", ["angular2/di", "angular2/src/f
       ExceptionHandler,
       TemplateLoader,
       TemplateResolver,
-      DirectiveMetadataReader,
+      DirectiveResolver,
       List,
       ListWrapper,
       Promise,
@@ -25468,21 +26064,18 @@ System.register("angular2/src/core/application", ["angular2/di", "angular2/src/f
       DefaultDomCompiler,
       internalView,
       appComponentRefToken,
-      appComponentAnnotatedTypeToken,
+      appComponentTypeToken,
       _rootInjector,
       _rootBindings,
       ApplicationRef;
   function _injectorBindings(appComponentType) {
-    return [bind(DOCUMENT_TOKEN).toValue(DOM.defaultDoc()), bind(appComponentAnnotatedTypeToken).toFactory((function(reader) {
-      return reader.read(appComponentType);
-    }), [DirectiveMetadataReader]), bind(appComponentRefToken).toAsyncFactory((function(dynamicComponentLoader, injector, appComponentAnnotatedType, testability, registry) {
-      var selector = appComponentAnnotatedType.annotation.selector;
-      return dynamicComponentLoader.loadIntoNewLocation(appComponentAnnotatedType.type, null, selector, injector).then((function(componentRef) {
+    return [bind(DOCUMENT_TOKEN).toValue(DOM.defaultDoc()), bind(appComponentTypeToken).toValue(appComponentType), bind(appComponentRefToken).toAsyncFactory((function(dynamicComponentLoader, injector, testability, registry) {
+      return dynamicComponentLoader.loadAsRoot(appComponentType, null, injector).then((function(componentRef) {
         var domView = resolveInternalDomView(componentRef.hostView.render);
         registry.registerApplication(domView.boundElements[0], testability);
         return componentRef;
       }));
-    }), [DynamicComponentLoader, Injector, appComponentAnnotatedTypeToken, Testability, TestabilityRegistry]), bind(appComponentType).toFactory((function(ref) {
+    }), [DynamicComponentLoader, Injector, Testability, TestabilityRegistry]), bind(appComponentType).toFactory((function(ref) {
       return ref.instance;
     }), [appComponentRefToken]), bind(LifeCycle).toFactory((function(exceptionHandler) {
       return new LifeCycle(exceptionHandler, null, assertionsEnabled());
@@ -25495,7 +26088,7 @@ System.register("angular2/src/core/application", ["angular2/di", "angular2/src/f
       return new DomRenderer(eventManager, shadowDomStrategy, doc);
     }), [EventManager, ShadowDomStrategy, DOCUMENT_TOKEN]), DefaultDomCompiler, bind(Renderer).toAlias(DomRenderer), bind(RenderCompiler).toAlias(DefaultDomCompiler), ProtoViewFactory, bind(AppViewPool).toFactory((function(capacity) {
       return new AppViewPool(capacity);
-    }), [APP_VIEW_POOL_CAPACITY]), bind(APP_VIEW_POOL_CAPACITY).toValue(10000), AppViewManager, AppViewManagerUtils, Compiler, CompilerCache, TemplateResolver, bind(PipeRegistry).toValue(defaultPipeRegistry), bind(ChangeDetection).toClass(DynamicChangeDetection), TemplateLoader, DirectiveMetadataReader, Parser, Lexer, ExceptionHandler, bind(XHR).toValue(new XHRImpl()), ComponentUrlMapper, UrlResolver, StyleUrlResolver, StyleInliner, DynamicComponentLoader, Testability];
+    }), [APP_VIEW_POOL_CAPACITY]), bind(APP_VIEW_POOL_CAPACITY).toValue(10000), AppViewManager, AppViewManagerUtils, Compiler, CompilerCache, TemplateResolver, bind(PipeRegistry).toValue(defaultPipeRegistry), bind(ChangeDetection).toClass(DynamicChangeDetection), TemplateLoader, DirectiveResolver, Parser, Lexer, ExceptionHandler, bind(XHR).toValue(new XHRImpl()), ComponentUrlMapper, UrlResolver, StyleUrlResolver, StyleInliner, DynamicComponentLoader, Testability];
   }
   function _createNgZone(givenReporter) {
     var defaultErrorReporter = (function(exception, stackTrace) {
@@ -25521,9 +26114,9 @@ System.register("angular2/src/core/application", ["angular2/di", "angular2/src/f
         var lc = appInjector.get(LifeCycle);
         lc.registerWith(zone, appChangeDetector);
         lc.tick();
-        bootstrapProcess.resolve(new ApplicationRef(componentRef, appInjector));
-      }), (function(err) {
-        bootstrapProcess.reject(err);
+        bootstrapProcess.resolve(new ApplicationRef(componentRef, appComponentType, appInjector));
+      }), (function(err, stackTrace) {
+        bootstrapProcess.reject(err, stackTrace);
       }));
     }));
     return bootstrapProcess.promise;
@@ -25574,7 +26167,7 @@ System.register("angular2/src/core/application", ["angular2/di", "angular2/src/f
     }, function($__m) {
       TemplateResolver = $__m.TemplateResolver;
     }, function($__m) {
-      DirectiveMetadataReader = $__m.DirectiveMetadataReader;
+      DirectiveResolver = $__m.DirectiveResolver;
     }, function($__m) {
       List = $__m.List;
       ListWrapper = $__m.ListWrapper;
@@ -25639,7 +26232,7 @@ System.register("angular2/src/core/application", ["angular2/di", "angular2/src/f
       internalView = $__m.internalView;
     }, function($__m) {
       appComponentRefToken = $__m.appComponentRefToken;
-      appComponentAnnotatedTypeToken = $__m.appComponentAnnotatedTypeToken;
+      appComponentTypeToken = $__m.appComponentTypeToken;
     }],
     execute: function() {
       _rootBindings = [bind(Reflector).toValue(reflector), TestabilityRegistry];
@@ -25650,11 +26243,15 @@ System.register("angular2/src/core/application", ["angular2/di", "angular2/src/f
           return [[Type], [assert.genericType(List, Binding)], [Function]];
         }});
       ApplicationRef = (function() {
-        function ApplicationRef(hostComponent, injector) {
+        function ApplicationRef(hostComponent, hostComponentType, injector) {
           this._hostComponent = hostComponent;
           this._injector = injector;
+          this._hostComponentType = hostComponentType;
         }
         return ($traceurRuntime.createClass)(ApplicationRef, {
+          get hostComponentType() {
+            return this._hostComponentType;
+          },
           get hostComponent() {
             return this._hostComponent.instance;
           },
@@ -25668,7 +26265,7 @@ System.register("angular2/src/core/application", ["angular2/di", "angular2/src/f
       }());
       $__export("ApplicationRef", ApplicationRef);
       Object.defineProperty(ApplicationRef, "parameters", {get: function() {
-          return [[ComponentRef], [Injector]];
+          return [[ComponentRef], [Type], [Injector]];
         }});
       Object.defineProperty(_createAppInjector, "parameters", {get: function() {
           return [[Type], [assert.genericType(List, Binding)], [NgZone]];
@@ -25777,7 +26374,7 @@ System.register("angular2/core", ["angular2/src/core/annotations/visibility", "a
   };
 });
 
-System.register("angular2/angular2", ["angular2/change_detection", "angular2/core", "angular2/annotations", "angular2/directives", "angular2/forms", "angular2/src/facade/async", "angular2/src/render/api", "angular2/src/render/dom/dom_renderer"], function($__export) {
+System.register("angular2/angular2", ["angular2/change_detection", "angular2/core", "angular2/annotations", "angular2/directives", "angular2/forms", "angular2/di", "angular2/src/facade/async", "angular2/src/render/api", "angular2/src/render/dom/dom_renderer"], function($__export) {
   "use strict";
   var __moduleName = "angular2/angular2";
   var $__exportNames = {undefined: true};
@@ -25786,8 +26383,14 @@ System.register("angular2/angular2", ["angular2/change_detection", "angular2/cor
   var $__exportNames = {undefined: true};
   var $__exportNames = {undefined: true};
   var $__exportNames = {undefined: true};
+  var $__exportNames = {undefined: true};
   return {
     setters: [function($__m) {
+      Object.keys($__m).forEach(function(p) {
+        if (!$__exportNames[p])
+          $__export(p, $__m[p]);
+      });
+    }, function($__m) {
       Object.keys($__m).forEach(function(p) {
         if (!$__exportNames[p])
           $__export(p, $__m[p]);

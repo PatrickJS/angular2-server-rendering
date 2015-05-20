@@ -39,9 +39,9 @@ System.register("angular2/src/router/instruction", ["angular2/src/facade/collect
       Promise,
       PromiseWrapper,
       isPresent,
+      normalizeBlank,
       RouteParams,
-      Instruction,
-      noopInstruction;
+      Instruction;
   function shouldReuseComponent(instr1, instr2) {
     return instr1.component == instr2.component && StringMapWrapper.equals(instr1.params, instr2.params);
   }
@@ -68,6 +68,7 @@ System.register("angular2/src/router/instruction", ["angular2/src/facade/collect
       PromiseWrapper = $__m.PromiseWrapper;
     }, function($__m) {
       isPresent = $__m.isPresent;
+      normalizeBlank = $__m.normalizeBlank;
     }],
     execute: function() {
       RouteParams = (function() {
@@ -75,7 +76,7 @@ System.register("angular2/src/router/instruction", ["angular2/src/facade/collect
           this.params = params;
         }
         return ($traceurRuntime.createClass)(RouteParams, {get: function(param) {
-            return StringMapWrapper.get(this.params, param);
+            return normalizeBlank(StringMapWrapper.get(this.params, param));
           }}, {});
       }());
       $__export("RouteParams", RouteParams);
@@ -91,17 +92,22 @@ System.register("angular2/src/router/instruction", ["angular2/src/facade/collect
               params = $__2.params,
               component = $__2.component,
               children = $__2.children,
-              matchedUrl = $__2.matchedUrl;
+              matchedUrl = $__2.matchedUrl,
+              parentSpecificity = $__2.parentSpecificity;
+          var $__0 = this;
           this.reuse = false;
-          this.matchedUrl = matchedUrl;
+          this.capturedUrl = matchedUrl;
+          this.accumulatedUrl = matchedUrl;
+          this.specificity = parentSpecificity;
           if (isPresent(children)) {
             this._children = children;
             var childUrl;
             StringMapWrapper.forEach(this._children, (function(child, _) {
-              childUrl = child.matchedUrl;
+              childUrl = child.accumulatedUrl;
+              $__0.specificity += child.specificity;
             }));
             if (isPresent(childUrl)) {
-              this.matchedUrl += childUrl;
+              this.accumulatedUrl += childUrl;
             }
           } else {
             this._children = StringMapWrapper.create();
@@ -110,35 +116,24 @@ System.register("angular2/src/router/instruction", ["angular2/src/facade/collect
           this.params = params;
         }
         return ($traceurRuntime.createClass)(Instruction, {
-          getChildInstruction: function(outletName) {
+          hasChild: function(outletName) {
+            return StringMapWrapper.contains(this._children, outletName);
+          },
+          getChild: function(outletName) {
             return StringMapWrapper.get(this._children, outletName);
           },
           forEachChild: function(fn) {
             StringMapWrapper.forEach(this._children, fn);
           },
-          mapChildrenAsync: function(fn) {
-            return mapObjAsync(this._children, fn);
-          },
           traverseSync: function(fn) {
-            var $__0 = this;
-            this.forEachChild((function(childInstruction, _) {
-              return fn($__0, childInstruction);
-            }));
+            this.forEachChild(fn);
             this.forEachChild((function(childInstruction, _) {
               return childInstruction.traverseSync(fn);
             }));
           },
-          traverseAsync: function(fn) {
-            var $__0 = this;
-            return this.mapChildrenAsync(fn).then((function(_) {
-              return $__0.mapChildrenAsync((function(childInstruction, _) {
-                return childInstruction.traverseAsync(fn);
-              }));
-            }));
-          },
           reuseComponentsFrom: function(oldInstruction) {
-            this.forEachChild((function(childInstruction, outletName) {
-              var oldInstructionChild = oldInstruction.getChildInstruction(outletName);
+            this.traverseSync((function(childInstruction, outletName) {
+              var oldInstructionChild = oldInstruction.getChild(outletName);
               if (shouldReuseComponent(childInstruction, oldInstructionChild)) {
                 childInstruction.reuse = true;
               }
@@ -147,16 +142,16 @@ System.register("angular2/src/router/instruction", ["angular2/src/facade/collect
         }, {});
       }());
       $__export("Instruction", Instruction);
-      Object.defineProperty(Instruction.prototype.getChildInstruction, "parameters", {get: function() {
+      Object.defineProperty(Instruction.prototype.hasChild, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
+      Object.defineProperty(Instruction.prototype.getChild, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
       Object.defineProperty(Instruction.prototype.forEachChild, "parameters", {get: function() {
           return [[Function]];
         }});
       Object.defineProperty(Instruction.prototype.traverseSync, "parameters", {get: function() {
-          return [[Function]];
-        }});
-      Object.defineProperty(Instruction.prototype.traverseAsync, "parameters", {get: function() {
           return [[Function]];
         }});
       Object.defineProperty(Instruction.prototype.reuseComponentsFrom, "parameters", {get: function() {
@@ -169,10 +164,8 @@ System.register("angular2/src/router/instruction", ["angular2/src/facade/collect
           return [[StringMap], []];
         }});
       Object.defineProperty(mapObj, "parameters", {get: function() {
-          return [[StringMap], []];
+          return [[StringMap], [Function]];
         }});
-      noopInstruction = new Instruction();
-      $__export("noopInstruction", noopInstruction);
     }
   };
 });
@@ -232,18 +225,6 @@ System.register("angular2/src/router/pipeline", ["angular2/src/facade/async", "a
       Pipeline = (function() {
         function Pipeline() {
           this.steps = [(function(instruction) {
-            return instruction.traverseSync((function(parentInstruction, childInstruction) {
-              childInstruction.router = parentInstruction.router.childRouter(childInstruction.component);
-            }));
-          }), (function(instruction) {
-            return instruction.router.traverseOutlets((function(outlet, name) {
-              return outlet.canDeactivate(instruction.getChildInstruction(name));
-            }));
-          }), (function(instruction) {
-            return instruction.router.traverseOutlets((function(outlet, name) {
-              return outlet.canActivate(instruction.getChildInstruction(name));
-            }));
-          }), (function(instruction) {
             return instruction.router.activateOutlets(instruction);
           })];
         }
@@ -311,6 +292,9 @@ System.register("angular2/src/router/browser_location", ["angular2/src/dom/dom_a
         }, {});
       }());
       $__export("BrowserLocation", BrowserLocation);
+      Object.defineProperty(BrowserLocation.prototype.onPopState, "parameters", {get: function() {
+          return [[Function]];
+        }});
       Object.defineProperty(BrowserLocation.prototype.pushState, "parameters", {get: function() {
           return [[assert.type.any], [assert.type.string], [assert.type.string]];
         }});
@@ -318,7 +302,7 @@ System.register("angular2/src/router/browser_location", ["angular2/src/dom/dom_a
   };
 });
 
-System.register("angular2/src/router/router_link", ["angular2/src/core/annotations_impl/annotations", "angular2/core", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/src/router/router"], function($__export) {
+System.register("angular2/src/router/router_link", ["angular2/src/core/annotations_impl/annotations", "angular2/core", "angular2/src/facade/collection", "angular2/src/facade/lang", "angular2/src/dom/dom_adapter", "angular2/src/router/router", "angular2/src/router/location"], function($__export) {
   "use strict";
   var __moduleName = "angular2/src/router/router_link";
   var Directive,
@@ -329,6 +313,7 @@ System.register("angular2/src/router/router_link", ["angular2/src/core/annotatio
       isPresent,
       DOM,
       Router,
+      Location,
       RouterLink;
   return {
     setters: [function($__m) {
@@ -345,13 +330,16 @@ System.register("angular2/src/router/router_link", ["angular2/src/core/annotatio
       DOM = $__m.DOM;
     }, function($__m) {
       Router = $__m.Router;
+    }, function($__m) {
+      Location = $__m.Location;
     }],
     execute: function() {
       RouterLink = (function() {
-        function RouterLink(elementRef, router) {
+        function RouterLink(elementRef, router, location) {
           var $__0 = this;
           this._domEl = elementRef.domElement;
           this._router = router;
+          this._location = location;
           this._params = StringMapWrapper.create();
           DOM.on(this._domEl, 'click', (function(evt) {
             evt.preventDefault();
@@ -368,8 +356,8 @@ System.register("angular2/src/router/router_link", ["angular2/src/core/annotatio
           onAllChangesDone: function() {
             if (isPresent(this._route) && isPresent(this._params)) {
               var newHref = this._router.generate(this._route, this._params);
-              this._href = newHref;
-              DOM.setAttribute(this._domEl, 'href', newHref);
+              this._href = this._location.normalizeAbsolutely(newHref);
+              DOM.setAttribute(this._domEl, 'href', this._href);
             }
           }
         }, {});
@@ -386,7 +374,13 @@ System.register("angular2/src/router/router_link", ["angular2/src/core/annotatio
           })];
         }});
       Object.defineProperty(RouterLink, "parameters", {get: function() {
-          return [[ElementRef], [Router]];
+          return [[ElementRef], [Router], [Location]];
+        }});
+      Object.defineProperty(Object.getOwnPropertyDescriptor(RouterLink.prototype, "route").set, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
+      Object.defineProperty(Object.getOwnPropertyDescriptor(RouterLink.prototype, "params").set, "parameters", {get: function() {
+          return [[StringMap]];
         }});
     }
   };
@@ -432,6 +426,7 @@ System.register("angular2/src/router/path_recognizer", ["angular2/src/facade/lan
       isPresent,
       isBlank,
       BaseException,
+      normalizeBlank,
       Map,
       MapWrapper,
       StringMap,
@@ -444,7 +439,6 @@ System.register("angular2/src/router/path_recognizer", ["angular2/src/facade/lan
       StarSegment,
       paramMatcher,
       wildcardMatcher,
-      SLASH_RE,
       PathRecognizer;
   function parsePathString(route) {
     if (route[0] === "/") {
@@ -452,21 +446,30 @@ System.register("angular2/src/router/path_recognizer", ["angular2/src/facade/lan
     }
     var segments = splitBySlash(route);
     var results = ListWrapper.create();
+    var specificity = 0;
+    if (segments.length > 98) {
+      throw new BaseException(("'" + route + "' has more than the maximum supported number of segments."));
+    }
     for (var i = 0; i < segments.length; i++) {
       var segment = segments[i],
           match = void 0;
       if (isPresent(match = RegExpWrapper.firstMatch(paramMatcher, segment))) {
         ListWrapper.push(results, new DynamicSegment(match[1]));
+        specificity += (100 - i);
       } else if (isPresent(match = RegExpWrapper.firstMatch(wildcardMatcher, segment))) {
         ListWrapper.push(results, new StarSegment(match[1]));
       } else if (segment.length > 0) {
         ListWrapper.push(results, new StaticSegment(segment));
+        specificity += 100 * (100 - i);
       }
     }
-    return results;
+    return {
+      segments: results,
+      specificity: specificity
+    };
   }
   function splitBySlash(url) {
-    return StringWrapper.split(url, SLASH_RE);
+    return url.split('/');
   }
   return {
     setters: [function($__m) {
@@ -477,6 +480,7 @@ System.register("angular2/src/router/path_recognizer", ["angular2/src/facade/lan
       isPresent = $__m.isPresent;
       isBlank = $__m.isBlank;
       BaseException = $__m.BaseException;
+      normalizeBlank = $__m.normalizeBlank;
     }, function($__m) {
       Map = $__m.Map;
       MapWrapper = $__m.MapWrapper;
@@ -510,14 +514,14 @@ System.register("angular2/src/router/path_recognizer", ["angular2/src/facade/lan
             if (!StringMapWrapper.contains(params, this.name)) {
               throw new BaseException(("Route generator for '" + this.name + "' was not included in parameters passed."));
             }
-            return StringMapWrapper.get(params, this.name);
+            return normalizeBlank(StringMapWrapper.get(params, this.name));
           }}, {});
       }());
       Object.defineProperty(DynamicSegment, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
       Object.defineProperty(DynamicSegment.prototype.generate, "parameters", {get: function() {
-          return [[StringMap]];
+          return [[assert.genericType(StringMap, assert.type.string, assert.type.string)]];
         }});
       StarSegment = (function() {
         function StarSegment(name) {
@@ -525,35 +529,38 @@ System.register("angular2/src/router/path_recognizer", ["angular2/src/facade/lan
           this.regex = "(.+)";
         }
         return ($traceurRuntime.createClass)(StarSegment, {generate: function(params) {
-            return StringMapWrapper.get(params, this.name);
+            return normalizeBlank(StringMapWrapper.get(params, this.name));
           }}, {});
       }());
       Object.defineProperty(StarSegment, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
       Object.defineProperty(StarSegment.prototype.generate, "parameters", {get: function() {
-          return [[StringMap]];
+          return [[assert.genericType(StringMap, assert.type.string, assert.type.string)]];
         }});
       paramMatcher = RegExpWrapper.create("^:([^\/]+)$");
       wildcardMatcher = RegExpWrapper.create("^\\*([^\/]+)$");
       Object.defineProperty(parsePathString, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
-      SLASH_RE = RegExpWrapper.create('/');
       Object.defineProperty(splitBySlash, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
       PathRecognizer = (function() {
         function PathRecognizer(path, handler) {
+          this.path = path;
           this.handler = handler;
-          this.segments = ListWrapper.create();
-          var segments = parsePathString(path);
+          this.segments = [];
+          var parsed = parsePathString(path);
+          var specificity = parsed['specificity'];
+          var segments = parsed['segments'];
           var regexString = '^';
           ListWrapper.forEach(segments, (function(segment) {
             regexString += '/' + segment.regex;
           }));
           this.regex = RegExpWrapper.create(regexString);
           this.segments = segments;
+          this.specificity = specificity;
         }
         return ($traceurRuntime.createClass)(PathRecognizer, {
           parseParams: function(url) {
@@ -584,7 +591,7 @@ System.register("angular2/src/router/path_recognizer", ["angular2/src/facade/lan
           return [[assert.type.string]];
         }});
       Object.defineProperty(PathRecognizer.prototype.generate, "parameters", {get: function() {
-          return [[StringMap]];
+          return [[assert.genericType(StringMap, assert.type.string, assert.type.string)]];
         }});
     }
   };
@@ -634,14 +641,26 @@ System.register("angular2/src/router/location", ["angular2/src/router/browser_lo
           normalize: function(url) {
             return this._stripBaseHref(stripIndexHtml(url));
           },
+          normalizeAbsolutely: function(url) {
+            if (url[0] != '/') {
+              url = '/' + url;
+            }
+            return this._addBaseHref(url);
+          },
           _stripBaseHref: function(url) {
             if (this._baseHref.length > 0 && StringWrapper.startsWith(url, this._baseHref)) {
               return StringWrapper.substring(url, this._baseHref.length);
             }
             return url;
           },
+          _addBaseHref: function(url) {
+            if (!StringWrapper.startsWith(url, this._baseHref)) {
+              return this._baseHref + url;
+            }
+            return url;
+          },
           go: function(url) {
-            var finalUrl = url[0] == '/' ? url : this._baseHref + '/' + url;
+            var finalUrl = this.normalizeAbsolutely(url);
             this._browserLocation.pushState(null, '', finalUrl);
           },
           forward: function() {
@@ -661,7 +680,22 @@ System.register("angular2/src/router/location", ["angular2/src/router/browser_lo
       Object.defineProperty(Location, "parameters", {get: function() {
           return [[BrowserLocation]];
         }});
+      Object.defineProperty(Location.prototype.normalize, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
+      Object.defineProperty(Location.prototype.normalizeAbsolutely, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
+      Object.defineProperty(Location.prototype._stripBaseHref, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
+      Object.defineProperty(Location.prototype._addBaseHref, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
       Object.defineProperty(Location.prototype.go, "parameters", {get: function() {
+          return [[assert.type.string]];
+        }});
+      Object.defineProperty(stripIndexHtml, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
     }
@@ -675,6 +709,7 @@ System.register("angular2/src/router/route_recognizer", ["angular2/src/facade/la
       RegExpWrapper,
       StringWrapper,
       isPresent,
+      BaseException,
       Map,
       MapWrapper,
       List,
@@ -682,13 +717,15 @@ System.register("angular2/src/router/route_recognizer", ["angular2/src/facade/la
       StringMap,
       StringMapWrapper,
       PathRecognizer,
-      RouteRecognizer;
+      RouteRecognizer,
+      RouteMatch;
   return {
     setters: [function($__m) {
       RegExp = $__m.RegExp;
       RegExpWrapper = $__m.RegExpWrapper;
       StringWrapper = $__m.StringWrapper;
       isPresent = $__m.isPresent;
+      BaseException = $__m.BaseException;
     }, function($__m) {
       Map = $__m.Map;
       MapWrapper = $__m.MapWrapper;
@@ -713,13 +750,18 @@ System.register("angular2/src/router/route_recognizer", ["angular2/src/facade/la
           addConfig: function(path, handler) {
             var alias = arguments[2] !== (void 0) ? arguments[2] : null;
             var recognizer = new PathRecognizer(path, handler);
+            MapWrapper.forEach(this.matchers, (function(matcher, _) {
+              if (recognizer.regex.toString() == matcher.regex.toString()) {
+                throw new BaseException(("Configuration '" + path + "' conflicts with existing route '" + matcher.path + "'"));
+              }
+            }));
             MapWrapper.set(this.matchers, recognizer.regex, recognizer);
             if (isPresent(alias)) {
               MapWrapper.set(this.names, alias, recognizer);
             }
           },
           recognize: function(url) {
-            var solutions = [];
+            var solutions = ListWrapper.create();
             MapWrapper.forEach(this.redirects, (function(target, path) {
               if (StringWrapper.startsWith(url, path)) {
                 url = target + StringWrapper.substring(url, path.length);
@@ -728,18 +770,19 @@ System.register("angular2/src/router/route_recognizer", ["angular2/src/facade/la
             MapWrapper.forEach(this.matchers, (function(pathRecognizer, regex) {
               var match;
               if (isPresent(match = RegExpWrapper.firstMatch(regex, url))) {
-                var solution = StringMapWrapper.create();
-                StringMapWrapper.set(solution, 'handler', pathRecognizer.handler);
-                StringMapWrapper.set(solution, 'params', pathRecognizer.parseParams(url));
-                if (url == '/') {
-                  StringMapWrapper.set(solution, 'matchedUrl', '/');
-                  StringMapWrapper.set(solution, 'unmatchedUrl', '');
-                } else {
-                  StringMapWrapper.set(solution, 'matchedUrl', match[0]);
-                  var unmatchedUrl = StringWrapper.substring(url, match[0].length);
-                  StringMapWrapper.set(solution, 'unmatchedUrl', unmatchedUrl);
+                var matchedUrl = '/';
+                var unmatchedUrl = '';
+                if (url != '/') {
+                  matchedUrl = match[0];
+                  unmatchedUrl = StringWrapper.substring(url, match[0].length);
                 }
-                ListWrapper.push(solutions, solution);
+                ListWrapper.push(solutions, new RouteMatch({
+                  specificity: pathRecognizer.specificity,
+                  handler: pathRecognizer.handler,
+                  params: pathRecognizer.parseParams(url),
+                  matchedUrl: matchedUrl,
+                  unmatchedUrl: unmatchedUrl
+                }));
               }
             }));
             return solutions;
@@ -749,7 +792,7 @@ System.register("angular2/src/router/route_recognizer", ["angular2/src/facade/la
           },
           generate: function(name, params) {
             var pathRecognizer = MapWrapper.get(this.names, name);
-            return pathRecognizer.generate(params);
+            return isPresent(pathRecognizer) ? pathRecognizer.generate(params) : null;
           }
         }, {});
       }());
@@ -769,6 +812,23 @@ System.register("angular2/src/router/route_recognizer", ["angular2/src/facade/la
       Object.defineProperty(RouteRecognizer.prototype.generate, "parameters", {get: function() {
           return [[assert.type.string], [assert.type.any]];
         }});
+      RouteMatch = (function() {
+        function RouteMatch() {
+          var $__1 = arguments[0] !== (void 0) ? arguments[0] : {},
+              specificity = $__1.specificity,
+              handler = $__1.handler,
+              params = $__1.params,
+              matchedUrl = $__1.matchedUrl,
+              unmatchedUrl = $__1.unmatchedUrl;
+          this.specificity = specificity;
+          this.handler = handler;
+          this.params = params;
+          this.matchedUrl = matchedUrl;
+          this.unmatchedUrl = unmatchedUrl;
+        }
+        return ($traceurRuntime.createClass)(RouteMatch, {}, {});
+      }());
+      $__export("RouteMatch", RouteMatch);
     }
   };
 });
@@ -777,6 +837,7 @@ System.register("angular2/src/router/route_registry", ["angular2/src/router/rout
   "use strict";
   var __moduleName = "angular2/src/router/route_registry";
   var RouteRecognizer,
+      RouteMatch,
       Instruction,
       noopInstruction,
       List,
@@ -793,39 +854,39 @@ System.register("angular2/src/router/route_registry", ["angular2/src/router/rout
       RouteConfig,
       reflector,
       RouteRegistry;
-  function handlerToLeafInstructions(context, parentComponent) {
+  function routeMatchToInstruction(routeMatch, parentComponent) {
     var children = StringMapWrapper.create();
-    StringMapWrapper.forEach(context['handler']['components'], (function(component, outletName) {
+    var components = StringMapWrapper.get(routeMatch.handler, 'components');
+    StringMapWrapper.forEach(components, (function(component, outletName) {
       children[outletName] = new Instruction({
         component: component,
-        params: context['params']
+        params: routeMatch.params,
+        parentSpecificity: 0
       });
     }));
     return new Instruction({
       component: parentComponent,
       children: children,
-      matchedUrl: context['matchedUrl']
+      matchedUrl: routeMatch.matchedUrl,
+      parentSpecificity: routeMatch.specificity
     });
   }
   function normalizeConfig(config) {
-    if (StringMapWrapper.contains(config, 'component')) {
-      var component = StringMapWrapper.get(config, 'component');
-      var components = StringMapWrapper.create();
-      StringMapWrapper.set(components, 'default', component);
-      var newConfig = StringMapWrapper.create();
-      StringMapWrapper.set(newConfig, 'components', components);
-      StringMapWrapper.forEach(config, (function(value, key) {
-        if (!StringWrapper.equals(key, 'component') && !StringWrapper.equals(key, 'components')) {
-          StringMapWrapper.set(newConfig, key, value);
-        }
-      }));
-      return newConfig;
+    if (!StringMapWrapper.contains(config, 'component')) {
+      return config;
     }
-    return config;
+    var newConfig = {'components': {'default': config['component']}};
+    StringMapWrapper.forEach(config, (function(value, key) {
+      if (key != 'component' && key != 'components') {
+        newConfig[key] = value;
+      }
+    }));
+    return newConfig;
   }
   return {
     setters: [function($__m) {
       RouteRecognizer = $__m.RouteRecognizer;
+      RouteMatch = $__m.RouteMatch;
     }, function($__m) {
       Instruction = $__m.Instruction;
       noopInstruction = $__m.noopInstruction;
@@ -861,21 +922,19 @@ System.register("angular2/src/router/route_registry", ["angular2/src/router/rout
             if (!StringMapWrapper.contains(config, 'component') && !StringMapWrapper.contains(config, 'components') && !StringMapWrapper.contains(config, 'redirectTo')) {
               throw new BaseException('Route config does not contain "component," "components," or "redirectTo"');
             }
-            var recognizer;
-            if (MapWrapper.contains(this._rules, parentComponent)) {
-              recognizer = MapWrapper.get(this._rules, parentComponent);
-            } else {
+            var recognizer = MapWrapper.get(this._rules, parentComponent);
+            if (isBlank(recognizer)) {
               recognizer = new RouteRecognizer();
               MapWrapper.set(this._rules, parentComponent, recognizer);
             }
             config = normalizeConfig(config);
             if (StringMapWrapper.contains(config, 'redirectTo')) {
-              recognizer.addRedirect(StringMapWrapper.get(config, 'path'), StringMapWrapper.get(config, 'redirectTo'));
+              recognizer.addRedirect(config['path'], config['redirectTo']);
               return ;
             }
-            var components = StringMapWrapper.get(config, 'components');
+            var components = config['components'];
             StringMapWrapper.forEach(components, (function(component, _) {
-              $__0.configFromComponent(component);
+              return $__0.configFromComponent(component);
             }));
             recognizer.addConfig(config['path'], config, config['as']);
           },
@@ -893,65 +952,83 @@ System.register("angular2/src/router/route_registry", ["angular2/src/router/rout
                 var annotation = annotations[i];
                 if (annotation instanceof RouteConfig) {
                   ListWrapper.forEach(annotation.configs, (function(config) {
-                    $__0.config(component, config);
+                    return $__0.config(component, config);
                   }));
                 }
               }
             }
           },
           recognize: function(url, parentComponent) {
-            var $__0 = this;
             var componentRecognizer = MapWrapper.get(this._rules, parentComponent);
             if (isBlank(componentRecognizer)) {
               return null;
             }
-            var solutions = componentRecognizer.recognize(url);
-            for (var i = 0; i < solutions.length; i++) {
-              var candidate = solutions[i];
-              if (candidate['unmatchedUrl'].length == 0) {
-                return handlerToLeafInstructions(candidate, parentComponent);
-              }
-              var children = StringMapWrapper.create(),
-                  allMapped = true;
-              StringMapWrapper.forEach(candidate['handler']['components'], (function(component, name) {
-                if (!allMapped) {
-                  return ;
+            var possibleMatches = componentRecognizer.recognize(url);
+            var fullSolutions = ListWrapper.create();
+            for (var i = 0; i < possibleMatches.length; i++) {
+              var candidate = possibleMatches[i];
+              if (candidate.unmatchedUrl.length == 0) {
+                ListWrapper.push(fullSolutions, routeMatchToInstruction(candidate, parentComponent));
+              } else {
+                var children = StringMapWrapper.create(),
+                    allChildrenMatch = true,
+                    components = StringMapWrapper.get(candidate.handler, 'components');
+                var componentNames = StringMapWrapper.keys(components);
+                for (var nameIndex = 0; nameIndex < componentNames.length; nameIndex++) {
+                  var name = componentNames[nameIndex];
+                  var component = StringMapWrapper.get(components, name);
+                  var childInstruction = this.recognize(candidate.unmatchedUrl, component);
+                  if (isPresent(childInstruction)) {
+                    childInstruction.params = candidate.params;
+                    children[name] = childInstruction;
+                  } else {
+                    allChildrenMatch = false;
+                    break;
+                  }
                 }
-                var childInstruction = $__0.recognize(candidate['unmatchedUrl'], component);
-                if (isPresent(childInstruction)) {
-                  childInstruction.params = candidate['params'];
-                  children[name] = childInstruction;
-                } else {
-                  allMapped = false;
+                if (allChildrenMatch) {
+                  ListWrapper.push(fullSolutions, new Instruction({
+                    component: parentComponent,
+                    children: children,
+                    matchedUrl: candidate.matchedUrl,
+                    parentSpecificity: candidate.specificity
+                  }));
                 }
-              }));
-              if (allMapped) {
-                return new Instruction({
-                  component: parentComponent,
-                  children: children,
-                  matchedUrl: candidate['matchedUrl']
-                });
               }
+            }
+            if (fullSolutions.length > 0) {
+              var mostSpecificSolution = fullSolutions[0];
+              for (var solutionIndex = 1; solutionIndex < fullSolutions.length; solutionIndex++) {
+                var solution = fullSolutions[solutionIndex];
+                if (solution.specificity > mostSpecificSolution.specificity) {
+                  mostSpecificSolution = solution;
+                }
+              }
+              return mostSpecificSolution;
             }
             return null;
           },
           generate: function(name, params, hostComponent) {
             var componentRecognizer = MapWrapper.get(this._rules, hostComponent);
-            if (isPresent(componentRecognizer)) {
-              return componentRecognizer.generate(name, params);
-            }
+            return isPresent(componentRecognizer) ? componentRecognizer.generate(name, params) : null;
           }
         }, {});
       }());
       $__export("RouteRegistry", RouteRegistry);
+      Object.defineProperty(RouteRegistry.prototype.config, "parameters", {get: function() {
+          return [[], [assert.genericType(StringMap, assert.type.string, assert.type.any)]];
+        }});
       Object.defineProperty(RouteRegistry.prototype.recognize, "parameters", {get: function() {
           return [[assert.type.string], []];
         }});
       Object.defineProperty(RouteRegistry.prototype.generate, "parameters", {get: function() {
-          return [[assert.type.string], [assert.type.any], []];
+          return [[assert.type.string], [assert.genericType(StringMap, assert.type.string, assert.type.string)], []];
+        }});
+      Object.defineProperty(routeMatchToInstruction, "parameters", {get: function() {
+          return [[RouteMatch], []];
         }});
       Object.defineProperty(normalizeConfig, "parameters", {get: function() {
-          return [[StringMap]];
+          return [[assert.genericType(StringMap, assert.type.string, assert.type.any)]];
         }});
     }
   };
@@ -963,10 +1040,12 @@ System.register("angular2/src/router/router_outlet", ["angular2/src/facade/async
   var Promise,
       PromiseWrapper,
       isBlank,
+      isPresent,
       Directive,
       Attribute,
-      Compiler,
-      ViewContainerRef,
+      DynamicComponentLoader,
+      ComponentRef,
+      ElementRef,
       Injector,
       bind,
       routerMod,
@@ -979,13 +1058,15 @@ System.register("angular2/src/router/router_outlet", ["angular2/src/facade/async
       PromiseWrapper = $__m.PromiseWrapper;
     }, function($__m) {
       isBlank = $__m.isBlank;
+      isPresent = $__m.isPresent;
     }, function($__m) {
       Directive = $__m.Directive;
     }, function($__m) {
       Attribute = $__m.Attribute;
     }, function($__m) {
-      Compiler = $__m.Compiler;
-      ViewContainerRef = $__m.ViewContainerRef;
+      DynamicComponentLoader = $__m.DynamicComponentLoader;
+      ComponentRef = $__m.ComponentRef;
+      ElementRef = $__m.ElementRef;
     }, function($__m) {
       Injector = $__m.Injector;
       bind = $__m.bind;
@@ -997,27 +1078,41 @@ System.register("angular2/src/router/router_outlet", ["angular2/src/facade/async
     }],
     execute: function() {
       RouterOutlet = (function() {
-        function RouterOutlet(viewContainer, compiler, router, injector, nameAttr) {
+        function RouterOutlet(elementRef, loader, router, injector, nameAttr) {
           if (isBlank(nameAttr)) {
             nameAttr = 'default';
           }
-          this._router = router;
-          this._viewContainer = viewContainer;
-          this._compiler = compiler;
+          this._loader = loader;
+          this._parentRouter = router;
+          this._elementRef = elementRef;
           this._injector = injector;
-          this._router.registerOutlet(this, nameAttr);
+          this._childRouter = null;
+          this._componentRef = null;
+          this._currentInstruction = null;
+          this._parentRouter.registerOutlet(this, nameAttr);
         }
         return ($traceurRuntime.createClass)(RouterOutlet, {
           activate: function(instruction) {
             var $__0 = this;
-            return this._compiler.compileInHost(instruction.component).then((function(pv) {
-              var outletInjector = $__0._injector.resolveAndCreateChild([bind(RouteParams).toValue(new RouteParams(instruction.params)), bind(routerMod.Router).toValue(instruction.router)]);
-              $__0._viewContainer.clear();
-              $__0._viewContainer.create(pv, 0, null, outletInjector);
+            if ((instruction == this._currentInstruction) || instruction.reuse && isPresent(this._childRouter)) {
+              return this._childRouter.commit(instruction);
+            }
+            this._currentInstruction = instruction;
+            this._childRouter = this._parentRouter.childRouter(instruction.component);
+            var outletInjector = this._injector.resolveAndCreateChild([bind(RouteParams).toValue(new RouteParams(instruction.params)), bind(routerMod.Router).toValue(this._childRouter)]);
+            if (isPresent(this._componentRef)) {
+              this._componentRef.dispose();
+            }
+            return this._loader.loadNextToExistingLocation(instruction.component, this._elementRef, outletInjector).then((function(componentRef) {
+              $__0._componentRef = componentRef;
+              return $__0._childRouter.commit(instruction);
             }));
           },
-          canActivate: function(instruction) {
-            return PromiseWrapper.resolve(true);
+          deactivate: function() {
+            var $__0 = this;
+            return (isPresent(this._childRouter) ? this._childRouter.deactivate() : PromiseWrapper.resolve(true)).then((function(_) {
+              return $__0._componentRef.dispose();
+            }));
           },
           canDeactivate: function(instruction) {
             return PromiseWrapper.resolve(true);
@@ -1029,16 +1124,13 @@ System.register("angular2/src/router/router_outlet", ["angular2/src/facade/async
           return [new Directive({selector: 'router-outlet'})];
         }});
       Object.defineProperty(RouterOutlet, "parameters", {get: function() {
-          return [[ViewContainerRef], [Compiler], [routerMod.Router], [Injector], [String, new Attribute('name')]];
+          return [[ElementRef], [DynamicComponentLoader], [routerMod.Router], [Injector], [String, new Attribute('name')]];
         }});
       Object.defineProperty(RouterOutlet.prototype.activate, "parameters", {get: function() {
           return [[Instruction]];
         }});
-      Object.defineProperty(RouterOutlet.prototype.canActivate, "parameters", {get: function() {
-          return [[assert.type.any]];
-        }});
       Object.defineProperty(RouterOutlet.prototype.canDeactivate, "parameters", {get: function() {
-          return [[assert.type.any]];
+          return [[Instruction]];
         }});
     }
   };
@@ -1104,32 +1196,26 @@ System.register("angular2/src/router/router", ["angular2/src/facade/async", "ang
     }],
     execute: function() {
       Router = (function() {
-        function Router(registry, pipeline, location, parent, hostComponent) {
+        function Router(registry, pipeline, parent, hostComponent) {
           this.hostComponent = hostComponent;
           this.navigating = false;
           this.parent = parent;
           this.previousUrl = null;
           this._outlets = MapWrapper.create();
-          this._children = MapWrapper.create();
-          this._location = location;
           this._registry = registry;
           this._pipeline = pipeline;
           this._subject = new EventEmitter();
           this._currentInstruction = null;
         }
         return ($traceurRuntime.createClass)(Router, {
-          childRouter: function() {
-            var outletName = arguments[0] !== (void 0) ? arguments[0] : 'default';
-            if (!MapWrapper.contains(this._children, outletName)) {
-              MapWrapper.set(this._children, outletName, new ChildRouter(this, outletName));
-            }
-            return MapWrapper.get(this._children, outletName);
+          childRouter: function(hostComponent) {
+            return new ChildRouter(this, hostComponent);
           },
           registerOutlet: function(outlet) {
             var name = arguments[1] !== (void 0) ? arguments[1] : 'default';
             MapWrapper.set(this._outlets, name, outlet);
             if (isPresent(this._currentInstruction)) {
-              var childInstruction = this._currentInstruction.getChildInstruction(name);
+              var childInstruction = this._currentInstruction.getChild(name);
               return outlet.activate(childInstruction);
             }
             return PromiseWrapper.resolve(true);
@@ -1158,13 +1244,10 @@ System.register("angular2/src/router/router", ["angular2/src/facade/async", "ang
             if (isPresent(this._currentInstruction)) {
               matchedInstruction.reuseComponentsFrom(this._currentInstruction);
             }
-            matchedInstruction.router = this;
             this._startNavigating();
-            var result = this._pipeline.process(matchedInstruction).then((function(_) {
-              $__0._location.go(matchedInstruction.matchedUrl);
-              ObservableWrapper.callNext($__0._subject, matchedInstruction.matchedUrl);
+            var result = this.commit(matchedInstruction).then((function(_) {
+              ObservableWrapper.callNext($__0._subject, matchedInstruction.accumulatedUrl);
               $__0._finishNavigating();
-              $__0._currentInstruction = matchedInstruction;
             }));
             PromiseWrapper.catchError(result, (function(_) {
               return $__0._finishNavigating();
@@ -1180,28 +1263,33 @@ System.register("angular2/src/router/router", ["angular2/src/facade/async", "ang
           subscribe: function(onNext) {
             ObservableWrapper.subscribe(this._subject, onNext);
           },
-          activateOutlets: function(instruction) {
-            return this._queryOutlets((function(outlet, name) {
-              var childInstruction = instruction.getChildInstruction(name);
-              if (childInstruction.reuse) {
-                return PromiseWrapper.resolve(true);
-              }
-              return outlet.activate(childInstruction);
-            })).then((function(_) {
-              return instruction.mapChildrenAsync((function(instruction, _) {
-                return instruction.router.activateOutlets(instruction);
-              }));
-            }));
-          },
-          traverseOutlets: function(fn) {
+          commit: function(instruction) {
             var $__0 = this;
-            return this._queryOutlets(fn).then((function(_) {
-              return mapObjAsync($__0._children, (function(child, _) {
-                return child.traverseOutlets(fn);
-              }));
+            this._currentInstruction = instruction;
+            var toDeactivate = ListWrapper.create();
+            MapWrapper.forEach(this._outlets, (function(outlet, outletName) {
+              if (!instruction.hasChild(outletName)) {
+                MapWrapper.delete($__0._outlets, outletName);
+                ListWrapper.push(toDeactivate, outlet);
+              }
+            }));
+            return PromiseWrapper.all(ListWrapper.map(toDeactivate, (function(outlet) {
+              return outlet.deactivate();
+            }))).then((function(_) {
+              return $__0.activate(instruction);
             }));
           },
-          _queryOutlets: function(fn) {
+          deactivate: function() {
+            return this._eachOutletAsync((function(outlet) {
+              return outlet.deactivate;
+            }));
+          },
+          activate: function(instruction) {
+            return this._eachOutletAsync((function(outlet, name) {
+              return outlet.activate(instruction.getChild(name));
+            }));
+          },
+          _eachOutletAsync: function(fn) {
             return mapObjAsync(this._outlets, fn);
           },
           recognize: function(url) {
@@ -1221,10 +1309,13 @@ System.register("angular2/src/router/router", ["angular2/src/facade/async", "ang
       }());
       $__export("Router", Router);
       Object.defineProperty(Router, "parameters", {get: function() {
-          return [[RouteRegistry], [Pipeline], [Location], [Router], []];
+          return [[RouteRegistry], [Pipeline], [Router], [assert.type.any]];
+        }});
+      Object.defineProperty(Router.prototype.childRouter, "parameters", {get: function() {
+          return [[assert.type.any]];
         }});
       Object.defineProperty(Router.prototype.registerOutlet, "parameters", {get: function() {
-          return [[RouterOutlet], []];
+          return [[RouterOutlet], [assert.type.string]];
         }});
       Object.defineProperty(Router.prototype.config, "parameters", {get: function() {
           return [[assert.type.any]];
@@ -1232,26 +1323,35 @@ System.register("angular2/src/router/router", ["angular2/src/facade/async", "ang
       Object.defineProperty(Router.prototype.navigate, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
-      Object.defineProperty(Router.prototype.activateOutlets, "parameters", {get: function() {
+      Object.defineProperty(Router.prototype.commit, "parameters", {get: function() {
+          return [[Instruction]];
+        }});
+      Object.defineProperty(Router.prototype.activate, "parameters", {get: function() {
           return [[Instruction]];
         }});
       Object.defineProperty(Router.prototype.recognize, "parameters", {get: function() {
           return [[assert.type.string]];
         }});
       Object.defineProperty(Router.prototype.generate, "parameters", {get: function() {
-          return [[assert.type.string], [assert.type.any]];
+          return [[assert.type.string], [assert.genericType(StringMap, assert.type.string, assert.type.string)]];
         }});
       RootRouter = (function($__super) {
         function RootRouter(registry, pipeline, location, hostComponent) {
           var $__0;
-          $traceurRuntime.superConstructor(RootRouter).call(this, registry, pipeline, location, null, hostComponent);
+          $traceurRuntime.superConstructor(RootRouter).call(this, registry, pipeline, null, hostComponent);
+          this._location = location;
           this._location.subscribe(($__0 = this, function(change) {
             return $__0.navigate(change['url']);
           }));
           this._registry.configFromComponent(hostComponent);
           this.navigate(location.path());
         }
-        return ($traceurRuntime.createClass)(RootRouter, {}, {}, $__super);
+        return ($traceurRuntime.createClass)(RootRouter, {commit: function(instruction) {
+            var $__0 = this;
+            return $traceurRuntime.superGet(this, RootRouter.prototype, "commit").call(this, instruction).then((function(_) {
+              $__0._location.go(instruction.accumulatedUrl);
+            }));
+          }}, {}, $__super);
       }(Router));
       $__export("RootRouter", RootRouter);
       Object.defineProperty(RootRouter, "parameters", {get: function() {
@@ -1259,7 +1359,7 @@ System.register("angular2/src/router/router", ["angular2/src/facade/async", "ang
         }});
       ChildRouter = (function($__super) {
         function ChildRouter(parent, hostComponent) {
-          $traceurRuntime.superConstructor(ChildRouter).call(this, parent._registry, parent._pipeline, parent._location, parent, hostComponent);
+          $traceurRuntime.superConstructor(ChildRouter).call(this, parent._registry, parent._pipeline, parent, hostComponent);
           this.parent = parent;
         }
         return ($traceurRuntime.createClass)(ChildRouter, {}, {}, $__super);
@@ -1286,7 +1386,7 @@ System.register("angular2/router", ["angular2/src/router/router", "angular2/src/
       RouteRegistry,
       Pipeline,
       Location,
-      appComponentAnnotatedTypeToken,
+      appComponentTypeToken,
       bind,
       routerInjectables;
   var $__exportNames = {
@@ -1327,14 +1427,14 @@ System.register("angular2/router", ["angular2/src/router/router", "angular2/src/
     }, function($__m) {
       Location = $__m.Location;
     }, function($__m) {
-      appComponentAnnotatedTypeToken = $__m.appComponentAnnotatedTypeToken;
+      appComponentTypeToken = $__m.appComponentTypeToken;
     }, function($__m) {
       bind = $__m.bind;
     }],
     execute: function() {
-      routerInjectables = [RouteRegistry, Pipeline, BrowserLocation, Location, bind(Router).toFactory((function(registry, pipeline, location, meta) {
-        return new RootRouter(registry, pipeline, location, meta.type);
-      }), [RouteRegistry, Pipeline, Location, appComponentAnnotatedTypeToken])];
+      routerInjectables = [RouteRegistry, Pipeline, BrowserLocation, Location, bind(Router).toFactory((function(registry, pipeline, location, appRoot) {
+        return new RootRouter(registry, pipeline, location, appRoot);
+      }), [RouteRegistry, Pipeline, Location, appComponentTypeToken])];
       $__export("routerInjectables", routerInjectables);
     }
   };

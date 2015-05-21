@@ -12,11 +12,13 @@ import {ng2string} from './ng2string';
 
 import {DOCUMENT_TOKEN, bind} from 'angular2/angular2';
 import {DOM} from 'angular2/src/dom/dom_adapter';
+import {OpaqueToken} from 'angular2/di';
 import {DirectiveResolver} from 'angular2/src/core/compiler/directive_resolver';
 
 // because state is evil
 var AppRef = null;
 var FakeDoc = null;
+var IS_SERVER_TOKEN = new OpaqueToken('Server');
 
 var directiveResolver = new DirectiveResolver();
 
@@ -32,7 +34,8 @@ export function readNgTemplate(content, AppComponent) {
 
   return Promise.resolve(
     AppRef || bootstrap(AppComponent, [
-      bind(DOCUMENT_TOKEN).toValue(FakeDoc)
+      bind(DOCUMENT_TOKEN).toValue(FakeDoc),
+      bind(IS_SERVER_TOKEN).toValue(true)
     ])
   )
   .then(appRef => AppRef ? AppRef : AppRef = appRef)

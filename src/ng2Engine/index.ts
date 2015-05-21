@@ -22,10 +22,11 @@ var directiveResolver = new DirectiveResolver();
 
 export function readNgTemplate(content, AppComponent) {
   let annotations = directiveResolver.resolve(AppComponent);
+  let selector = annotations.selector;
 
   if (!FakeDoc) {
     FakeDoc = DOM.createHtmlDocument();
-    let el = DOM.createElement(annotations.selector, FakeDoc);
+    let el = DOM.createElement(selector, FakeDoc);
     DOM.appendChild(FakeDoc.body, el);
   }
 
@@ -36,13 +37,15 @@ export function readNgTemplate(content, AppComponent) {
   )
   .then(appRef => AppRef ? AppRef : AppRef = appRef)
   .then(appRef => {
+    // selector replacer explained here
+    // https://gist.github.com/gdi2290/c74afd9898d2279fef9f
 
     let serializedCmp = ng2string(getHostElementRef(appRef));
-    let selector = annotations.selector;
 
     let rendered = content.toString().replace(
-      // <app></app>
+      // <selector></selector>
       selectorRegExpFactory(selector),
+      // <selector>{{ serializedCmp }}</selector>
       `$1${serializedCmp}$3`/* + showDebug(Object)*/
     );
 

@@ -27,7 +27,10 @@ export function getHostElementRef(appRef): any {
 
 
 export function selectorRegExpFactory(selector: string): RegExp {
-  // <app></app>
+  /*
+        $1       $2        $3
+    <selector> content </selector>
+  */
   let regExpSelector = `(<${ escapeRegExp(selector) }>)((?:.|\\n)*?)(<\/${ escapeRegExp(selector) }>)`;
   return new RegExp(regExpSelector);
 }

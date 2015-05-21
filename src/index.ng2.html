@@ -12,13 +12,15 @@
 </head>
 <body>
 
-<app></app>
+<app>
+  Loading...
+</app>
 
 <script>
   // Angular bootstraps too fast
-  // setTimeout(function() {
+  setTimeout(function() {
     System.import('app.client');
-  // }, 1000);
+  }, 3000);
 </script>
 </body>
 </html>

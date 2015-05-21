@@ -43,7 +43,7 @@ export function readNgTemplate(content, AppComponent) {
     let rendered = content.toString().replace(
       // <app></app>
       selectorRegExpFactory(selector),
-      serializedCmp/* + showDebug(Object)*/
+      `$1${serializedCmp}$3`/* + showDebug(Object)*/
     );
 
     return rendered;

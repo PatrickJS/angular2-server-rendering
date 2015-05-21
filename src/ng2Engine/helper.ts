@@ -28,9 +28,6 @@ export function getHostElementRef(appRef): any {
 
 export function selectorRegExpFactory(selector: string): RegExp {
   // <app></app>
-  let intro =  '<' + selector + '>';
-  let outro = '</' + selector + '>';
-  let appCmp = intro + outro;
-  let regExpSelector = new RegExp(escapeRegExp(appCmp), 'g');
-  return regExpSelector;
+  let regExpSelector = `(<${ escapeRegExp(selector) }>)((?:.|\\n)*?)(<\/${ escapeRegExp(selector) }>)`;
+  return new RegExp(regExpSelector);
 }

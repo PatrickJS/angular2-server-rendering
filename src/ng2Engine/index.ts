@@ -49,7 +49,7 @@ export function readNgTemplate(content, AppComponent) {
       // <selector></selector>
       selectorRegExpFactory(selector),
       // <selector>{{ serializedCmp }}</selector>
-      `$1${serializedCmp}$3`/* + showDebug(Object)*/
+      serializedCmp/* + showDebug(Object)*/
     );
 
     return rendered;

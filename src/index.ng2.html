@@ -16,13 +16,32 @@
   Loading...
 </app>
 
+<div id="bootstrap">
+  <button id="bootstrap" onclick="bootstrap()">
+    Bootstrap Angular2 Client
+  </button>
+</div>
+
 <script>
 
   // Angular bootstraps too fast
-  setTimeout(function() {
-    System.import('app.client');
-  }, 3000);
+  function bootstrap() {
+    console.time('bootstrap');
+    var bootstrapTime = new Date();
+    System.import('app.client')
+    .then(function() {
+      var bootstrapped = console.timeEnd('bootstrap');
+      var bootstrapTimeEnd = new Date();
+      var milliseconds = bootstrapTimeEnd - bootstrapTime;
+      var seconds = ~~(milliseconds / 1000);
+      var $bootstrap = document.getElementById('bootstrap');
+      $bootstrap.innerHTML = ''+
+        'milliseconds: '+milliseconds+'ms'+
+        '<br>'+
+        'seconds: '+ seconds+'s';
 
+    });
+  }
 </script>
 </body>
 </html>

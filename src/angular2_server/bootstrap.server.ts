@@ -166,21 +166,21 @@ export function bootstrap(appComponentType: Type,
   let zone = _createNgZone();
 
 
+  let bindingsCmpRef    = [DynamicComponentLoader, Injector, Testability, TestabilityRegistry];
+  let ComponentRefToken = (dynamicComponentLoader, injector, testability, registry) => {
+    // TODO(rado): investigate whether to support bindings on root component.
+    return dynamicComponentLoader.loadAsRoot(appComponentType, null, injector).then( (componentRef) => {
+      var domView = resolveInternalDomView(componentRef.hostView.render);
+      // We need to do this here to ensure that we create Testability and
+      // it's ready on the window for users.
+      registry.registerApplication(domView.boundElements[0], testability);
+      return componentRef;
+    });
+  };
+
   let serverBindings = [
     bind(appComponentTypeToken).toValue(appComponentType),
-    bind(appComponentRefToken).toAsyncFactory((dynamicComponentLoader, injector,
-      testability, registry) => {
-
-      // TODO(rado): investigate whether to support bindings on root component.
-      return dynamicComponentLoader.loadAsRoot(appComponentType, null, injector).then( (componentRef) => {
-        var domView = resolveInternalDomView(componentRef.hostView.render);
-        // We need to do this here to ensure that we create Testability and
-        // it's ready on the window for users.
-        registry.registerApplication(domView.boundElements[0], testability);
-
-        return componentRef;
-      });
-    }, [DynamicComponentLoader, Injector, Testability, TestabilityRegistry])
+    bind(appComponentRefToken).toAsyncFactory(ComponentRefToken, bindingsCmpRef)
   ];
 
   // Server

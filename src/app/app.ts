@@ -15,6 +15,6 @@ import {Component, View} from 'angular2/angular2';
 export class App {
   wat: string;
   constructor() {
-    this.wat = 'wat';
+    this.wat = 'wat'+(~~(Math.random()*20));
   }
 }

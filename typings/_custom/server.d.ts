@@ -1,5 +1,9 @@
+declare module 'fs' {
+  function readFile(filePath: string, options = {}, done): any
+}
+
 declare module 'angular2/src/render/api' {
   class Renderer {}
-  var RenderProtoViewRef: any;
-  var RenderViewRef: any;
+  class RenderViewRef {}
+  class RenderProtoViewRef {}
 }

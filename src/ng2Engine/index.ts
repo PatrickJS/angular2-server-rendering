@@ -6,7 +6,8 @@ import {bootstrap} from '../angular2_server';
 
 import {
   getHostElementRef,
-  selectorRegExpFactory
+  selectorRegExpFactory,
+  showDebug
 } from './helper';
 import {ng2string} from './ng2string';
 
@@ -50,7 +51,7 @@ export function readNgTemplate(content, AppComponent) {
       // <selector></selector>
       selectorRegExpFactory(selector),
       // <selector>{{ serializedCmp }}</selector>
-      serializedCmp/* + showDebug(Object)*/
+      serializedCmp + showDebug(appRef.hostComponent)
     );
 
     return rendered;

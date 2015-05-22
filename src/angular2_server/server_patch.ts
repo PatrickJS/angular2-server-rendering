@@ -37,10 +37,12 @@ import 'reflect-metadata';
 import 'angular2/node_modules/traceur/bin/traceur-runtime';
 
 // angular2 assert
-import * as assert from 'rtts_assert/rtts_assert';
-
+import * as rtts_assert from 'rtts_assert/rtts_assert';
+var assert = rtts_assert.assert;
 global.assert = global.assert || assert;
-global.assert.define = global.assert.define || function() {};
+if (global.assert) {
+  global.assert.define = global.assert.define || function() {};
+}
 
 // dom closure hack
 import {Parse5DomAdapter} from 'angular2/src/dom/parse5_adapter';

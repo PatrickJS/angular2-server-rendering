@@ -88,7 +88,6 @@ function _injectorBindings(appComponentType): List<Binding> {
       bind(IS_SERVER_TOKEN).toValue(true),          // should this be in app.server.ts or here? prob want to unify bootstraps at some point
 
       // Server: remove ref
-
       // Server
       bind(appComponentType).toFactory((ref) => ref.instance, [appComponentRefToken]),
       bind(LifeCycle).toFactory((exceptionHandler) => new LifeCycle(exceptionHandler, null, assertionsEnabled()),[ExceptionHandler]),
@@ -155,7 +154,7 @@ function _createNgZone(givenReporter:Function): NgZone {
 
 
 export function bootstrap(appComponentType: Type,
-                          appInjector: Injector = null,
+                          appInjector: any = null,
                           componentInjectableBindings: List<Binding> = null,
                           errorReporter: Function = null): Promise<ApplicationRef> {
   // BrowserDomAdapter.makeCurrent();
@@ -166,8 +165,9 @@ export function bootstrap(appComponentType: Type,
   let zone = _createNgZone();
 
 
-  let bindingsCmpRef    = [DynamicComponentLoader, Injector, Testability, TestabilityRegistry];
-  let ComponentRefToken = (dynamicComponentLoader, injector, testability, registry) => {
+  let bindingsCmpLoader = [DynamicComponentLoader, Injector, Testability, TestabilityRegistry];
+  let componentLoader   = (dynamicComponentLoader, injector, testability, registry) => {
+    console.log('\n\nIn Bootstrap loadAsRoot\n\n');
     // TODO(rado): investigate whether to support bindings on root component.
     return dynamicComponentLoader.loadAsRoot(appComponentType, null, injector).then( (componentRef) => {
       var domView = resolveInternalDomView(componentRef.hostView.render);
@@ -180,7 +180,7 @@ export function bootstrap(appComponentType: Type,
 
   let serverBindings = [
     bind(appComponentTypeToken).toValue(appComponentType),
-    bind(appComponentRefToken).toAsyncFactory(ComponentRefToken, bindingsCmpRef)
+    // bind(appComponentRefToken).toAsyncFactory(componentLoader, bindingsCmpLoader)
   ];
 
   // Server
@@ -188,7 +188,7 @@ export function bootstrap(appComponentType: Type,
   let mergedBindings = isPresent(componentInjectableBindings) ?
     ListWrapper.concat(componentInjectableBindings, serverBindings) : serverBindings;
 
-  if (typeof appInjector !== Injector ) {
+  if (!appInjector) {
 
     appInjector = _createAppInjector(appComponentType, mergedBindings, zone);
 
@@ -199,7 +199,14 @@ export function bootstrap(appComponentType: Type,
   }
 
   PromiseWrapper.then(
-    appInjector.asyncGet(appComponentRefToken),
+    PromiseWrapper.all([
+      appInjector.asyncGet(DynamicComponentLoader),
+      appInjector.asyncGet(Testability),
+      appInjector.asyncGet(TestabilityRegistry)
+    ])
+    .then(results => {
+      return componentLoader(results[0], appInjector, results[1], results[2]);
+    }),
     (componentRef) => {
       var appChangeDetector = internalView(componentRef.hostView).changeDetector;
 

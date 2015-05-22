@@ -65,6 +65,10 @@ function openTag(node) {
         // tag = tag + attr.replace('[', '').replace(']', '') + '="' + attributes[attr] + '"';
 
       }
+      else if (attr[0] === '[' && attr[1] === '(') {
+        // console.log('[(click)]', tag)
+
+      }
       else if (attr[0] === '#') {
         // console.log('#SWAG', attr, tag)
         // tag = tag + attr.replace('[', '').replace(']', '') + '="' + attributes[attr] + '"';
@@ -84,7 +88,7 @@ function openTag(node) {
   }
 
 
-  return tag + '>';
+  return (tag + '>').replace(' >', '>');
 }
 
 
@@ -102,6 +106,7 @@ function logValue(node, type) {
   try {
     // if view is a tag node return string version
     if (node.type && node.type === 'tag' || node.type === 'style'|| node.type === 'script') {
+
       if (type === 0) {
         return openTag(node);
       } else if (type === 1) {

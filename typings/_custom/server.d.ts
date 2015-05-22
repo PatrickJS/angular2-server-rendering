@@ -1,5 +1,5 @@
 declare module 'fs' {
-  function readFile(filePath: string, options = {}, done): any
+  function readFile(filePath: string, callback: Function): any
 }
 
 declare module 'angular2/src/render/api' {

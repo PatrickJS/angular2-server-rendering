@@ -21,7 +21,7 @@ module.exports = function(ROOT) {
   router.route('/')
     .get(function(req, res) {
 
-      res.render('index', require(ROOT+'/dist/app.server'));
+      res.render('index', require(ROOT+'/dist/app/app'));
 
     });
   app.use(router);

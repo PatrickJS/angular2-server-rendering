@@ -51,12 +51,17 @@ import {AppViewManagerUtils} from 'angular2/src/core/compiler/view_manager_utils
 import {ProtoViewFactory} from 'angular2/src/core/compiler/proto_view_factory';
 import {Renderer, RenderCompiler} from 'angular2/src/render/api';
 
+
+
 //import {DomRenderer, DOCUMENT_TOKEN} from 'angular2/src/render/dom/dom_renderer';
 import {DomRenderer, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN} from '../angular2_client/dom_renderer';
 
 import {resolveInternalDomView} from 'angular2/src/render/dom/view/view';
 import {DefaultDomCompiler} from 'angular2/src/render/dom/compiler/compiler';
 import {internalView} from 'angular2/src/core/compiler/view_ref';
+// Server
+import {ElementRef} from 'angular2/src/core/compiler/element_ref';
+// Server
 
 //
 import {
@@ -82,24 +87,10 @@ function _injectorBindings(appComponentType): List<Binding> {
       bind(SERVER_RENDERED_TOKEN).toValue(false),
       bind(IS_SERVER_TOKEN).toValue(true),          // should this be in app.server.ts or here? prob want to unify bootstraps at some point
 
-      bind(appComponentTypeToken).toValue(appComponentType),
-      bind(appComponentRefToken).toAsyncFactory((dynamicComponentLoader, injector,
-        testability, registry) => {
+      // Server: remove ref
 
-        // TODO(rado): investigate whether to support bindings on root component.
-        return dynamicComponentLoader.loadAsRoot(appComponentType, null, injector).then( (componentRef) => {
-          var domView = resolveInternalDomView(componentRef.hostView.render);
-          // We need to do this here to ensure that we create Testability and
-          // it's ready on the window for users.
-          registry.registerApplication(domView.boundElements[0], testability);
-
-          return componentRef;
-        });
-      }, [DynamicComponentLoader, Injector,
-        Testability, TestabilityRegistry]),
-
-      bind(appComponentType).toFactory((ref) => ref.instance,
-          [appComponentRefToken]),
+      // Server
+      bind(appComponentType).toFactory((ref) => ref.instance, [appComponentRefToken]),
       bind(LifeCycle).toFactory((exceptionHandler) => new LifeCycle(exceptionHandler, null, assertionsEnabled()),[ExceptionHandler]),
       bind(EventManager).toFactory((ngZone) => {
         var plugins = [new HammerGesturesPlugin(), new KeyEventsPlugin(), new DomEventsPlugin()];
@@ -164,45 +155,81 @@ function _createNgZone(givenReporter:Function): NgZone {
 
 
 export function bootstrap(appComponentType: Type,
+                          appInjector: Injector = null,
                           componentInjectableBindings: List<Binding> = null,
                           errorReporter: Function = null): Promise<ApplicationRef> {
   // BrowserDomAdapter.makeCurrent();
-  var bootstrapProcess = PromiseWrapper.completer();
+  let bootstrapProcess = PromiseWrapper.completer();
 
-  var zone = _createNgZone(errorReporter);
-  zone.run(() => {
-    // TODO(rado): prepopulate template cache, so applications with only
-    // index.html and main.js are possible.
+  // TODO(rado): prepopulate template cache, so applications with only
+  // index.html and main.js are possible.
+  let zone = _createNgZone();
 
-    var appInjector = _createAppInjector(appComponentType, componentInjectableBindings, zone);
 
-    PromiseWrapper.then(appInjector.asyncGet(appComponentRefToken),
-      (componentRef) => {
-        var appChangeDetector = internalView(componentRef.hostView).changeDetector;
-        // retrieve life cycle: may have already been created if injected in root component
-        var lc = appInjector.get(LifeCycle);
-        lc.registerWith(zone, appChangeDetector);
-        lc.tick(); //the first tick that will bootstrap the app
+  let serverBindings = [
+    bind(appComponentTypeToken).toValue(appComponentType),
+    bind(appComponentRefToken).toAsyncFactory((dynamicComponentLoader, injector,
+      testability, registry) => {
 
-        bootstrapProcess.resolve(new ApplicationRef(componentRef, appComponentType, appInjector));
-      },
+      // TODO(rado): investigate whether to support bindings on root component.
+      return dynamicComponentLoader.loadAsRoot(appComponentType, null, injector).then( (componentRef) => {
+        var domView = resolveInternalDomView(componentRef.hostView.render);
+        // We need to do this here to ensure that we create Testability and
+        // it's ready on the window for users.
+        registry.registerApplication(domView.boundElements[0], testability);
 
-      (err, stackTrace) => {
-        bootstrapProcess.reject(err, stackTrace)
+        return componentRef;
       });
-  });
+    }, [DynamicComponentLoader, Injector, Testability, TestabilityRegistry])
+  ];
+
+  // Server
+  // TODO: facade typeof
+  let mergedBindings = isPresent(componentInjectableBindings) ?
+    ListWrapper.concat(componentInjectableBindings, serverBindings) : serverBindings;
+
+  if (typeof appInjector !== Injector ) {
+
+    appInjector = _createAppInjector(appComponentType, mergedBindings, zone);
+
+  } else {
+
+    appInjector.resolveAndCreateChild(mergedBindings);
+
+  }
+
+  PromiseWrapper.then(
+    appInjector.asyncGet(appComponentRefToken),
+    (componentRef) => {
+      var appChangeDetector = internalView(componentRef.hostView).changeDetector;
+
+      bootstrapProcess.resolve(
+        new ApplicationRef(componentRef, appComponentType, appInjector, appChangeDetector)
+      );
+    },
+    (err, stackTrace) => {
+      bootstrapProcess.reject(err, stackTrace)
+    }
+  );
+  // Server
 
   return bootstrapProcess.promise;
 }
 
 export class ApplicationRef {
   _hostComponent:ComponentRef;
-  _injector:Injector;
   _hostComponentType:Type;
-  constructor(hostComponent:ComponentRef, hostComponentType:Type, injector:Injector) {
+  _hostElementRef:ElementRef;
+  _injector:Injector;
+  _changeDetection:ChangeDetection;
+  constructor(
+    hostComponent:ComponentRef, hostComponentType:Type, injector:Injector, changeDetection: ChangeDetection) {
     this._hostComponent = hostComponent;
     this._injector = injector;
     this._hostComponentType = hostComponentType;
+    // Server
+    this._changeDetection = changeDetection;
+    // Server
   }
 
   get hostComponentType() {
@@ -211,7 +238,11 @@ export class ApplicationRef {
 
 // Server
   get hostElementRef() {
-    return this._hostComponentType.location
+    return this._hostComponent.location;
+  }
+
+  get changeDetection() {
+    return this._changeDetection;
   }
 // Server
 
@@ -219,13 +250,19 @@ export class ApplicationRef {
     return this._hostComponent.instance;
   }
 
-  dispose() {
-    // TODO: We also need to clean up the Zone, ... here!
-    return this._hostComponent.dispose();
-  }
-
   get injector() {
     return this._injector;
+  }
+
+  dispose() {
+    // Server
+    this._lifecycle = null;
+    this._injector = null;
+    this._changeDetection = null;
+    // Server
+
+    // TODO: We also need to clean up the Zone, ... here!
+    return this._hostComponent.dispose();
   }
 }
 

@@ -17,43 +17,69 @@ import {OpaqueToken} from 'angular2/di';
 import {DirectiveResolver} from 'angular2/src/core/compiler/directive_resolver';
 
 // because state is evil
-var AppRef = null;
-var FakeDoc = null;
+// var AppRef = null;
+var serverInjector = undefined; // because js defaults
+var serverDocument = DOM.createHtmlDocument();;
+var serverDirectiveResolver = new DirectiveResolver();
 var IS_SERVER_TOKEN = new OpaqueToken('Server');
 
-var directiveResolver = new DirectiveResolver();
 
 export function readNgTemplate(content, AppComponent) {
-  let annotations = directiveResolver.resolve(AppComponent);
+  let annotations = serverDirectiveResolver.resolve(AppComponent);
   let selector = annotations.selector;
 
-  // if (!FakeDoc) {
-    FakeDoc = DOM.createHtmlDocument();
-    let el = DOM.createElement(selector, FakeDoc);
-    DOM.appendChild(FakeDoc.body, el);
+  let el = DOM.createElement(selector, serverDocument);
+  DOM.appendChild(serverDocument.body, el);
   // }
 
   return Promise.resolve(
     // AppRef ||
-    bootstrap(AppComponent, [
-      bind(DOCUMENT_TOKEN).toValue(FakeDoc),
-      bind(IS_SERVER_TOKEN).toValue(true)
-    ])
+    bootstrap(
+      AppComponent,
+      serverInjector,
+      [
+        bind(DOCUMENT_TOKEN).toValue(serverDocument),
+        // bind(IS_SERVER_TOKEN).toValue(true), // defined in bootstrap
+      ]
+    )
   )
   // .then(appRef => AppRef ? AppRef : AppRef = appRef)
   .then(appRef => {
+
+    // save a reference to app Injector
+    if (!serverInjector && appRef.injector) {
+      console.log('\nnew Injector\n');
+      serverInjector = appRef.injector;
+    } else {
+      console.log('\nREUSE INJECTOR\n');
+    }
+
+    // change detection
+    appRef.changeDetection.detectChanges();
+
+    // grab parse5 html element
+    let el = appRef.hostElementRef.domElement;
+
+    // serialize html
+    let serializedCmp = ng2string(el);
+
     // selector replacer explained here
     // https://gist.github.com/gdi2290/c74afd9898d2279fef9f
-
-    let serializedCmp = ng2string(getHostElementRef(appRef));
-
+    // replace our component with serialized version
     let rendered = content.toString().replace(
       // <selector></selector>
       selectorRegExpFactory(selector),
       // <selector>{{ serializedCmp }}</selector>
-      serializedCmp + showDebug(appRef.hostComponent)
+      serializedCmp/* + showDebug(appRef.hostComponent)*/
     );
 
+    // destroy appComponent
+    appRef.dispose();
+
+    // remove from serverDom
+    DOM.removeChild(serverDocument.body, el)
+
+    // return rendered version of our serialized component
     return rendered;
   })
   .catch(err => {

@@ -5,6 +5,34 @@ declare var global: any;
 declare var zone: any;
 declare var Zone: any;
 
+declare module "angular2/src/render/api" {
+  class RenderCompiler {}
+}
+declare module "angular2/src/render/dom/shadow_dom/content_tag" {
+  function Content(element: any, contentTagSelector:any): void;
+}
+declare module "angular2/src/render/dom/view/view" {
+  class DomViewRef {}
+  class DomView {
+    viewContainers(): any
+  }
+  function resolveInternalDomView(viewRef: any): any;
+}
+declare module "angular2/src/render/dom/shadow_dom/shadow_dom_strategy" {
+  class ShadowDomStrategy {
+    prepareShadowRoot(element: any): any
+    constructLightDom(lightDomView: any, el: any): any
+  }
+}
+
+declare module "angular2/src/render/dom/events/event_manager" {
+  class EventManager {
+    addEventListener(element: any, eventName: string, handler: Function): any
+    addGlobalEventListener(target: string, eventName: string, handler: Function): any
+  }
+  class DomEventsPlugin {}
+}
+
 declare module "angular2/src/core/life_cycle/life_cycle" {
   class LifeCycle {
     tick(): any;
@@ -17,7 +45,7 @@ declare module "zone.js" {
 }
 
 declare module "rtts_assert/rtts_assert" {
-
+  var assert: any;
 }
 
 declare module "angular2/directives" {
@@ -54,6 +82,20 @@ declare module "angular2/src/facade/browser" {
   const MouseEvent: any;
   const KeyboardEvent: any;
 }
+
+declare module "angular2/src/facade/lang" {
+  var int: any;
+  var Type: Function;
+  var assertionsEnabled: any;
+  function isPresent(): any;
+  function isBlank(): any;
+  class BaseException {}
+  class RegExpWrapper {}
+  class NumberWrapper {}
+  function print(str: any):any;
+  function stringify(str: any):any;
+}
+
 
 declare module "angular2/src/lang" {
   var int: any;
@@ -497,6 +539,9 @@ declare module "angular2/di" {
   function bind(token: any): any;
   class Injector {
      resolveAndCreateChild(bindings: [any]): Injector;
+     resolveAndCreate(bindings: any): any;
+     asyncGet(di: any):any
+     get(di: any):any
   }
   var Binding: any;
   var ResolvedBinding: any;

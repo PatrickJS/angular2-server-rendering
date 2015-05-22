@@ -261,7 +261,6 @@ export class ApplicationRef {
 
   dispose() {
     // Server
-    this._lifecycle = null;
     this._injector = null;
     this._changeDetection = null;
     // Server

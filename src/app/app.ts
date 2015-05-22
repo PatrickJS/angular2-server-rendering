@@ -31,11 +31,11 @@ export class App {
   wat: string;
   buttonTest: string;
   constructor() {
-    this.wat = 'wat'+(~~(Math.random()*20));
+    this.wat = 'wat'+5;
     this.buttonTest = '';
   }
   testing() {
-    return 'testing'+(~~(Math.random()*20));
+    return 'testing'+5;
   }
   clickingTest() {
     this.buttonTest = 'click'+this.testing();

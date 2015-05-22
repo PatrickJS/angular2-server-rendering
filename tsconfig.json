@@ -9,7 +9,7 @@
     "noLib": false,
     "emitDecoratorMetadata": true,
     "sourceMap": false,
-    "listFiles": true,
+    "listFiles": false,
     "outDir": "dist"
   },
   "files": [

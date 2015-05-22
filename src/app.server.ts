@@ -1,9 +1,5 @@
 /// <reference path="../typings/angular2/angular2.d.ts" />
 
-
-
-// NOT USED
-
 import {bootstrap} from './angular2_server';
 import {App} from './app/app';
 

@@ -7,7 +7,7 @@ import {Component, View} from 'angular2/angular2';
 })
 @View({
   template: `
-  <h1>Hello Server Rendered</h1>
+  <h1>Hello Server Renderer</h1>
   `
 })
 export class App {

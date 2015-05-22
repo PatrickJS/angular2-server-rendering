@@ -50,7 +50,10 @@ import {AppViewManager} from 'angular2/src/core/compiler/view_manager';
 import {AppViewManagerUtils} from 'angular2/src/core/compiler/view_manager_utils';
 import {ProtoViewFactory} from 'angular2/src/core/compiler/proto_view_factory';
 import {Renderer, RenderCompiler} from 'angular2/src/render/api';
-import {DomRenderer, DOCUMENT_TOKEN} from 'angular2/src/render/dom/dom_renderer';
+
+//import {DomRenderer, DOCUMENT_TOKEN} from 'angular2/src/render/dom/dom_renderer';
+import {DomRenderer, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN} from '../angular2_client/dom_renderer';
+
 import {resolveInternalDomView} from 'angular2/src/render/dom/view/view';
 import {DefaultDomCompiler} from 'angular2/src/render/dom/compiler/compiler';
 import {internalView} from 'angular2/src/core/compiler/view_ref';
@@ -74,6 +77,10 @@ var _rootBindings = [
 function _injectorBindings(appComponentType): List<Binding> {
   return [
       bind(DOCUMENT_TOKEN).toValue(DOM.defaultDoc()),
+
+      // needed for the DomRenderer
+      bind(SERVER_RENDERED_TOKEN).toValue(false),
+      bind(IS_SERVER_TOKEN).toValue(true),          // should this be in app.server.ts or here? prob want to unify bootstraps at some point
 
       bind(appComponentTypeToken).toValue(appComponentType),
       bind(appComponentRefToken).toAsyncFactory((dynamicComponentLoader, injector,
@@ -104,8 +111,8 @@ function _injectorBindings(appComponentType): List<Binding> {
       // TODO(tbosch): We need an explicit factory here, as
       // we are getting errors in dart2js with mirrors...
       bind(DomRenderer).toFactory(
-          (eventManager, shadowDomStrategy, doc) => new DomRenderer(eventManager, shadowDomStrategy, doc),
-          [EventManager, ShadowDomStrategy, DOCUMENT_TOKEN]
+          (eventManager, shadowDomStrategy, doc, isServerRendered, isServer) => new DomRenderer(eventManager, shadowDomStrategy, doc, isServerRendered, isServer),
+          [EventManager, ShadowDomStrategy, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN]
       ),
       DefaultDomCompiler,
       bind(Renderer).toAlias(DomRenderer),

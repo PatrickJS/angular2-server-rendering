@@ -215,8 +215,12 @@ export class DomRenderer extends Renderer {
         var view = resolveInternalDomView(viewRef);
 
         // remove global events
-        for (var i = 0; i < view.eventHandlerRemovers.length; i++) {
-            view.eventHandlerRemovers[i]();
+        if (view && view.eventHandlerRemovers) {
+            for (var i = 0; i < view.eventHandlerRemovers.length; i++) {
+                view.eventHandlerRemovers[i]();
+            }
+        } else {
+            console.log('NO view.eventHandlerRemovers');
         }
 
         view.eventHandlerRemovers = null;

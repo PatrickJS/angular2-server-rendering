@@ -157,7 +157,6 @@ export function bootstrap(appComponentType: Type,
                           appInjector: any = null,
                           componentInjectableBindings: List<Binding> = null,
                           errorReporter: Function = null): Promise<ApplicationRef> {
-  // BrowserDomAdapter.makeCurrent();
   let bootstrapProcess = PromiseWrapper.completer();
 
   // TODO(rado): prepopulate template cache, so applications with only
@@ -167,7 +166,6 @@ export function bootstrap(appComponentType: Type,
 
   let bindingsCmpLoader = [DynamicComponentLoader, Injector, Testability, TestabilityRegistry];
   let componentLoader   = (dynamicComponentLoader, injector, testability, registry) => {
-    console.log('\n\nIn Bootstrap loadAsRoot\n\n');
     // TODO(rado): investigate whether to support bindings on root component.
     return dynamicComponentLoader.loadAsRoot(appComponentType, null, injector).then( (componentRef) => {
       var domView = resolveInternalDomView(componentRef.hostView.render);
@@ -184,7 +182,6 @@ export function bootstrap(appComponentType: Type,
   ];
 
   // Server
-  // TODO: facade typeof
   let mergedBindings = isPresent(componentInjectableBindings) ?
     ListWrapper.concat(componentInjectableBindings, serverBindings) : serverBindings;
 
@@ -197,6 +194,7 @@ export function bootstrap(appComponentType: Type,
     appInjector.resolveAndCreateChild(mergedBindings);
 
   }
+  // Server
 
   PromiseWrapper.then(
     PromiseWrapper.all([

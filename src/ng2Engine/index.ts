@@ -48,11 +48,12 @@ export function readNgTemplate(content, AppComponent) {
 
     // save a reference to app Injector
     if (!serverInjector && appRef.injector) {
-      console.log('\nnew Injector\n');
+      // console.log('\nnew Injector\n');
       serverInjector = appRef.injector;
-    } else {
-      console.log('\nREUSE INJECTOR\n');
     }
+    // else {
+    //   console.log('\nREUSE INJECTOR\n');
+    // }
 
     // change detection
     appRef.changeDetection.detectChanges();

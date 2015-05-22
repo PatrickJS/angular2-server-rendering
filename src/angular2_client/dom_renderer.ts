@@ -199,7 +199,7 @@ export class DomRenderer extends Renderer {
         for (var i = 0; i < binder.globalEvents.length; i++) {
           var globalEvent = binder.globalEvents[i];
           var remover = this._createGlobalEventListener(view, binderIdx, globalEvent.name,
-              globalEvent.target, globalEvent.fullName);
+                                                        globalEvent.target, globalEvent.fullName);
           ListWrapper.push(view.eventHandlerRemovers, remover);
         }
       }
@@ -215,12 +215,11 @@ export class DomRenderer extends Renderer {
     var view = resolveInternalDomView(viewRef);
 
     // remove global events
-    if (view && view.eventHandlerRemovers) {
+    // pjs: we don't have events on server
+    if (!this._isDocumentServerRendered) {
       for (var i = 0; i < view.eventHandlerRemovers.length; i++) {
         view.eventHandlerRemovers[i]();
       }
-    } else {
-      console.log('NO view.eventHandlerRemovers');
     }
 
     view.eventHandlerRemovers = null;
@@ -276,7 +275,7 @@ export class DomRenderer extends Renderer {
     var pvId = this._getProtoViewId(protoView);
 
     var rootElementClone =
-      isPresent(inplaceElement) ? inplaceElement : DOM.importIntoDoc(protoView.element);
+        isPresent(inplaceElement) ? inplaceElement : DOM.importIntoDoc(protoView.element);
     var elementsWithBindingsDynamic;
     if (protoView.isTemplateElement) {
       elementsWithBindingsDynamic =
@@ -294,7 +293,7 @@ export class DomRenderer extends Renderer {
     if (protoView.isTemplateElement) {
       var childNode = DOM.firstChild(DOM.content(rootElementClone));
       viewRootNodes =
-        [];  // TODO(perf): Should be fixed size, since we could pre-compute in in DomProtoView
+          [];  // TODO(perf): Should be fixed size, since we could pre-compute in in DomProtoView
       // Note: An explicit loop is the fastest way to convert a DOM array into a JS array!
       while (childNode != null) {
         ListWrapper.push(viewRootNodes, childNode);
@@ -318,6 +317,7 @@ export class DomRenderer extends Renderer {
       }
 
       //jeff: if this is the server set the ID (base64 encode?)
+      var prevousElement = element;
       var elementId = 'ng-' + pvId + '-' + (binderIdx + 1);
       if (this._isServer) {
         DOM.addClass(element, elementId);
@@ -325,6 +325,11 @@ export class DomRenderer extends Renderer {
       //jeff: else if document server rendered, then get the element from the DOM with the ID
       else if (this._isDocumentServerRendered) {
         element = DOM.query('.' + elementId);
+      }
+      if (element === null) {
+        // console.log('prevousElement', prevousElement);
+        // debugger;
+        element = prevousElement;
       }
 
       boundElements[binderIdx] = element;
@@ -368,7 +373,7 @@ export class DomRenderer extends Renderer {
       if (isPresent(binder.eventLocals) && isPresent(binder.localEvents)) {
         for (var i = 0; i < binder.localEvents.length; i++) {
           this._createEventListener(view, element, binderIdx, binder.localEvents[i].name,
-              binder.eventLocals);
+                                    binder.eventLocals);
         }
       }
     }
@@ -378,7 +383,7 @@ export class DomRenderer extends Renderer {
 
   _createEventListener(view, element, elementIndex, eventName, eventLocals) {
     this._eventManager.addEventListener(
-      element, eventName, (event) => { view.dispatchEvent(elementIndex, eventName, event); });
+        element, eventName, (event) => { view.dispatchEvent(elementIndex, eventName, event); });
   }
 
 

@@ -543,9 +543,14 @@ declare module "angular2/di" {
      asyncGet(di: any):any
      get(di: any):any
   }
+  class Injectable {}
+  class Dependency {}
+  class Inject {}
+  class InjectPromise {}
+  class InjectLazy {}
+  class Optional {}
   var Binding: any;
   var ResolvedBinding: any;
-  var Dependency: any;
   var Key: any;
   var KeyRegistry: any;
   var TypeLiteral: any;
@@ -564,9 +569,4 @@ declare module "angular2/di" {
   var OptionalAnnotation: any;
   var InjectableAnnotation: any;
   var DependencyAnnotation: any;
-  var Inject: any;
-  var InjectPromise: any;
-  var InjectLazy: any;
-  var Optional: any;
-  var Injectable: any;
 }

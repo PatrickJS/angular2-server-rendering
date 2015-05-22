@@ -2,6 +2,12 @@ import {Inject, Injectable, OpaqueToken} from 'angular2/di';
 import {int, isPresent, isBlank, BaseException, RegExpWrapper} from 'angular2/src/facade/lang';
 import {ListWrapper, MapWrapper, Map, StringMapWrapper, List} from 'angular2/src/facade/collection';
 
+
+// client DOM
+import {BrowserDomAdapter} from 'angular2/src/dom/browser_adapter';
+
+
+
 import {DOM} from 'angular2/src/dom/dom_adapter';
 
 import {Content} from 'angular2/src/render/dom/shadow_dom/content_tag';
@@ -49,6 +55,10 @@ export class DomRenderer extends Renderer {
     this._isServer = isServer;
     this._pvCount = new Map();
     this._pvNumber = new Map();
+    // ensure we have the correct DomAdapter
+    if (!isServer) {
+      BrowserDomAdapter.makeCurrent();
+    }
   }
 
   setDocumentServerRendered(isDocumentServerRendered: boolean) {

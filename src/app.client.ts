@@ -1,9 +1,5 @@
 /// <reference path="../typings/angular2/angular2.d.ts" />
 
-// needed because dom_renderer uses DOM
-import {BrowserDomAdapter} from 'angular2/src/dom/browser_adapter';
-BrowserDomAdapter.makeCurrent();
-
 // import {bootstrap} from 'angular2/angular2';
 import {bootstrap} from './angular2_client/bootstrap.client';
 import {bind, OpaqueToken} from 'angular2/di';

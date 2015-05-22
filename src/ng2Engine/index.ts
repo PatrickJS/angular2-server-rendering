@@ -26,19 +26,20 @@ export function readNgTemplate(content, AppComponent) {
   let annotations = directiveResolver.resolve(AppComponent);
   let selector = annotations.selector;
 
-  if (!FakeDoc) {
+  // if (!FakeDoc) {
     FakeDoc = DOM.createHtmlDocument();
     let el = DOM.createElement(selector, FakeDoc);
     DOM.appendChild(FakeDoc.body, el);
-  }
+  // }
 
   return Promise.resolve(
-    AppRef || bootstrap(AppComponent, [
+    // AppRef ||
+    bootstrap(AppComponent, [
       bind(DOCUMENT_TOKEN).toValue(FakeDoc),
       bind(IS_SERVER_TOKEN).toValue(true)
     ])
   )
-  .then(appRef => AppRef ? AppRef : AppRef = appRef)
+  // .then(appRef => AppRef ? AppRef : AppRef = appRef)
   .then(appRef => {
     // selector replacer explained here
     // https://gist.github.com/gdi2290/c74afd9898d2279fef9f

@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+  <title>Todo Angular 2</title>
+  <link rel="stylesheet" href="/css/main.css" media="screen" title="no title" charset="utf-8">
+
+  <!-- Should be in component -->
+  <link rel="stylesheet" href="/css/base.css" media="screen" title="no title" charset="utf-8">
+
+  <script src="/lib/traceur-runtime.min.js"></script>
+  <script src="/lib/es6-module-loader-sans-promises.js"></script>
+  <script src="/lib/system.js"></script>
+  <script src="/lib/angular2.dev.js"></script>
+  <script src="/lib/router.dev.js"></script>
+<body>
+  <todo-app>
+    Loading...
+  </todo-app>
+
+
+
+  <div id="bootstrap" style="margin:5em">
+    <button id="bootstrap" onclick="bootstrap()">
+      Bootstrap Angular2 Client
+    </button>
+  </div>
+
+<script>
+    System.baseURL = '/';
+
+  function ngApp() {
+    return System.import('angular2_examples/todo/index')
+    .then(function(module) {
+      return module.main();
+    });
+  }
+
+  function bootstrap() {
+    console.time('bootstrap');
+    var bootstrapTime = new Date();
+    ngApp()
+    .then(function() {
+      var bootstrapped = console.timeEnd('bootstrap');
+      var bootstrapTimeEnd = new Date();
+      var milliseconds = bootstrapTimeEnd - bootstrapTime;
+      var seconds = ~~(milliseconds / 1000);
+      var $bootstrap = document.getElementById('bootstrap');
+      $bootstrap.innerHTML = ''+
+        'milliseconds: '+milliseconds+'ms'+
+        '<br>'+
+        'seconds: '+ seconds+'s';
+
+    });
+  }
+</script>
+</body>
+</html>

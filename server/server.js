@@ -32,7 +32,7 @@ module.exports = function(ROOT) {
     });
   }
 
-  router.route('/').get(ngApp);
+  router.route('/').get(ngApp)
   app.use(router);
 
   app.use(serveStatic(ROOT + '/dist'));
@@ -44,23 +44,35 @@ module.exports = function(ROOT) {
 
   // Example repos
   app.use('/angular2_examples/hello_world', function(req, res) {
+    var HelloCmp = require(ROOT+'/dist/angular2_examples/hello_world/index_common').HelloCmp;
+
     res.render('angular2_examples/hello_world/index', {
-      Component: require(ROOT+'/dist/angular2_examples/hello_world/index_common').HelloCmp
+      Component: HelloCmp
     });
   });
   app.use('/angular2_examples/key_events', function(req, res) {
+    var KeyEventsApp = require(ROOT+'/dist/angular2_examples/key_events').KeyEventsApp;
+
     res.render('angular2_examples/key_events/index', {
-      Component: require(ROOT+'/dist/angular2_examples/key_events').KeyEventsApp
+      Component: KeyEventsApp
     });
   });
   app.use('/angular2_examples/forms', function(req, res) {
+    var SurveyBuilder = require(ROOT+'/dist/angular2_examples/forms').SurveyBuilder;
+
     res.render('angular2_examples/forms/index', {
-      Component: require(ROOT+'/dist/angular2_examples/forms').SurveyBuilder
+      Component: SurveyBuilder
     });
   });
-  // app.use('/angular2_examples/lib', function(req, res) {
-  //   serveStatic(ROOT + '/web_modules')(req, res);
-  // });
+  app.use('/angular2_examples/todo', function(req, res) {
+
+    var TodoApp = require(ROOT+'/dist/angular2_examples/todo').TodoApp;
+    res.render('angular2_examples/todo/index', {
+      clientOnly: true,
+      Component: TodoApp
+    });
+  });
+
 
   // dev source maps
   app.use('/src', function(req, res) {

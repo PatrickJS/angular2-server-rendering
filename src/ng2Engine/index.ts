@@ -25,9 +25,13 @@ var serverDocument = DOM.createHtmlDocument();
 var serverDirectiveResolver = new DirectiveResolver();
 
 
-export function readNgTemplate(content, AppComponent) {
+export function readNgTemplate(content, AppComponent, options) {
   let annotations = serverDirectiveResolver.resolve(AppComponent);
   let selector = annotations.selector;
+
+  if (options.clientOnly) {
+    return Promise.resolve(content.toString());
+  }
 
   let el = DOM.createElement(selector, serverDocument);
   DOM.appendChild(serverDocument.body, el);
@@ -98,7 +102,7 @@ export function ng2Engine(filePath: string, options, done) {
         return done(new Error(err));
       }
 
-      readNgTemplate(content, options.Component)
+      readNgTemplate(content, options.Component, options)
       .then(rendered => done(null, rendered))
       .catch(e => done(e));
     });

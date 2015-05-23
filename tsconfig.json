@@ -32,6 +32,8 @@
     "src/angular2_examples/hello_world/index_dynamic.ts",
     "src/angular2_examples/hello_world/index_common.ts",
     "src/angular2_examples/key_events/index.ts",
-    "src/angular2_examples/forms/index.ts"
+    "src/angular2_examples/forms/index.ts",
+    "src/angular2_examples/todo/index.ts",
+    "src/angular2_examples/todo/services/TodoStore.ts"
   ]
 }

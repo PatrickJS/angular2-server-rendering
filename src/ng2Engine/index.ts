@@ -1,3 +1,4 @@
+/// <reference path="../../typings/tsd.d.ts" />
 import * as fs from 'fs';
 
 // server version
@@ -97,7 +98,7 @@ export function ng2Engine(filePath: string, options = {}, done) {
         return done(new Error(err));
       }
 
-      readNgTemplate(content, options.App)
+      readNgTemplate(content, options.Component)
       .then(rendered => done(null, rendered))
       .catch(e => done(e));
     });

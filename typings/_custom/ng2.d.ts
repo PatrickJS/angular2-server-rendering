@@ -44,9 +44,32 @@ interface _DirectiveArg {
 declare var zone: any;
 declare var Zone: any;
 
+declare module "angular2/src/render/dom/view/proto_view" {
+  class DomProtoView {
+    rootBindingOffset: any;
+    element: any;
+    isTemplateElement(): any
+    elementBinders(): any
+  }
+
+}
+
+declare module "angular2/src/render/dom/view/view_container" {
+  class DomViewContainer{}
+}
+
+declare module "angular2/src/render/dom/util" {
+  var NG_BINDING_CLASS_SELECTOR: any;
+  var NG_BINDING_CLASS: any ;
+}
+
 
 declare module "angular2/src/render/dom/dom_renderer" {
-  class DomRenderer {}
+  class DomRenderer {
+    _moveViewNodesIntoParent(): any
+    _createGlobalEventListener(): any
+    _createEventListener(): any
+  }
   var DOCUMENT_TOKEN: any;
 }
 
@@ -110,11 +133,62 @@ declare module "angular2/directives" {
 
 }
 
+declare module "angular2/change_detection" {
+  class Parser {}
+  class Lexer {}
+  class ChangeDetection {}
+  class DynamicChangeDetection {}
+  class PipeRegistry {}
+  var defaultPipeRegistry: any;
+}
+
+declare module "angular2/src/core/zone/ng_zone" {
+  class NgZone {}
+}
+
+declare module "angular2/src/core/compiler/element_ref" {
+  class ElementRef {
+    domElement: any;
+  }
+}
+
+declare module "angular2/src/core/exception_handler" {
+  class ExceptionHandler {}
+}
+
+declare module "angular2/src/services/xhr" {
+  class XHR {}
+}
+
+declare module "angular2/src/core/application_tokens" {
+  var appComponentRefToken: any;
+  var appComponentTypeToken: any;
+}
+
+declare module "angular2/src/core/compiler/compiler" {
+  class Compiler {}
+  class CompilerCache {}
+}
+
 declare module "angular2/forms" {
   var formDirectives: any;
 }
 
+declare module "angular2/src/render/dom/shadow_dom/emulated_unscoped_shadow_dom_strategy" {
+  class EmulatedUnscopedShadowDomStrategy {}
+}
+
 declare module "angular2/core" {
+  class ElementRef {
+    domElement: any;
+  }
+  class EmulatedScopedShadowDomStrategy {}
+  class EmulatedUnscopedShadowDomStrategy {}
+  class NativeShadowDomStrategy {}
+  class ShadowDomStrategy {}
+}
+
+declare module "angular2/render" {
   class EmulatedScopedShadowDomStrategy {}
   class EmulatedUnscopedShadowDomStrategy {}
   class NativeShadowDomStrategy {}
@@ -592,6 +666,11 @@ declare module "angular2/angular2" {
   interface RenderCompiler {}
   interface Renderer {}
   interface EventDispatcher {}
+}
+
+
+declare module "angular2/src/di/binding" {
+  class Binding {}
 }
 
 declare module "angular2/di" {

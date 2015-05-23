@@ -34,8 +34,9 @@ import {AppViewManagerUtils} from 'angular2/src/core/compiler/view_manager_utils
 import {ProtoViewFactory} from 'angular2/src/core/compiler/proto_view_factory';
 import {Renderer, RenderCompiler} from 'angular2/src/render/api';
 
+
 //import {DomRenderer, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN} from 'angular2/src/render/dom/dom_renderer';
-import {DomRenderer, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN} from './dom_renderer';
+import {ServerDomRenderer, DomRenderer, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN} from './dom_renderer';
 
 import {resolveInternalDomView} from 'angular2/src/render/dom/view/view';
 import {DefaultDomCompiler} from 'angular2/src/render/dom/compiler/compiler';
@@ -88,7 +89,7 @@ function _injectorBindings(appComponentType): List<Binding> {
         // TODO(tbosch): We need an explicit factory here, as
         // we are getting errors in dart2js with mirrors...
         bind(DomRenderer).toFactory(
-            (eventManager, shadowDomStrategy, doc, isServerRendered, isServer) => new DomRenderer(eventManager, shadowDomStrategy, doc, isServerRendered, isServer),
+            (eventManager, shadowDomStrategy, doc, isServerRendered, isServer) => new ServerDomRenderer(eventManager, shadowDomStrategy, doc, isServerRendered, isServer),
             [EventManager, ShadowDomStrategy, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN]
         ),
         DefaultDomCompiler,

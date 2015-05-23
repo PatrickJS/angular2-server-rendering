@@ -1,7 +1,46 @@
-declare var require: any;
-declare var __filename: string;
-declare var __dirname: string;
-declare var global: any;
+// Type definitions for Angular v2.0.0-alpha.25
+// Project: http://angular.io/
+// Definitions by: angular team <https://github.com/angular/> and gdi2290 <https://github.com/gdi2290/>
+// Definitions: https://github.com/borisyankov/DefinitelyTyped
+
+/******************
+ * This is a minimal type definition for the Angular2.
+ * We plan to publish a complete definition soon.
+ ******************/
+
+interface List<T> extends Array<T> {}
+interface Type {}
+
+interface _ComponentArg {
+  selector: string;
+  properties?: Object;
+  hostListeners?: Object;
+  appInjector?: List<any>;
+  viewInjector?: List<any>;
+  lifecycle?: List<any>;
+  changeDetection?: string;
+}
+
+interface _ViewArg {
+  templateUrl?: string;
+  template?: string;
+  directives?: List<Type>;
+}
+
+interface _DirectiveArg {
+  selector: string;
+  properties?: StringMap<string, string>;
+  events?: List<string>;
+  hostListeners?: StringMap<string, string>;
+  hostProperties?: StringMap<string, string>;
+  hostAttributes?: StringMap<string, string>;
+  hostActions?: StringMap<string, string>;
+  lifecycle?: List<LifecycleEvent>;
+  compileChildren?: boolean;
+  hostInjector?: List<any>;
+}
+
+
 declare var zone: any;
 declare var Zone: any;
 
@@ -13,6 +52,10 @@ declare module "angular2/src/render/dom/dom_renderer" {
 
 declare module "angular2/src/render/api" {
   class RenderCompiler {}
+  class Renderer {}
+  class RenderViewRef {}
+  class RenderProtoViewRef {}
+
 }
 declare module "angular2/src/render/dom/shadow_dom/content_tag" {
   function Content(element: any, contentTagSelector:any): void;
@@ -96,9 +139,9 @@ declare module "angular2/src/facade/browser" {
   var document: any;
   var location: any;
   var gc: () => void;
-  const Event: any;
-  const MouseEvent: any;
-  const KeyboardEvent: any;
+  var Event: any;
+  var MouseEvent: any;
+  var KeyboardEvent: any;
 }
 
 declare module "angular2/src/facade/lang" {
@@ -116,15 +159,6 @@ declare module "angular2/src/facade/lang" {
   }
   function print(str: any):any;
   function stringify(str: any):any;
-}
-
-
-declare module "angular2/src/lang" {
-  var int: any;
-  function isPresent(): any;
-  function isBlank(): any;
-  class BaseException {}
-  class RegExpWrapper {}
 }
 
 declare module "angular2/src/core/compiler/directive_resolver" {
@@ -152,6 +186,7 @@ declare module "angular2/router" {
   var routerInjectables: any;
   var RouteConfigAnnotation: any;
   var RouteConfig: any;
+  var routerDirectives: any;
 }
 
 
@@ -431,6 +466,10 @@ declare module "angular2/src/dom/parse5_adapter" {
 declare module "angular2/angular2" {
   function bootstrap(appComponentType: any, componentInjectableBindings?: Array<any>, errorReporter?: Function): Promise<ComponentRef>;
 
+  function Component(arg: _ComponentArg): (target: any) => any;
+  function View(arg: _ViewArg): (target: any) => any;
+  function Directive(arg: _DirectiveArg): (target: any) => any;
+
   function bind(token: any): any;
 
   class ElementRef {
@@ -523,7 +562,6 @@ declare module "angular2/angular2" {
   var onDestroy: any;
   var onChange: any;
   var onAllChangesDone: any;
-  var Directive: any;
   var Ancestor: any;
   var Parent: any;
   var Attribute: any;

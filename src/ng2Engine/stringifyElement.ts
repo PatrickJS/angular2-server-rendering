@@ -6,15 +6,12 @@ import {List, ListWrapper, MapWrapper} from 'angular2/src/facade/collection';
 import {DOM} from 'angular2/src/dom/dom_adapter';
 import {isPresent, StringWrapper} from 'angular2/src/facade/lang';
 
-var tagBlackList = {
-  // 'template': true
-}
 
 export function stringifyElement(el): string {
   var result = '';
-  if (DOM.isElementNode(el) && !tagBlackList[DOM.tagName(el)]) {
-    var tagName = StringWrapper.toLowerCase(DOM.tagName(el));
 
+  if (el.name && DOM.isElementNode(el) && DOM.tagName(el)) {
+    var tagName = StringWrapper.toLowerCase(DOM.tagName(el));
     // Opening tag
     result += '<' + tagName;
 
@@ -31,12 +28,17 @@ export function stringifyElement(el): string {
 
     // Children
     var children = DOM.childNodes(DOM.templateAwareRoot(el));
-    for (let i = 0; i < children.length; i++) {
-      result += stringifyElement(children[i]);
+    var childrenLen = children.length;
+    if (childrenLen) {
+      for (let i = 0; i < childrenLen; i++) {
+        result += stringifyElement(children[i]);
+      }
     }
 
     // Closing tag
-    result += '</' + tagName + '>';
+    if (childrenLen) { // avoid self closing tags
+      result += '</' + tagName + '>';
+    }
   } else {
     result = DOM.getText(el);
   }

@@ -5,6 +5,12 @@ declare var global: any;
 declare var zone: any;
 declare var Zone: any;
 
+
+declare module "angular2/src/render/dom/dom_renderer" {
+  class DomRenderer {}
+  var DOCUMENT_TOKEN: any;
+}
+
 declare module "angular2/src/render/api" {
   class RenderCompiler {}
 }
@@ -72,6 +78,18 @@ declare module "angular2/core" {
   class ShadowDomStrategy {}
 }
 
+declare module "angular2/src/render/dom/shadow_dom/style_url_resolver" {
+  class StyleUrlResolver {}
+}
+
+declare module "angular2/src/facade/collection" {
+  var List: Array<any>;
+  var Map: any;
+  var ListWrapper: any;
+  var MapWrapper: any;
+  var StringMapWrapper: any;
+}
+
 declare module "angular2/src/facade/browser" {
   var __esModule: boolean;
   var win: any;
@@ -92,6 +110,10 @@ declare module "angular2/src/facade/lang" {
   class BaseException {}
   class RegExpWrapper {}
   class NumberWrapper {}
+  class StringWrapper {
+    static toLowerCase(str: string): string;
+    static toUpperCase(str: string): string;
+  }
   function print(str: any):any;
   function stringify(str: any):any;
 }
@@ -539,7 +561,8 @@ declare module "angular2/di" {
   function bind(token: any): any;
   class Injector {
      resolveAndCreateChild(bindings: [any]): Injector;
-     resolveAndCreate(bindings: any): any;
+     static resolveAndCreate(bindings: any): any;
+     static fromResolvedBindings(bindings: any): any;
      asyncGet(di: any):any
      get(di: any):any
   }

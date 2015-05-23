@@ -42,6 +42,25 @@ module.exports = function(ROOT) {
     serveStatic(ROOT + '/web_modules')(req, res);
   });
 
+  // Example repos
+  app.use('/angular2_examples/hello_world', function(req, res) {
+    res.render('angular2_examples/hello_world/index', {
+      Params: {
+        url: req.url,
+        originalUrl: req.originalUrl,
+        path: req.path,
+        params: req.params,
+        query: req.query,
+        cookie: req.cookies,
+        signedCookies: req.signedCookies
+      },
+      Component: require(ROOT+'/dist/angular2_examples/hello_world/index_common').HelloCmp
+    });
+  });
+  // app.use('/angular2_examples/lib', function(req, res) {
+  //   serveStatic(ROOT + '/web_modules')(req, res);
+  // });
+
   // dev source maps
   app.use('/src', function(req, res) {
     serveStatic(ROOT + '/src')(req, res);

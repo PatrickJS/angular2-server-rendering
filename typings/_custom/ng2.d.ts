@@ -666,6 +666,7 @@ declare module "angular2/angular2" {
   interface RenderCompiler {}
   interface Renderer {}
   interface EventDispatcher {}
+  var Injectable: any;
 }
 
 
@@ -683,7 +684,7 @@ declare module "angular2/di" {
      asyncGet(di: any):any
      get(di: any):any
   }
-  class Injectable {}
+  var Injectable: any;
   class Dependency {}
   class Inject {}
   class InjectPromise {}

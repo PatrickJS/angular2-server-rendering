@@ -55,6 +55,9 @@ export class ServerDomRenderer extends DomRenderer {
     this._pvCount = new Map();
     this._pvNumber = new Map();
 
+    console.log('setting is document to ' + this._isDocumentServerRendered);
+    console.log('setting is server to ' + this._isServer);
+
     // ensure we have the correct DomAdapter
     if (!isServer) {
       BrowserDomAdapter.makeCurrent();
@@ -80,9 +83,7 @@ export class ServerDomRenderer extends DomRenderer {
 
       // why is this affecting?
       var shadowRoot = this._shadowDomStrategy.prepareShadowRoot(element);
-
       this._moveViewNodesIntoParent(shadowRoot, componentView);
-
       componentView.shadowRoot = shadowRoot;
     }
 
@@ -130,7 +131,7 @@ export class ServerDomRenderer extends DomRenderer {
 
     // remove global events
     // pjs: we don't have events on server
-    if (!this._isDocumentServerRendered) {
+    if (!this._isServer) {
       for (var i = 0; i < view.eventHandlerRemovers.length; i++) {
         view.eventHandlerRemovers[i]();
       }
@@ -168,11 +169,11 @@ export class ServerDomRenderer extends DomRenderer {
     var pvId = this._getProtoViewId(protoView);
 
     var rootElementClone =
-        isPresent(inplaceElement) ? inplaceElement : DOM.importIntoDoc(protoView.element);
+      isPresent(inplaceElement) ? inplaceElement : DOM.importIntoDoc(protoView.element);
     var elementsWithBindingsDynamic;
     if (protoView.isTemplateElement) {
       elementsWithBindingsDynamic =
-          DOM.querySelectorAll(DOM.content(rootElementClone), NG_BINDING_CLASS_SELECTOR);
+        DOM.querySelectorAll(DOM.content(rootElementClone), NG_BINDING_CLASS_SELECTOR);
     } else {
       elementsWithBindingsDynamic = DOM.getElementsByClassName(rootElementClone, NG_BINDING_CLASS);
     }
@@ -186,7 +187,7 @@ export class ServerDomRenderer extends DomRenderer {
     if (protoView.isTemplateElement) {
       var childNode = DOM.firstChild(DOM.content(rootElementClone));
       viewRootNodes =
-          [];  // TODO(perf): Should be fixed size, since we could pre-compute in in DomProtoView
+        [];  // TODO(perf): Should be fixed size, since we could pre-compute in in DomProtoView
       // Note: An explicit loop is the fastest way to convert a DOM array into a JS array!
       while (childNode != null) {
         ListWrapper.push(viewRootNodes, childNode);
@@ -210,7 +211,6 @@ export class ServerDomRenderer extends DomRenderer {
       }
 
       //jeff: if this is the server set the ID (base64 encode?)
-      var prevousElement = element;
       var elementId = 'ng-' + pvId + '-' + (binderIdx + 1);
       if (this._isServer) {
         DOM.addClass(element, elementId);
@@ -218,11 +218,6 @@ export class ServerDomRenderer extends DomRenderer {
       //jeff: else if document server rendered, then get the element from the DOM with the ID
       else if (this._isDocumentServerRendered) {
         element = DOM.query('.' + elementId);
-      }
-      if (element === null) {
-        // console.log('prevousElement', prevousElement);
-        // debugger;
-        element = prevousElement;
       }
 
       boundElements[binderIdx] = element;
@@ -266,12 +261,11 @@ export class ServerDomRenderer extends DomRenderer {
       if (isPresent(binder.eventLocals) && isPresent(binder.localEvents)) {
         for (var i = 0; i < binder.localEvents.length; i++) {
           this._createEventListener(view, element, binderIdx, binder.localEvents[i].name,
-                                    binder.eventLocals);
+            binder.eventLocals);
         }
       }
     }
 
     return view;
   }
-
 }

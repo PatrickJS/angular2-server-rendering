@@ -28,24 +28,10 @@ import {Component, View, coreDirectives} from 'angular2/angular2';
   <div *ng-if="toggle">
     NgIf true
   </div>
-  <template [ng-of]="toggle">
-    <div>
-      NgIf true
-    </div>
-  </template>
 
   <div>
     <button (click)="toggleNgIf()">Toggle NgIf</button>
   </div>
-
-
-  <ul>
-    <template [ng-for] [ng-for-of]="items" #item>
-      <li>
-        {{ item }}
-      </li>
-    </template>
-  </ul>
   <ul>
     <li *ng-for="var item of items">
       {{ item }}

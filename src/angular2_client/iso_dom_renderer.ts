@@ -89,6 +89,36 @@ export class IsoDomRenderer extends DomRenderer {
     componentView.hostLightDom = lightDom;
   }
 
+  attachViewInContainer(parentViewRef: RenderViewRef, boundElementIndex: number, atIndex: number,
+                        viewRef: RenderViewRef) {
+
+    // don't do anything here is we are hydrating server generated view
+    if (this._isDocumentServerRendered) { return; }
+
+    var parentView = resolveInternalDomView(parentViewRef);
+    var view = resolveInternalDomView(viewRef);
+    var viewContainer = this._getOrCreateViewContainer(parentView, boundElementIndex);
+    ListWrapper.insert(viewContainer.views, atIndex, view);
+    view.hostLightDom = parentView.hostLightDom;
+
+    var directParentLightDom = parentView.getDirectParentLightDom(boundElementIndex);
+    if (isBlank(directParentLightDom)) {
+      var siblingToInsertAfter;
+      if (atIndex == 0) {
+        siblingToInsertAfter = parentView.boundElements[boundElementIndex];
+      } else {
+        siblingToInsertAfter = ListWrapper.last(viewContainer.views[atIndex - 1].rootNodes);
+      }
+      this._moveViewNodesAfterSibling(siblingToInsertAfter, view);
+    } else {
+      directParentLightDom.redistribute();
+    }
+    // new content tags might have appeared, we need to redistribute.
+    if (isPresent(parentView.hostLightDom)) {
+      parentView.hostLightDom.redistribute();
+    }
+  }
+
   hydrateView(viewRef: RenderViewRef) {
     var view = resolveInternalDomView(viewRef);
     if (view.hydrated) throw new BaseException('The view is already hydrated.');

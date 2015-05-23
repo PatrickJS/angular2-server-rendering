@@ -72,6 +72,14 @@ module.exports = function(ROOT) {
       Component: TodoApp
     });
   });
+  app.use('/angular2_examples/largetable', function(req, res) {
+
+    var AppComponent = require(ROOT+'/dist/angular2_examples/largetable/largetable').AppComponent;
+    res.render('angular2_examples/largetable/index', {
+      clientOnly: true,
+      Component: AppComponent
+    });
+  });
 
 
   // dev source maps

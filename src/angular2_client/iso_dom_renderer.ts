@@ -1,5 +1,5 @@
 import {Inject, Injectable, OpaqueToken} from 'angular2/di';
-import {isPresent, BaseException} from 'angular2/src/facade/lang';
+import {isPresent, isBlank, BaseException} from 'angular2/src/facade/lang';
 import {ListWrapper, Map} from 'angular2/src/facade/collection';
 
 // client DOM
@@ -57,10 +57,10 @@ export class IsoDomRenderer extends DomRenderer {
     console.log('setting is document to ' + this._isDocumentServerRendered);
     console.log('setting is server to ' + this._isServer);
 
-    // ensure we have the correct DomAdapter
-    //if (!isServer) {
-    //  BrowserDomAdapter.makeCurrent();
-    //}
+    // ensure we have the correct DomAdapter because we are using DOM
+    if (!isServer) {
+     BrowserDomAdapter.makeCurrent();
+    }
   }
 
   setDocumentServerRendered(isDocumentServerRendered: boolean) {
@@ -210,17 +210,18 @@ export class IsoDomRenderer extends DomRenderer {
       }
 
       //jeff: if this is the server set the ID (base64 encode?)
+      var prevousElement = element;
       var elementId = 'ng-' + pvId + '-' + (binderIdx + 1);
       if (this._isServer) {
         DOM.addClass(element, elementId);
       }
       //jeff: else if document server rendered, then get the element from the DOM with the ID
       else if (this._isDocumentServerRendered) {
-        var blah = DOM.query('.' + elementId);
-        if (!element) {
-          console.log('no element found for ' + elementId);
-        }
-        element = blah;
+        element = DOM.query('.' + elementId);
+      }
+      if (isBlank(element)) {
+        // sometimes document fragment
+        element = prevousElement;
       }
 
       boundElements[binderIdx] = element;

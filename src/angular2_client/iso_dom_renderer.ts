@@ -20,7 +20,6 @@ import {RenderViewRef} from 'angular2/src/render/api';
 
 
 import {DomRenderer} from 'angular2/src/render/dom/dom_renderer';
-export {DomRenderer}
 
 // TODO(tbosch): use an OpaqueToken here once our transpiler supports
 // const expressions!
@@ -36,7 +35,7 @@ export const IS_SERVER_TOKEN = new OpaqueToken('IsServerToken');
 
 
 @Injectable()
-export class ServerDomRenderer extends DomRenderer {
+export class IsoDomRenderer extends DomRenderer {
   _eventManager: EventManager;
   _shadowDomStrategy: ShadowDomStrategy;
   _document;
@@ -59,9 +58,9 @@ export class ServerDomRenderer extends DomRenderer {
     console.log('setting is server to ' + this._isServer);
 
     // ensure we have the correct DomAdapter
-    if (!isServer) {
-      BrowserDomAdapter.makeCurrent();
-    }
+    //if (!isServer) {
+    //  BrowserDomAdapter.makeCurrent();
+    //}
   }
 
   setDocumentServerRendered(isDocumentServerRendered: boolean) {
@@ -217,7 +216,11 @@ export class ServerDomRenderer extends DomRenderer {
       }
       //jeff: else if document server rendered, then get the element from the DOM with the ID
       else if (this._isDocumentServerRendered) {
-        element = DOM.query('.' + elementId);
+        var blah = DOM.query('.' + elementId);
+        if (!element) {
+          console.log('no element found for ' + elementId);
+        }
+        element = blah;
       }
 
       boundElements[binderIdx] = element;

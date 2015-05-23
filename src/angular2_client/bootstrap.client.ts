@@ -36,7 +36,7 @@ import {Renderer, RenderCompiler} from 'angular2/src/render/api';
 
 
 //import {DomRenderer, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN} from 'angular2/src/render/dom/dom_renderer';
-import {ServerDomRenderer, DomRenderer, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN} from './dom_renderer';
+import {IsoDomRenderer, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN} from './iso_dom_renderer';
 
 import {resolveInternalDomView} from 'angular2/src/render/dom/view/view';
 import {DefaultDomCompiler} from 'angular2/src/render/dom/compiler/compiler';
@@ -88,12 +88,12 @@ function _injectorBindings(appComponentType): List<Binding> {
             [StyleUrlResolver, DOCUMENT_TOKEN]),
         // TODO(tbosch): We need an explicit factory here, as
         // we are getting errors in dart2js with mirrors...
-        bind(DomRenderer).toFactory(
-            (eventManager, shadowDomStrategy, doc, isServerRendered, isServer) => new ServerDomRenderer(eventManager, shadowDomStrategy, doc, isServerRendered, isServer),
+        bind(IsoDomRenderer).toFactory(
+            (eventManager, shadowDomStrategy, doc, isServerRendered, isServer) => new IsoDomRenderer(eventManager, shadowDomStrategy, doc, isServerRendered, isServer),
             [EventManager, ShadowDomStrategy, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN]
         ),
         DefaultDomCompiler,
-        bind(Renderer).toAlias(DomRenderer),
+        bind(Renderer).toAlias(IsoDomRenderer),
         bind(RenderCompiler).toAlias(DefaultDomCompiler),
         ProtoViewFactory,
         // TODO(tbosch): We need an explicit factory here, as
@@ -266,7 +266,7 @@ export function bootstrap(appComponentType: Type,
 
                 // if the document was originally server rendered, now that we are bootstrapped,
                 // we can go back to normal client side behavior
-                var domRenderer = appInjector.get(DomRenderer);
+                var domRenderer = appInjector.get(IsoDomRenderer);
                 domRenderer.setDocumentServerRendered(false);
 
                 var evt = new Event("AngularBootstrapComplete");

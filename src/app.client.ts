@@ -11,7 +11,7 @@ import {ShadowDomStrategy, NativeShadowDomStrategy} from 'angular2/core';
 import {StyleUrlResolver} from 'angular2/src/render/dom/shadow_dom/style_url_resolver';
 
 
-import {SERVER_RENDERED_TOKEN} from './angular2_client/dom_renderer';
+import {SERVER_RENDERED_TOKEN} from './angular2_client/iso_dom_renderer';
 import {App} from './app/app';
 
 

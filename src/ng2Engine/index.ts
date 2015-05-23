@@ -15,15 +15,13 @@ import {stringifyElement} from './stringifyElement';
 
 import {DOCUMENT_TOKEN, bind} from 'angular2/angular2';
 import {DOM} from 'angular2/src/dom/dom_adapter';
-import {OpaqueToken} from 'angular2/di';
 import {DirectiveResolver} from 'angular2/src/core/compiler/directive_resolver';
 
 // because state is evil
 // var AppRef = null;
 var serverInjector = undefined; // because js defaults
-var serverDocument = DOM.createHtmlDocument();;
+var serverDocument = DOM.createHtmlDocument();
 var serverDirectiveResolver = new DirectiveResolver();
-var IS_SERVER_TOKEN = new OpaqueToken('Server');
 
 
 export function readNgTemplate(content, AppComponent) {

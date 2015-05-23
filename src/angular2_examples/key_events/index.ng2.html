@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <title>Key events</title>
+  <style>
+    .sample-area {
+      text-align: center;
+      margin: 5px;
+      height: 50px;
+      line-height: 50px;
+      border-radius: 5px;
+      border: 1px solid #d0d0d0;
+    }
+    .sample-area:focus {
+      border: 1px solid blue;
+      color: blue;
+      font-weight: bold;
+    }
+  </style>
+  <script src="/lib/traceur-runtime.min.js"></script>
+  <script src="/lib/es6-module-loader-sans-promises.js"></script>
+  <script src="/lib/system.js"></script>
+  <script src="/lib/angular2.dev.js"></script>
+  <script src="/lib/router.dev.js"></script>
+<body>
+  <key-events-app>
+    Loading...
+  </key-events-app>
+
+<div id="bootstrap" style="margin:5em">
+    <button id="bootstrap" onclick="bootstrap()">
+      Bootstrap Angular2 Client
+    </button>
+  </div>
+
+<script>
+    System.baseURL = '/';
+
+  function ngApp() {
+    return System.import('angular2_examples/key_events/index')
+    .then(function(module) {
+      return module.main();
+    });
+  }
+
+  function bootstrap() {
+    console.time('bootstrap');
+    var bootstrapTime = new Date();
+    ngApp()
+    .then(function() {
+      var bootstrapped = console.timeEnd('bootstrap');
+      var bootstrapTimeEnd = new Date();
+      var milliseconds = bootstrapTimeEnd - bootstrapTime;
+      var seconds = ~~(milliseconds / 1000);
+      var $bootstrap = document.getElementById('bootstrap');
+      $bootstrap.innerHTML = ''+
+        'milliseconds: '+milliseconds+'ms'+
+        '<br>'+
+        'seconds: '+ seconds+'s';
+
+    });
+  }
+</script>
+</body>
+</html>

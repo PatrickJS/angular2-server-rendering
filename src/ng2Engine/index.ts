@@ -90,7 +90,7 @@ export function readNgTemplate(content, AppComponent) {
   });
 }
 
-export function ng2Engine(filePath: string, options = {}, done) {
+export function ng2Engine(filePath: string, options, done) {
   // read file on disk
   try {
     fs.readFile(filePath, (err, content) => {

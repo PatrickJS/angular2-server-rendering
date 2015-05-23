@@ -27,6 +27,9 @@
     "src/angular2_client/iso_dom_renderer.ts",
     "src/angular2_server/bootstrap.server.ts",
     "src/angular2_server/server_patch.ts",
-    "src/angular2_server/index.ts"
+    "src/angular2_server/index.ts",
+    "src/angular2_examples/hello_world/index.ts",
+    "src/angular2_examples/hello_world/index_dynamic.ts",
+    "src/angular2_examples/hello_world/index_common.ts"
   ]
 }

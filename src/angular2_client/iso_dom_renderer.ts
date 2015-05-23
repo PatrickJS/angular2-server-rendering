@@ -91,10 +91,6 @@ export class IsoDomRenderer extends DomRenderer {
 
   attachViewInContainer(parentViewRef: RenderViewRef, boundElementIndex: number, atIndex: number,
                         viewRef: RenderViewRef) {
-
-    // don't do anything here is we are hydrating server generated view
-    if (this._isDocumentServerRendered) { return; }
-
     var parentView = resolveInternalDomView(parentViewRef);
     var view = resolveInternalDomView(viewRef);
     var viewContainer = this._getOrCreateViewContainer(parentView, boundElementIndex);
@@ -109,12 +105,15 @@ export class IsoDomRenderer extends DomRenderer {
       } else {
         siblingToInsertAfter = ListWrapper.last(viewContainer.views[atIndex - 1].rootNodes);
       }
-      this._moveViewNodesAfterSibling(siblingToInsertAfter, view);
-    } else {
+
+      if (!this._isDocumentServerRendered) {
+        this._moveViewNodesAfterSibling(siblingToInsertAfter, view);
+      }
+    } else if (!this._isDocumentServerRendered) {
       directParentLightDom.redistribute();
     }
     // new content tags might have appeared, we need to redistribute.
-    if (isPresent(parentView.hostLightDom)) {
+    if (isPresent(parentView.hostLightDom) && !this._isDocumentServerRendered) {
       parentView.hostLightDom.redistribute();
     }
   }
@@ -240,7 +239,7 @@ export class IsoDomRenderer extends DomRenderer {
       }
 
       //jeff: if this is the server set the ID (base64 encode?)
-      var prevousElement = element;
+      var tempElement = element;
       var elementId = 'ng-' + pvId + '-' + (binderIdx + 1);
       if (this._isServer) {
         DOM.addClass(element, elementId);
@@ -249,9 +248,14 @@ export class IsoDomRenderer extends DomRenderer {
       else if (this._isDocumentServerRendered) {
         element = DOM.query('.' + elementId);
       }
-      if (isBlank(element)) {
+
+      if (isBlank(element) && !isBlank(tempElement)) {
+
+        console.log('setting element to blank');
+        console.log('temp is ' + tempElement.outerHTML);
+
         // sometimes document fragment
-        element = prevousElement;
+        element = tempElement;
       }
 
       boundElements[binderIdx] = element;

@@ -53,6 +53,11 @@ module.exports = function(ROOT) {
       Component: require(ROOT+'/dist/angular2_examples/key_events').KeyEventsApp
     });
   });
+  app.use('/angular2_examples/forms', function(req, res) {
+    res.render('angular2_examples/forms/index', {
+      Component: require(ROOT+'/dist/angular2_examples/forms').SurveyBuilder
+    });
+  });
   // app.use('/angular2_examples/lib', function(req, res) {
   //   serveStatic(ROOT + '/web_modules')(req, res);
   // });

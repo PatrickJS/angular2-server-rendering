@@ -1,12 +1,9 @@
 import {Inject, Injectable, OpaqueToken} from 'angular2/di';
-import {int, isPresent, isBlank, BaseException, RegExpWrapper} from 'angular2/src/facade/lang';
-import {ListWrapper, MapWrapper, Map, StringMapWrapper, List} from 'angular2/src/facade/collection';
-
+import {isPresent, BaseException} from 'angular2/src/facade/lang';
+import {ListWrapper, Map} from 'angular2/src/facade/collection';
 
 // client DOM
 import {BrowserDomAdapter} from 'angular2/src/dom/browser_adapter';
-
-
 
 import {DOM} from 'angular2/src/dom/dom_adapter';
 
@@ -14,12 +11,16 @@ import {Content} from 'angular2/src/render/dom/shadow_dom/content_tag';
 import {ShadowDomStrategy} from 'angular2/src/render/dom/shadow_dom/shadow_dom_strategy';
 import {EventManager} from 'angular2/src/render/dom/events/event_manager';
 
-import {DomProtoView, DomProtoViewRef, resolveInternalDomProtoView} from 'angular2/src/render/dom/view/proto_view';
-import {DomView, DomViewRef, resolveInternalDomView} from 'angular2/src/render/dom/view/view';
+import {DomProtoView} from 'angular2/src/render/dom/view/proto_view';
+import {DomView, resolveInternalDomView} from 'angular2/src/render/dom/view/view';
 import {DomViewContainer} from 'angular2/src/render/dom/view/view_container';
 import {NG_BINDING_CLASS_SELECTOR, NG_BINDING_CLASS} from 'angular2/src/render/dom/util';
 
-import {Renderer, RenderProtoViewRef, RenderViewRef} from 'angular2/src/render/api';
+import {RenderViewRef} from 'angular2/src/render/api';
+
+
+import {DomRenderer} from 'angular2/src/render/dom/dom_renderer';
+export {DomRenderer}
 
 // TODO(tbosch): use an OpaqueToken here once our transpiler supports
 // const expressions!
@@ -33,8 +34,9 @@ export const SERVER_RENDERED_TOKEN = new OpaqueToken('ServerRenderedToken');
 // if true, it means we are rendering on the server
 export const IS_SERVER_TOKEN = new OpaqueToken('IsServerToken');
 
+
 @Injectable()
-export class DomRenderer extends Renderer {
+export class ServerDomRenderer extends DomRenderer {
   _eventManager: EventManager;
   _shadowDomStrategy: ShadowDomStrategy;
   _document;
@@ -47,47 +49,15 @@ export class DomRenderer extends Renderer {
               @Inject(DOCUMENT_TOKEN) document,
               @Inject(SERVER_RENDERED_TOKEN) isDocumentServerRendered,
               @Inject(IS_SERVER_TOKEN) isServer) {
-    super();
-    this._eventManager = eventManager;
-    this._shadowDomStrategy = shadowDomStrategy;
-    this._document = document;
+    super(eventManager, shadowDomStrategy, document);
     this._isDocumentServerRendered = isDocumentServerRendered;
     this._isServer = isServer;
-    this._pvCount = new Map();
-    this._pvNumber = new Map();
     // ensure we have the correct DomAdapter
     if (!isServer) {
       BrowserDomAdapter.makeCurrent();
     }
   }
 
-  setDocumentServerRendered(isDocumentServerRendered: boolean) {
-    this._isDocumentServerRendered = isDocumentServerRendered;
-  }
-
-  createRootHostView(hostProtoViewRef: RenderProtoViewRef,
-                     hostElementSelector: string): RenderViewRef {
-    var hostProtoView = resolveInternalDomProtoView(hostProtoViewRef);
-    var element = DOM.querySelector(this._document, hostElementSelector);
-    if (isBlank(element)) {
-      throw new BaseException(`The selector "${hostElementSelector}" did not match any elements`);
-    }
-    return new DomViewRef(this._createView(hostProtoView, element));
-  }
-
-  detachFreeHostView(parentHostViewRef: RenderViewRef, hostViewRef: RenderViewRef) {
-    var hostView = resolveInternalDomView(hostViewRef);
-    this._removeViewNodes(hostView);
-  }
-
-  createView(protoViewRef: RenderProtoViewRef): RenderViewRef {
-    var protoView = resolveInternalDomProtoView(protoViewRef);
-    return new DomViewRef(this._createView(protoView, null));
-  }
-
-  destroyView(view: RenderViewRef) {
-    // noop for now
-  }
 
   attachComponentView(hostViewRef: RenderViewRef, elementIndex: number,
                       componentViewRef: RenderViewRef) {
@@ -112,77 +82,6 @@ export class DomRenderer extends Renderer {
     }
 
     componentView.hostLightDom = lightDom;
-  }
-
-  setComponentViewRootNodes(componentViewRef: RenderViewRef, rootNodes: List</*node*/ any>) {
-    var componentView = resolveInternalDomView(componentViewRef);
-    this._removeViewNodes(componentView);
-    componentView.rootNodes = rootNodes;
-    this._moveViewNodesIntoParent(componentView.shadowRoot, componentView);
-  }
-
-  getHostElement(hostViewRef: RenderViewRef) {
-    var hostView = resolveInternalDomView(hostViewRef);
-    return hostView.boundElements[0];
-  }
-
-  detachComponentView(hostViewRef: RenderViewRef, boundElementIndex: number,
-                      componentViewRef: RenderViewRef) {
-    var hostView = resolveInternalDomView(hostViewRef);
-    var componentView = resolveInternalDomView(componentViewRef);
-    this._removeViewNodes(componentView);
-    var lightDom = hostView.lightDoms[boundElementIndex];
-    if (isPresent(lightDom)) {
-      lightDom.detachShadowDomView();
-    }
-    componentView.hostLightDom = null;
-    componentView.shadowRoot = null;
-  }
-
-  attachViewInContainer(parentViewRef: RenderViewRef, boundElementIndex: number, atIndex: number,
-                        viewRef: RenderViewRef) {
-    var parentView = resolveInternalDomView(parentViewRef);
-    var view = resolveInternalDomView(viewRef);
-    var viewContainer = this._getOrCreateViewContainer(parentView, boundElementIndex);
-    ListWrapper.insert(viewContainer.views, atIndex, view);
-    view.hostLightDom = parentView.hostLightDom;
-
-    var directParentLightDom = parentView.getDirectParentLightDom(boundElementIndex);
-    if (isBlank(directParentLightDom)) {
-      var siblingToInsertAfter;
-      if (atIndex == 0) {
-        siblingToInsertAfter = parentView.boundElements[boundElementIndex];
-      } else {
-        siblingToInsertAfter = ListWrapper.last(viewContainer.views[atIndex - 1].rootNodes);
-      }
-      this._moveViewNodesAfterSibling(siblingToInsertAfter, view);
-    } else {
-      directParentLightDom.redistribute();
-    }
-    // new content tags might have appeared, we need to redistribute.
-    if (isPresent(parentView.hostLightDom)) {
-      parentView.hostLightDom.redistribute();
-    }
-  }
-
-  detachViewInContainer(parentViewRef: RenderViewRef, boundElementIndex: number, atIndex: number,
-                        viewRef: RenderViewRef) {
-    var parentView = resolveInternalDomView(parentViewRef);
-    var view = resolveInternalDomView(viewRef);
-    var viewContainer = parentView.viewContainers[boundElementIndex];
-    var detachedView = viewContainer.views[atIndex];
-    ListWrapper.removeAt(viewContainer.views, atIndex);
-    var directParentLightDom = parentView.getDirectParentLightDom(boundElementIndex);
-    if (isBlank(directParentLightDom)) {
-      this._removeViewNodes(detachedView);
-    } else {
-      directParentLightDom.redistribute();
-    }
-    view.hostLightDom = null;
-    // content tags might have disappeared we need to do redistribution.
-    if (isPresent(parentView.hostLightDom)) {
-      parentView.hostLightDom.redistribute();
-    }
   }
 
   hydrateView(viewRef: RenderViewRef) {
@@ -236,27 +135,6 @@ export class DomRenderer extends Renderer {
     view.hydrated = false;
   }
 
-  setElementProperty(viewRef: RenderViewRef, elementIndex: number, propertyName: string,
-                     propertyValue: any): void {
-    var view = resolveInternalDomView(viewRef);
-    view.setElementProperty(elementIndex, propertyName, propertyValue);
-  }
-
-  callAction(viewRef: RenderViewRef, elementIndex: number, actionExpression: string,
-             actionArgs: any): void {
-    var view = resolveInternalDomView(viewRef);
-    view.callAction(elementIndex, actionExpression, actionArgs);
-  }
-
-  setText(viewRef: RenderViewRef, textNodeIndex: number, text: string): void {
-    var view = resolveInternalDomView(viewRef);
-    DOM.setText(view.boundTextNodes[textNodeIndex], text);
-  }
-
-  setEventDispatcher(viewRef: RenderViewRef, dispatcher: any /*api.EventDispatcher*/): void {
-    var view = resolveInternalDomView(viewRef);
-    view.eventDispatcher = dispatcher;
-  }
 
   //jeff: generate protovideId based on pv component name +
   _getProtoViewId(protoView: DomProtoView) {
@@ -391,44 +269,4 @@ export class DomRenderer extends Renderer {
     return view;
   }
 
-  _createEventListener(view, element, elementIndex, eventName, eventLocals) {
-    this._eventManager.addEventListener(
-        element, eventName, (event) => { view.dispatchEvent(elementIndex, eventName, event); });
-  }
-
-
-  _moveViewNodesAfterSibling(sibling, view) {
-    for (var i = view.rootNodes.length - 1; i >= 0; --i) {
-      DOM.insertAfter(sibling, view.rootNodes[i]);
-    }
-  }
-
-  _moveViewNodesIntoParent(parent, view) {
-    for (var i = 0; i < view.rootNodes.length; ++i) {
-      DOM.appendChild(parent, view.rootNodes[i]);
-    }
-  }
-
-  _removeViewNodes(view) {
-    var len = view.rootNodes.length;
-    if (len == 0) return;
-    var parent = view.rootNodes[0].parentNode;
-    for (var i = len - 1; i >= 0; --i) {
-      DOM.removeChild(parent, view.rootNodes[i]);
-    }
-  }
-
-  _getOrCreateViewContainer(parentView: DomView, boundElementIndex) {
-    var vc = parentView.viewContainers[boundElementIndex];
-    if (isBlank(vc)) {
-      vc = new DomViewContainer();
-      parentView.viewContainers[boundElementIndex] = vc;
-    }
-    return vc;
-  }
-
-  _createGlobalEventListener(view, elementIndex, eventName, eventTarget, fullName): Function {
-    return this._eventManager.addGlobalEventListener(
-        eventTarget, eventName, (event) => { view.dispatchEvent(elementIndex, fullName, event); });
-  }
 }

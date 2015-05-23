@@ -1,6 +1,6 @@
 // Type definitions for Angular v2.0.0-alpha.25
 // Project: http://angular.io/
-// Definitions by: angular team <https://github.com/angular/> and gdi2290 <https://github.com/gdi2290/>
+// Definitions by: gdi2290 <https://github.com/gdi2290/>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
 /******************
@@ -29,13 +29,13 @@ interface _ViewArg {
 
 interface _DirectiveArg {
   selector: string;
-  properties?: StringMap<string, string>;
+  properties?: any;
   events?: List<string>;
-  hostListeners?: StringMap<string, string>;
-  hostProperties?: StringMap<string, string>;
-  hostAttributes?: StringMap<string, string>;
-  hostActions?: StringMap<string, string>;
-  lifecycle?: List<LifecycleEvent>;
+  hostListeners?: any;
+  hostProperties?: any;
+  hostAttributes?: any;
+  hostActions?: any;
+  lifecycle?: List<any>;
   compileChildren?: boolean;
   hostInjector?: List<any>;
 }
@@ -170,13 +170,13 @@ declare module "angular2/src/core/compiler/directive_resolver" {
 declare module "angular2/router" {
   class Instruction {}
   class Router {
-    navigate(url: string): Promise<any>;
-    config(config: any): Promise<any>;
-    deactivate(): Promise<any>;
-    activate(instruction: Instruction): Promise<any>;
+    navigate(url: string): any;
+    config(config: any): any;
+    deactivate(): any;
+    activate(instruction: Instruction): any;
     recognize(url: string): Instruction;
     recognize(url: string): Instruction;
-    renavigate(): Promise<any>;
+    renavigate(): any;
     generate(name:string, params:any): string;
     subscribe(onNext: Function): void;
   }
@@ -464,7 +464,7 @@ declare module "angular2/src/dom/parse5_adapter" {
 }
 
 declare module "angular2/angular2" {
-  function bootstrap(appComponentType: any, componentInjectableBindings?: Array<any>, errorReporter?: Function): Promise<ComponentRef>;
+  function bootstrap(appComponentType: any, componentInjectableBindings?: Array<any>, errorReporter?: Function): any;
 
   function Component(arg: _ComponentArg): (target: any) => any;
   function View(arg: _ViewArg): (target: any) => any;
@@ -554,8 +554,8 @@ declare module "angular2/angular2" {
      dispose(): void;
   }
   class DynamicComponentLoader {
-     loadIntoNewLocation(type: any, b: any, c: any, d?: any): Promise<ComponentRef>;
-     loadNextToExistingLocation(a: any, b: any, c: any): Promise<ComponentRef>;
+     loadIntoNewLocation(type: any, b: any, c: any, d?: any): any;
+     loadNextToExistingLocation(a: any, b: any, c: any): any;
   }
   var ComponentAnnotation: any;
   var DirectiveAnnotation: any;

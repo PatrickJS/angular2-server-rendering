@@ -17,11 +17,11 @@ import {App} from './app/app';
 
 
 bootstrap(App, [
-  // doesn't work
-  // bind(ShadowDomStrategy).toFactory(
-  //   styleUrlResolver => new NativeShadowDomStrategy(styleUrlResolver),
-  //   [StyleUrlResolver]
-  // ),
+  // doesn't work with server rendering
+  bind(ShadowDomStrategy).toFactory(
+    styleUrlResolver => new NativeShadowDomStrategy(styleUrlResolver),
+    [StyleUrlResolver]
+  ),
   bind(SERVER_RENDERED_TOKEN).toValue(true)
 ])
 .then(appRef => {

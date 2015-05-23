@@ -52,12 +52,18 @@ export class ServerDomRenderer extends DomRenderer {
     super(eventManager, shadowDomStrategy, document);
     this._isDocumentServerRendered = isDocumentServerRendered;
     this._isServer = isServer;
+    this._pvCount = new Map();
+    this._pvNumber = new Map();
+
     // ensure we have the correct DomAdapter
     if (!isServer) {
       BrowserDomAdapter.makeCurrent();
     }
   }
 
+  setDocumentServerRendered(isDocumentServerRendered: boolean) {
+    this._isDocumentServerRendered = isDocumentServerRendered;
+  }
 
   attachComponentView(hostViewRef: RenderViewRef, elementIndex: number,
                       componentViewRef: RenderViewRef) {
@@ -68,7 +74,6 @@ export class ServerDomRenderer extends DomRenderer {
     if (isPresent(lightDom)) {
       lightDom.attachShadowDomView(componentView);
     }
-
 
     //jeff: don't put nodes into the DOM if document server rendered (should already be there)
     if (!this._isDocumentServerRendered) {

@@ -79,7 +79,7 @@ export function readNgTemplate(content, AppComponent) {
     appRef.dispose();
 
     // remove from serverDom
-    DOM.removeChild(serverDocument.body, el)
+    DOM.removeChild(serverDocument.body, el);
 
     // return rendered version of our serialized component
     return rendered;

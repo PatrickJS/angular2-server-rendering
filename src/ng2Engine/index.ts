@@ -9,7 +9,9 @@ import {
   selectorRegExpFactory,
   showDebug
 } from './helper';
+
 import {ng2string} from './ng2string';
+import {stringifyElement} from './stringifyElement';
 
 import {DOCUMENT_TOKEN, bind} from 'angular2/angular2';
 import {DOM} from 'angular2/src/dom/dom_adapter';
@@ -62,7 +64,7 @@ export function readNgTemplate(content, AppComponent) {
     let el = appRef.hostElementRef.domElement;
 
     // serialize html
-    let serializedCmp = ng2string(el);
+    let serializedCmp = stringifyElement(el);
 
     // selector replacer explained here
     // https://gist.github.com/gdi2290/c74afd9898d2279fef9f

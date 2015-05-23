@@ -193,14 +193,14 @@ export class SurveyBuilder {
 
   submitForm(): void {
     print('Submitting a form');
-    print(`"value: ${this.form.value}`);
-    print(` valid: $ { this.form.valid } `);
-    print(` errors: $ { this.form.errors }`);
+    print(` value: ${ this.form.value }`);
+    print(` valid: ${ this.form.valid } `);
+    print(` errors: ${ this.form.errors }`);
   }
 }
 
 export function main() {
   bootstrap(SurveyBuilder, [
-    // bind(SERVER_RENDERED_TOKEN).toValue(true)
+    bind(SERVER_RENDERED_TOKEN).toValue(true)
   ]);
 }

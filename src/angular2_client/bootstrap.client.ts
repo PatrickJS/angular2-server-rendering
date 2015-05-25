@@ -29,7 +29,10 @@ import {StyleInliner} from 'angular2/src/render/dom/shadow_dom/style_inliner';
 import {ComponentRef, DynamicComponentLoader} from 'angular2/src/core/compiler/dynamic_component_loader';
 import {TestabilityRegistry, Testability} from 'angular2/src/core/testability/testability';
 import {AppViewPool, APP_VIEW_POOL_CAPACITY} from 'angular2/src/core/compiler/view_pool';
-import {AppViewManager} from 'angular2/src/core/compiler/view_manager';
+
+//import {AppViewManager} from 'angular2/src/core/compiler/view_manager';
+import {AppViewManager} from './iso_view_manager';
+
 import {AppViewManagerUtils} from 'angular2/src/core/compiler/view_manager_utils';
 import {ProtoViewFactory} from 'angular2/src/core/compiler/proto_view_factory';
 import {Renderer, RenderCompiler} from 'angular2/src/render/api';

@@ -7,14 +7,14 @@ declare module 'fs' {
   function readFile(filePath: string, callback: Function): any
 }
 
-declare module "./dom_renderer" {
-  class ServerDomRenderer {
+declare module "dom_renderer" {
+  class IsoDomRenderer {
     _moveViewNodesIntoParent(): any;
     _createGlobalEventListener(): any;
     _createEventListener(): any;
   }
 }
 
-declare module "../angular2_server" {
+declare module "angular2_server" {
   function bootstrap(appComponentType: any, appInjector: any, componentInjectableBindings?: Array<any>, errorReporter?: Function): any;
 }

@@ -1,30 +1,22 @@
 <!doctype html>
 <html>
-  <title>Key events</title>
-  <style>
-    .sample-area {
-      text-align: center;
-      margin: 5px;
-      height: 50px;
-      line-height: 50px;
-      border-radius: 5px;
-      border: 1px solid #d0d0d0;
-    }
-    .sample-area:focus {
-      border: 1px solid blue;
-      color: blue;
-      font-weight: bold;
-    }
-  </style>
+  <title>Todo Angular 2</title>
+  <link rel="stylesheet" href="/css/main.css" media="screen" title="no title" charset="utf-8">
+
+  <!-- Should be in component -->
+  <link rel="stylesheet" href="/css/base.css" media="screen" title="no title" charset="utf-8">
+
   <script src="/lib/traceur-runtime.min.js"></script>
   <script src="/lib/es6-module-loader-sans-promises.js"></script>
   <script src="/lib/system.js"></script>
   <script src="/lib/angular2.dev.js"></script>
   <script src="/lib/router.dev.js"></script>
 <body>
-  <key-events-app>
+  <todo-app>
     Loading...
-  </key-events-app>
+  </todo-app>
+
+
 
   <div id="bootstrap" style="margin:5em">
     <button id="bootstrap" onclick="bootstrap()">
@@ -36,7 +28,7 @@
     System.baseURL = '/';
 
   function ngApp() {
-    return System.import('angular2_examples/key_events/index')
+    return System.import('angular2_examples/todo/index')
     .then(function(module) {
       return module.main();
     });

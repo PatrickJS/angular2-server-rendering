@@ -143,7 +143,9 @@ declare module "angular2/change_detection" {
 }
 
 declare module "angular2/src/core/zone/ng_zone" {
-  class NgZone {}
+  class NgZone {
+    run(): any
+  }
 }
 
 declare module "angular2/src/core/compiler/element_ref" {
@@ -172,6 +174,26 @@ declare module "angular2/src/core/compiler/compiler" {
 
 declare module "angular2/forms" {
   var formDirectives: any;
+  class FormBuilder {
+    group(): any
+    array(): any
+  }
+  class Validators {
+    static required(): any
+  }
+  class ControlGroup {
+    value: any
+    controls: any
+    include(): any
+    exclude(): any
+  }
+  class Control {
+    valueChanges(): any
+  }
+  class ControlArray {
+    push(): any
+    removeAt(): any
+  }
 }
 
 declare module "angular2/src/render/dom/shadow_dom/emulated_unscoped_shadow_dom_strategy" {
@@ -197,6 +219,22 @@ declare module "angular2/render" {
 
 declare module "angular2/src/render/dom/shadow_dom/style_url_resolver" {
   class StyleUrlResolver {}
+}
+
+declare module "angular2/src/facade/async" {
+  class ObservableWrapper {
+    static callNext(next:any): any;
+    static subscribe(observer:any): any;
+  }
+  class Promise {
+    then(pro:any): any;
+    all(all:any): any;
+  }
+  class PromiseWrapper {
+    static completer(): any;
+    static all(all: any): any;
+    static then(pro:any): any;
+  }
 }
 
 declare module "angular2/src/facade/collection" {
@@ -560,8 +598,8 @@ declare module "angular2/angular2" {
   var formDirectives: any;
   var coreDirectives: any;
 
+  class EventEmitter{};
   var Observable: any;
-  var EventEmitter: any;
   var DomRenderer: any;
   var DOCUMENT_TOKEN: any;
   var ASTWithSource: any;

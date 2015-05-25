@@ -158,7 +158,7 @@ function _createNgZone(givenReporter:Function): NgZone {
 export function bootstrap(appComponentType: Type,
                           appInjector: any = null,
                           componentInjectableBindings: List<Binding> = null,
-                          errorReporter: Function = null): Promise<ApplicationRef> {
+                          errorReporter: Function = null): Promise {
   let bootstrapProcess = PromiseWrapper.completer();
 
   // TODO(rado): prepopulate template cache, so applications with only

@@ -47,8 +47,8 @@ import {ComponentRef, DynamicComponentLoader} from 'angular2/src/core/compiler/d
 import {TestabilityRegistry, Testability} from 'angular2/src/core/testability/testability';
 import {AppViewPool, APP_VIEW_POOL_CAPACITY} from 'angular2/src/core/compiler/view_pool';
 
-//import {AppViewManager} from 'angular2/src/core/compiler/view_manager';
-import {AppViewManager} from '../angular2_client/iso_view_manager';
+import {AppViewManager} from 'angular2/src/core/compiler/view_manager';
+import {IsoAppViewManager} from '../angular2_client/iso_view_manager';
 
 import {AppViewManagerUtils} from 'angular2/src/core/compiler/view_manager_utils';
 import {ProtoViewFactory} from 'angular2/src/core/compiler/proto_view_factory';
@@ -117,7 +117,8 @@ function _injectorBindings(appComponentType): List<Binding> {
         [APP_VIEW_POOL_CAPACITY]
       ),
       bind(APP_VIEW_POOL_CAPACITY).toValue(10000),
-      AppViewManager,
+      bind(AppViewManager).toClass(IsoAppViewManager),
+      //AppViewManager,
       AppViewManagerUtils,
       Compiler,
       CompilerCache,
@@ -166,7 +167,7 @@ export function bootstrap(appComponentType: Type,
   let zone = _createNgZone();
 
 
-  let bindingsCmpLoader = [DynamicComponentLoader, Injector, Testability, TestabilityRegistry];
+  //let bindingsCmpLoader = [DynamicComponentLoader, Injector, Testability, TestabilityRegistry];
   let componentLoader   = (dynamicComponentLoader, injector, testability, registry) => {
     // TODO(rado): investigate whether to support bindings on root component.
     return dynamicComponentLoader.loadAsRoot(appComponentType, null, injector).then( (componentRef) => {
@@ -188,11 +189,9 @@ export function bootstrap(appComponentType: Type,
     ListWrapper.concat(componentInjectableBindings, serverBindings) : serverBindings;
 
   if (!appInjector) {
-
     appInjector = _createAppInjector(appComponentType, mergedBindings, zone);
 
   } else {
-
     appInjector.resolveAndCreateChild(mergedBindings);
 
   }

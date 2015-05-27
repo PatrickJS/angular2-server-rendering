@@ -30,8 +30,8 @@ import {ComponentRef, DynamicComponentLoader} from 'angular2/src/core/compiler/d
 import {TestabilityRegistry, Testability} from 'angular2/src/core/testability/testability';
 import {AppViewPool, APP_VIEW_POOL_CAPACITY} from 'angular2/src/core/compiler/view_pool';
 
-//import {AppViewManager} from 'angular2/src/core/compiler/view_manager';
-import {AppViewManager} from './iso_view_manager';
+import {AppViewManager} from 'angular2/src/core/compiler/view_manager';
+import {IsoAppViewManager} from './iso_view_manager';
 
 import {AppViewManagerUtils} from 'angular2/src/core/compiler/view_manager_utils';
 import {ProtoViewFactory} from 'angular2/src/core/compiler/proto_view_factory';
@@ -106,7 +106,8 @@ function _injectorBindings(appComponentType): List<Binding> {
             [APP_VIEW_POOL_CAPACITY]
         ),
         bind(APP_VIEW_POOL_CAPACITY).toValue(10000),
-        AppViewManager,
+        bind(AppViewManager).toClass(IsoAppViewManager),
+        //AppViewManager,
         AppViewManagerUtils,
         Compiler,
         CompilerCache,

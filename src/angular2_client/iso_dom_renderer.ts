@@ -63,6 +63,8 @@ export class IsoDomRenderer extends Renderer {
     if (isBlank(element)) {
       throw new BaseException(`The selector "${hostElementSelector}" did not match any elements`);
     }
+
+    console.log('calling root hosted view with ' + hostElementSelector);
     return new DomViewRef(this._createView(hostProtoView, element));
   }
 
@@ -71,9 +73,9 @@ export class IsoDomRenderer extends Renderer {
     this._removeViewNodes(hostView);
   }
 
-  createView(protoViewRef: RenderProtoViewRef, recurseDepth: number): RenderViewRef {
+  createView(protoViewRef: RenderProtoViewRef, protoViewId: string): RenderViewRef {
     var protoView = resolveInternalDomProtoView(protoViewRef);
-    return new DomViewRef(this._createView(protoView, null, recurseDepth));
+    return new DomViewRef(this._createView(protoView, null, protoViewId));
   }
 
   destroyView(view: RenderViewRef) {
@@ -247,22 +249,15 @@ export class IsoDomRenderer extends Renderer {
     view.eventDispatcher = dispatcher;
   }
 
-
-  //TODO: change this to an algorithm that takes an element and comes up with
-  // and ID based on {depth from body}_{index in parent}_{binder index}
-
-  //TODO: check out errors with add/remove elements
-
   //jeff: generate protovideId based on pv component name +
-  _getElementId(protoView: DomProtoView, recurseDepth: number, elementIdx: number) {
-    recurseDepth = recurseDepth || 0;
-    elementIdx = elementIdx || 0;
-    elementIdx++;
-
-    return 'ng-' + recurseDepth + '-' + elementIdx;
+  _getElementId(protoViewId: string, distanceToParent: number, elementIdx: number) {
+    protoViewId = protoViewId || 'ng_'
+    distanceToParent = (distanceToParent || 0) + 1;
+    elementIdx = (elementIdx || 0) + 1;
+    return protoViewId + '_' + distanceToParent + '_' + elementIdx;
   }
 
-  _createView(protoView: DomProtoView, inplaceElement, recurseDepth: number): DomView {
+  _createView(protoView: DomProtoView, inplaceElement, protoViewId: string): DomView {
     var rootElementClone =
       isPresent(inplaceElement) ? inplaceElement : DOM.importIntoDoc(protoView.element);
     var elementsWithBindingsDynamic;
@@ -299,6 +294,7 @@ export class IsoDomRenderer extends Renderer {
     for (var binderIdx = 0; binderIdx < binders.length; binderIdx++) {
       var binder = binders[binderIdx];
       var element;
+
       if (binderIdx === 0 && protoView.rootBindingOffset === 1) {
         element = rootElementClone;
       } else {
@@ -307,7 +303,7 @@ export class IsoDomRenderer extends Renderer {
 
       //jw: get the protoview ID to be used on the element for client rebinding of server generated page
       if (this._isServer || this._isDocumentServerRendered) {
-        var elementId = this._getElementId(protoView, recurseDepth, binderIdx);
+        var elementId = this._getElementId(protoViewId, binder.distanceToParent, binderIdx);
         if (this._isServer) {
           DOM.addClass(element, elementId);
         }

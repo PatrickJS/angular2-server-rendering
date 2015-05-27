@@ -2,7 +2,7 @@
 import * as fs from 'fs';
 
 // server version
-import {bootstrap} from '../angular2_server';
+import {bootstrap} from '../angular2_server/index';
 //
 
 import {

@@ -48,8 +48,8 @@ declare module "angular2/src/render/dom/view/proto_view" {
   class DomProtoView {
     rootBindingOffset: any;
     element: any;
-    isTemplateElement(): any
-    elementBinders(): any
+    isTemplateElement(): any;
+    elementBinders(): any;
   }
 
 }
@@ -66,9 +66,9 @@ declare module "angular2/src/render/dom/util" {
 
 declare module "angular2/src/render/dom/dom_renderer" {
   class DomRenderer {
-    _moveViewNodesIntoParent(): any
-    _createGlobalEventListener(): any
-    _createEventListener(): any
+    _moveViewNodesIntoParent(): any;
+    _createGlobalEventListener(): any;
+    _createEventListener(): any;
   }
   var DOCUMENT_TOKEN: any;
 }
@@ -86,21 +86,21 @@ declare module "angular2/src/render/dom/shadow_dom/content_tag" {
 declare module "angular2/src/render/dom/view/view" {
   class DomViewRef {}
   class DomView {
-    viewContainers(): any
+    viewContainers(): any;
   }
   function resolveInternalDomView(viewRef: any): any;
 }
 declare module "angular2/src/render/dom/shadow_dom/shadow_dom_strategy" {
   class ShadowDomStrategy {
-    prepareShadowRoot(element: any): any
-    constructLightDom(lightDomView: any, el: any): any
+    prepareShadowRoot(element: any): any;
+    constructLightDom(lightDomView: any, el: any): any;
   }
 }
 
 declare module "angular2/src/render/dom/events/event_manager" {
   class EventManager {
-    addEventListener(element: any, eventName: string, handler: Function): any
-    addGlobalEventListener(target: string, eventName: string, handler: Function): any
+    addEventListener(element: any, eventName: string, handler: Function): any;
+    addGlobalEventListener(target: string, eventName: string, handler: Function): any;
   }
   class DomEventsPlugin {}
 }
@@ -144,7 +144,7 @@ declare module "angular2/change_detection" {
 
 declare module "angular2/src/core/zone/ng_zone" {
   class NgZone {
-    run(): any
+    run(): any;
   }
 }
 
@@ -175,24 +175,24 @@ declare module "angular2/src/core/compiler/compiler" {
 declare module "angular2/forms" {
   var formDirectives: any;
   class FormBuilder {
-    group(): any
-    array(): any
+    group(): any;
+    array(): any;
   }
   class Validators {
-    static required(): any
+    static required(): any;
   }
   class ControlGroup {
-    value: any
-    controls: any
-    include(): any
-    exclude(): any
+    value: any;
+    controls: any;
+    include(): any;
+    exclude(): any;
   }
   class Control {
-    valueChanges(): any
+    valueChanges(): any;
   }
   class ControlArray {
-    push(): any
-    removeAt(): any
+    push(): any;
+    removeAt(): any;
   }
 }
 
@@ -275,7 +275,7 @@ declare module "angular2/src/facade/lang" {
 
 declare module "angular2/src/core/compiler/directive_resolver" {
   class DirectiveResolver {
-    resolve(appComponent: any): any
+    resolve(appComponent: any): any;
   }
 }
 
@@ -598,7 +598,7 @@ declare module "angular2/angular2" {
   var formDirectives: any;
   var coreDirectives: any;
 
-  class EventEmitter{};
+  class EventEmitter{}
   var Observable: any;
   var DomRenderer: any;
   var DOCUMENT_TOKEN: any;
@@ -719,8 +719,8 @@ declare module "angular2/di" {
      resolveAndCreateChild(bindings: [any]): Injector;
      static resolveAndCreate(bindings: any): any;
      static fromResolvedBindings(bindings: any): any;
-     asyncGet(di: any):any
-     get(di: any):any
+     asyncGet(di: any):any;
+     get(di: any):any;
   }
   var Injectable: any;
   class Dependency {}

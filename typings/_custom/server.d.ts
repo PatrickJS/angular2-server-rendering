@@ -15,6 +15,19 @@ declare module "dom_renderer" {
   }
 }
 
+declare module "angular2/src/core/compiler/view_manager_utils" {
+  class AppViewManagerUtils {
+
+  }
+}
+
+declare module "angular2/src/core/compiler/view_pool" {
+  class AppViewPool {
+
+  }
+}
+
 declare module "angular2_server" {
   function bootstrap(appComponentType: any, appInjector: any, componentInjectableBindings?: Array<any>, errorReporter?: Function): any;
 }
+

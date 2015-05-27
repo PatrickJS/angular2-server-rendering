@@ -1,7 +1,5 @@
 import {Injector, Injectable, Binding} from 'angular2/di';
-
 //import {Injectable} from 'angular2/src/di/annotations_impl';
-
 import {isPresent, isBlank, BaseException} from 'angular2/src/facade/lang';
 import * as viewModule from 'angular2/src/core/compiler/view';
 import {ElementRef} from 'angular2/src/core/compiler/element_ref';
@@ -17,7 +15,7 @@ import {AppViewPool} from 'angular2/src/core/compiler/view_pool';
  * in AppViewManagerUtils and the Renderer, so unit tests get simpler.
  */
 @Injectable()
-export class AppViewManager {
+export class IsoAppViewManager {
   _viewPool:AppViewPool;
   _utils:AppViewManagerUtils;
   _renderer:Renderer;
@@ -158,25 +156,24 @@ export class AppViewManager {
     return new ViewRef(view);
   }
 
-  _createPooledView(protoView:viewModule.AppProtoView, recurseDepth:number):viewModule.AppView {
+  _createPooledView(protoView:viewModule.AppProtoView):viewModule.AppView {
     var view = this._viewPool.getView(protoView);
+    var id = protoView.protoChangeDetector.definition.id;
+
     if (isBlank(view)) {
-      view = this._utils.createView(protoView, this._renderer.createView(protoView.render, recurseDepth), this, this._renderer);
+      view = this._utils.createView(protoView, this._renderer.createView(protoView.render, id), this, this._renderer);
       this._renderer.setEventDispatcher(view.render, view);
-      this._createViewRecurse(view, recurseDepth);
+      this._createViewRecurse(view);
     }
     return view;
   }
 
-  _createViewRecurse(view:viewModule.AppView, recurseDepth: number) {
-    recurseDepth = recurseDepth || 0;
-    recurseDepth++;
-
+  _createViewRecurse(view:viewModule.AppView) {
     var binders = view.proto.elementBinders;
     for (var binderIdx = 0; binderIdx < binders.length; binderIdx++) {
       var binder = binders[binderIdx];
       if (binder.hasStaticComponent()) {
-        var childView = this._createPooledView(binder.nestedProtoView, recurseDepth);
+        var childView = this._createPooledView(binder.nestedProtoView);
         this._renderer.attachComponentView(view.render, binderIdx, childView.render);
         this._utils.attachComponentView(view, binderIdx, childView);
       }

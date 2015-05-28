@@ -7,9 +7,7 @@ import {bootstrap} from './angular2_client/bootstrap.client';
 
 
 import {bind, OpaqueToken} from 'angular2/di';
-import {ShadowDomStrategy, NativeShadowDomStrategy} from 'angular2/core';
-import {StyleUrlResolver} from 'angular2/src/render/dom/shadow_dom/style_url_resolver';
-
+import {ShadowDomStrategy, NativeShadowDomStrategy} from 'angular2/render';
 
 import {SERVER_RENDERED_TOKEN} from './angular2_client/iso_dom_renderer';
 import {App} from './app/app';
@@ -18,10 +16,7 @@ import {App} from './app/app';
 
 bootstrap(App, [
   // doesn't work with server rendering
-  bind(ShadowDomStrategy).toFactory(
-    styleUrlResolver => new NativeShadowDomStrategy(styleUrlResolver),
-    [StyleUrlResolver]
-  ),
+  // bind(ShadowDomStrategy).toClass(NativeShadowDomStrategy),
   bind(SERVER_RENDERED_TOKEN).toValue(true)
 ])
 .then(appRef => {

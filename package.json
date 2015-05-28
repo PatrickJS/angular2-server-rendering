@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --ext \"js,ts,html\"",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "node-inspector & nodemon --ext \"js,ts,html\" --debug \"index.js\""
+    "start": "nodemon --ext 'js,ts,html' --ignore '.git' --ignore 'node_modules/*' --ignore 'angular/*' --verbose",
+    "test": "echo 'Error: no test specified' && exit 1",
+    "debug": "node-inspector & nodemon --ext 'js,ts,html' --debug 'index.js' --ignore '.git' --ignore 'node_modules/*' --ignore 'angular/*' --verbose",
+    "preinstall": "git submodule update -i -r"
   },
   "author": "gdi2290 <github@gdi2290.com>",
   "license": "",

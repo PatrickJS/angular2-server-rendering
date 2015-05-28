@@ -1,0 +1,11 @@
+{
+  "name": "traceur-runtime",
+  "version": "2.0.0",
+  "description": "",
+  "main": "./traceur-runtime",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "gdi2290 <github@gdi2290.com>",
+  "license": "MIT"
+}

@@ -1,3 +1,4 @@
+'use strict';
 var express = require('express');
 var serveStatic = require('serve-static');
 var morgan = require('morgan');
@@ -19,6 +20,7 @@ module.exports = function(ROOT) {
 
   function ngApp(req, res) {
     res.render('index', {
+      // clientOnly: true,
       Params: {
         url: req.url,
         originalUrl: req.originalUrl,
@@ -32,16 +34,29 @@ module.exports = function(ROOT) {
     });
   }
 
-  router.route('/').get(ngApp)
+  router.route('/').get(ngApp);
   app.use(router);
 
   app.use(serveStatic(ROOT + '/dist'));
   app.use(serveStatic(ROOT + '/public'));
 
-  app.use('/lib', function(req, res) {
-    serveStatic(ROOT + '/web_modules')(req, res);
+  app.use('/lib', function(req, res, next) {
+    serveStatic(ROOT + '/web_modules')(req, res, next);
   });
 
+  // dev source maps
+  app.use('/src', function(req, res, next) {
+    serveStatic(ROOT + '/src')(req, res, next);
+  });
+  app.use('/node_modules', function(req, res, next) {
+    serveStatic(ROOT + '/node_modules')(req, res, next);
+  });
+  // app.use('/node_modules/angular2', function(req, res) {
+  //   serveStatic(ROOT + '/dev_modules/node_modules/angular2')(req, res);
+  // });
+  app.use('/angular2/dist', function(req, res, next) {
+    serveStatic(ROOT + '/angular/dist/bundle')(req, res, next);
+  });
   // Example repos
   app.use('/angular2_examples/hello_world', function(req, res) {
     var HelloCmp = require(ROOT+'/dist/angular2_examples/hello_world/index_common').HelloCmp;
@@ -79,18 +94,6 @@ module.exports = function(ROOT) {
       clientOnly: true,
       Component: AppComponent
     });
-  });
-
-
-  // dev source maps
-  app.use('/src', function(req, res) {
-    serveStatic(ROOT + '/src')(req, res);
-  });
-  app.use('/node_modules', function(req, res) {
-    serveStatic(ROOT + '/node_modules')(req, res);
-  });
-  app.use('/node_modules/angular2', function(req, res) {
-    serveStatic(ROOT + '/dev_modules/node_modules/angular2')(req, res);
   });
 
   app.get('*', function(req, res) {

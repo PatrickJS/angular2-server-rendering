@@ -4,11 +4,25 @@
   <title>Angular 2 + TypeScript + Isomorphic + Server</title>
   <meta charset="UTF-8">
 
+  <!-- Won't be needed soon -->
   <script src="lib/traceur-runtime.min.js"></script>
+  <!-- SystemJS -->
   <script src="lib/es6-module-loader-sans-promises.js"></script>
   <script src="lib/system.js"></script>
-  <script src="lib/angular2.dev.js"></script>
-  <script src="lib/router.dev.js"></script>
+  <!-- Angular2: Zone -->
+  <script src="lib/zone-microtask.js"></script>
+  <!-- Angular2: Reflect -->
+  <script src="lib/Reflect.js"></script>
+  <script type="text/javascript">
+    window.global = window.global || window;
+    System.config({
+      "paths": {
+        "*": "*.js",
+        "angular2/*": "node_modules/angular2/*.js",
+        "rx": "node_modules/rx/dist/rx.js"
+      }
+    });
+  </script>
 </head>
 <body>
 
@@ -29,12 +43,13 @@
 <script>
 
   // Angular bootstraps too fast
+  'use strict';
   function bootstrap() {
     console.time('bootstrap');
     var bootstrapTime = new Date();
     System.import('app.client')
     .then(function() {
-      var bootstrapped = console.timeEnd('bootstrap');
+      console.timeEnd('bootstrap');
       var bootstrapTimeEnd = new Date();
       var milliseconds = bootstrapTimeEnd - bootstrapTime;
       var seconds = ~~(milliseconds / 1000);

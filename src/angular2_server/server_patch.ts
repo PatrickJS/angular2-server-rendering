@@ -34,7 +34,7 @@ global.window = global;
 import 'reflect-metadata';
 
 // legacy angular22
-import 'angular2/node_modules/traceur/bin/traceur-runtime';
+import 'traceur-runtime';
 
 // angular2 assert
 import * as rtts_assert from 'rtts_assert/rtts_assert';

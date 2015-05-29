@@ -8,7 +8,9 @@ class GreetingService {
 
 // Directives are light-weight. They don't allow new
 // expression contexts (use @Component for those needs).
-@Directive({selector: '[red]'})
+@Directive({
+  selector: '[red]'
+})
 class RedDec {
   // ElementRef is always injectable and it wraps the element on which the
   // directive was found by the compiler.
@@ -39,8 +41,12 @@ class RedDec {
 @View({
   // Expressions in the template (like {{greeting}}) are evaluated in the
   // context of the HelloCmp class below.
-  template: `<div class="greeting">{{greeting}} <span red>world</span>!</div>
-           <button class="changeButton" (click)="changeGreeting()">change greeting</button>`,
+  template: `
+  <div class="greeting">{{ greetingService.greeting }} <span red>world</span>!</div>
+  <button class="changeButton" (click)="changeGreeting()">
+    change greeting
+  </button>
+ `,
   // All directives used in the template need to be specified. This allows for
   // modularity (RedDec can only be used in this template)
   // and better tooling (the template can be invalidated if the attribute is
@@ -50,7 +56,9 @@ class RedDec {
 export class HelloCmp {
   greeting: string;
 
-  constructor(service: GreetingService) { this.greeting = service.greeting; }
+  constructor(service: GreetingService) {
+    this.greeting = service;
+  }
 
   changeGreeting(): void { this.greeting = 'howdy'; }
 }

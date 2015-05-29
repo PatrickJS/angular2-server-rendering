@@ -23,7 +23,7 @@ you can run the following commands from the root directory.
 ```bash
 $ npm install
 $ tsc -w
-$ nodemon
+$ npm start
 ```
 
 If you want to debug the project, you can run:

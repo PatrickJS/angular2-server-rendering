@@ -1,6 +1,38 @@
 <!doctype html>
 <html>
   <title>Key events</title>
+  <script type="text/javascript">
+    'use strict';
+    window.onload = function(){
+      setTimeout(function(){
+        var t = window.performance.timing;
+        console.log('Network latency', t.responseEnd - t.fetchStart);
+        console.log('Server to Client load: ', t.loadEventEnd - t.responseEnd);
+        console.log('Navigation to Client load:', t.loadEventEnd - t.navigationStart);
+      }, 0);
+    };
+  </script>
+
+  <!-- Won't be needed soon -->
+  <script src="/lib/traceur-runtime.min.js"></script>
+  <!-- SystemJS -->
+  <script src="/lib/es6-module-loader-sans-promises.js"></script>
+  <script src="/lib/system.js"></script>
+  <!-- Angular2: Zone -->
+  <script src="/lib/zone-microtask.js"></script>
+  <!-- Angular2: Reflect -->
+  <script src="/lib/Reflect.js"></script>
+  <script type="text/javascript">
+    window.global = window.global || window;
+    System.baseURL = '/';
+    System.config({
+      "paths": {
+        "*": "*.js",
+        "angular2/*": "node_modules/angular2/*.js",
+        "rx": "node_modules/rx/dist/rx.js"
+      }
+    });
+  </script>
   <style>
     .sample-area {
       text-align: center;
@@ -16,11 +48,6 @@
       font-weight: bold;
     }
   </style>
-  <script src="/lib/traceur-runtime.min.js"></script>
-  <script src="/lib/es6-module-loader-sans-promises.js"></script>
-  <script src="/lib/system.js"></script>
-  <script src="/lib/angular2.dev.js"></script>
-  <script src="/lib/router.dev.js"></script>
 <body>
   <key-events-app>
     Loading...
@@ -33,7 +60,6 @@
   </div>
 
 <script>
-    System.baseURL = '/';
 
   function ngApp() {
     return System.import('angular2_examples/key_events/index')

@@ -13,16 +13,15 @@ import {SERVER_RENDERED_TOKEN} from './angular2_client/iso_dom_renderer';
 import {App} from './app/app';
 
 
-
-bootstrap(App, [
-  // doesn't work with server rendering
-  // bind(ShadowDomStrategy).toClass(NativeShadowDomStrategy),
-  bind(SERVER_RENDERED_TOKEN).toValue(true)
-])
-.then(appRef => {
-  console.log('client', appRef);
-  // debugger;
-  return appRef;
-});
-
-export {App}
+export function main() {
+  return bootstrap(App, [
+    // doesn't work with server rendering
+    // bind(ShadowDomStrategy).toClass(NativeShadowDomStrategy),
+    bind(SERVER_RENDERED_TOKEN).toValue(true)
+  ])
+  .then(appRef => {
+    console.log('client', appRef);
+    // debugger;
+    return appRef;
+  });
+}

@@ -9,14 +9,17 @@
     "watch": "tsc -w",
     "debug": "node-inspector & nodemon --ext 'js,ts,html' --debug 'index.js' --ignore '.git' --ignore 'node_modules/*' --ignore 'angular/*' --verbose",
     "update-angular": "git submodule foreach 'npm install && gulp build.js || true'",
-    "pull-angular": "git submodule foreach git pull --rebase",
-    "update-submodule": "git submodule update --init --recursive",
-    "preinstall": "npm run update-submodule && npm run update-angular"
+    "pull-angular": "git submodule foreach 'git pull --rebase git@github.com:angular/angular.git master'",
+    "update-submodule": "git submodule update --recursive",
+    "preinstall": "npm run update-submodule && npm run pull-angular && npm run update-angular"
   },
   "author": "gdi2290 <github@gdi2290.com>",
   "license": "",
+  "whenAngularBuildWorks": {
+    "angular2": "file:angular/dist/js/cjs/angular2"
+  },
   "dependencies": {
-    "angular2": "file:angular/dist/js/cjs/angular2",
+    "angular2": "^2.0.0-alpha.26",
     "bluebird": "^2.9.25",
     "css": "^2.2.0",
     "parse5": "^1.4.2",

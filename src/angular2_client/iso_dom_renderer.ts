@@ -19,11 +19,11 @@ import {NG_BINDING_CLASS_SELECTOR, NG_BINDING_CLASS} from 'angular2/src/render/d
 import {RenderViewRef} from 'angular2/src/render/api';
 
 
-import {DomRenderer} from 'angular2/src/render/dom/dom_renderer';
+import {DOCUMENT_TOKEN, DomRenderer} from 'angular2/src/render/dom/dom_renderer';
 
 // TODO(tbosch): use an OpaqueToken here once our transpiler supports
 // const expressions!
-export const DOCUMENT_TOKEN = 'DocumentToken';
+export {DOCUMENT_TOKEN};
 
 // this is used to bind a boolean during bootstrap time
 // if true, it means there is a server rendered document

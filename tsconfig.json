@@ -13,7 +13,6 @@
     "outDir": "dist"
   },
   "files": [
-    "node_modules/typescript/bin/lib.es6.d.ts",
     "typings/tsd.d.ts",
     "typings/_custom/server.d.ts",
     "typings/_custom/ng2.d.ts",

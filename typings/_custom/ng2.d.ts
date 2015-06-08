@@ -7,9 +7,16 @@
  * This is a minimal type definition for the Angular2.
  * We plan to publish a complete definition soon.
  ******************/
+///<reference path="../es6-promise/es6-promise.d.ts"/>
+///<reference path="../rx/rx.d.ts"/>
 
-interface List<T> extends Array<T> {}
-interface Type {}
+
+interface List<T> extends Array<T> {
+
+}
+interface Type {
+
+}
 
 interface _ComponentArg {
   selector: string;
@@ -44,6 +51,111 @@ interface _DirectiveArg {
 declare var zone: any;
 declare var Zone: any;
 
+declare module "angular2/src/render/dom/compiler/template_loader" {
+ class TemplateLoader {
+
+ }
+}
+
+declare module "angular2/src/core/compiler/template_resolver" {
+  class TemplateResolver {
+
+  }
+}
+
+declare module "angular2/src/services/xhr_impl" {
+  class XHRImpl {
+
+  }
+}
+
+declare module "angular2/src/render/dom/events/key_events" {
+  class KeyEventsPlugin {
+    static getEventFullKey: any
+    getEventFullKey: any
+  }
+}
+declare module "angular2/src/render/dom/events/hammer_gestures" {
+  class HammerGesturesPlugin {
+
+  }
+}
+declare module "angular2/src/core/compiler/component_url_mapper" {
+  class ComponentUrlMapper {
+
+  }
+}
+declare module "angular2/src/services/url_resolver" {
+  class UrlResolver {
+
+  }
+
+}
+declare module "angular2/src/render/dom/shadow_dom/style_inliner" {
+  class StyleInliner{}
+
+}
+declare module "angular2/src/core/compiler/dynamic_component_loader" {
+  class ComponentRef {
+    location: any
+    instance: any
+    dispose: any
+  }
+  class DynamicComponentLoader {
+
+  }
+}
+declare module "angular2/src/core/testability/testability" {
+  class TestabilityRegistry {
+
+  }
+  class Testability {
+
+  }
+}
+declare module "angular2/src/core/compiler/view_pool" {
+  class AppViewPool {
+
+  }
+  var APP_VIEW_POOL_CAPACITY: any
+}
+declare module "angular2/src/core/compiler/view_manager" {
+  class AppViewManager {
+
+  }
+
+}
+declare module "angular2/src/core/compiler/view_manager_utils" {
+  class AppViewManagerUtils {
+
+  }
+}
+declare module "angular2/src/core/compiler/proto_view_factory" {
+  class ProtoViewFactory {
+
+  }
+}
+declare module "angular2/src/render/dom/compiler/compiler" {
+  class DefaultDomCompiler {
+
+  }
+}
+declare module "angular2/src/core/compiler/view_ref" {
+  var internalView:any
+}
+
+declare module "angular2/src/reflection/reflection" {
+ var reflector:any
+ class Reflector {
+
+ }
+}
+declare module "angular2/src/reflection/reflection_capabilities" {
+  class ReflectionCapabilities {
+
+  }
+}
+
 declare module "angular2/src/render/dom/view/proto_view" {
   class DomProtoView {
     rootBindingOffset: any;
@@ -74,17 +186,27 @@ declare module "angular2/src/render/dom/dom_renderer" {
 }
 
 declare module "angular2/src/render/api" {
-  class RenderCompiler {}
-  class Renderer {}
-  class RenderViewRef {}
-  class RenderProtoViewRef {}
+  class RenderCompiler {
+
+  }
+  class Renderer {
+
+  }
+  class RenderViewRef {
+
+  }
+  class RenderProtoViewRef {
+
+  }
 
 }
 declare module "angular2/src/render/dom/shadow_dom/content_tag" {
   function Content(element: any, contentTagSelector:any): void;
 }
 declare module "angular2/src/render/dom/view/view" {
-  class DomViewRef {}
+  class DomViewRef {
+
+  }
   class DomView {
     viewContainers(): any
   }
@@ -99,14 +221,18 @@ declare module "angular2/src/render/dom/shadow_dom/shadow_dom_strategy" {
 
 declare module "angular2/src/render/dom/events/event_manager" {
   class EventManager {
+    constructor(...args)
     addEventListener(element: any, eventName: string, handler: Function): any
     addGlobalEventListener(target: string, eventName: string, handler: Function): any
   }
-  class DomEventsPlugin {}
+  class DomEventsPlugin {
+
+  }
 }
 
 declare module "angular2/src/core/life_cycle/life_cycle" {
   class LifeCycle {
+    constructor(...args)
     tick(): any;
   }
 }
@@ -134,11 +260,21 @@ declare module "angular2/directives" {
 }
 
 declare module "angular2/change_detection" {
-  class Parser {}
-  class Lexer {}
-  class ChangeDetection {}
-  class DynamicChangeDetection {}
-  class PipeRegistry {}
+  class Parser {
+
+  }
+  class Lexer {
+
+  }
+  class ChangeDetection {
+
+  }
+  class DynamicChangeDetection {
+
+  }
+  class PipeRegistry {
+
+  }
   var defaultPipeRegistry: any;
 }
 
@@ -155,11 +291,15 @@ declare module "angular2/src/core/compiler/element_ref" {
 }
 
 declare module "angular2/src/core/exception_handler" {
-  class ExceptionHandler {}
+  class ExceptionHandler {
+
+  }
 }
 
 declare module "angular2/src/services/xhr" {
-  class XHR {}
+  class XHR {
+
+  }
 }
 
 declare module "angular2/src/core/application_tokens" {
@@ -168,8 +308,12 @@ declare module "angular2/src/core/application_tokens" {
 }
 
 declare module "angular2/src/core/compiler/compiler" {
-  class Compiler {}
-  class CompilerCache {}
+  class Compiler {
+
+  }
+  class CompilerCache {
+
+  }
 }
 
 declare module "angular2/forms" {
@@ -197,28 +341,48 @@ declare module "angular2/forms" {
 }
 
 declare module "angular2/src/render/dom/shadow_dom/emulated_unscoped_shadow_dom_strategy" {
-  class EmulatedUnscopedShadowDomStrategy {}
+  class EmulatedUnscopedShadowDomStrategy {
+
+  }
 }
 
 declare module "angular2/core" {
   class ElementRef {
     domElement: any;
   }
-  class EmulatedScopedShadowDomStrategy {}
-  class EmulatedUnscopedShadowDomStrategy {}
-  class NativeShadowDomStrategy {}
-  class ShadowDomStrategy {}
+  class EmulatedScopedShadowDomStrategy {
+
+  }
+  class EmulatedUnscopedShadowDomStrategy {
+
+  }
+  class NativeShadowDomStrategy {
+
+  }
+  class ShadowDomStrategy {
+
+  }
 }
 
 declare module "angular2/render" {
-  class EmulatedScopedShadowDomStrategy {}
-  class EmulatedUnscopedShadowDomStrategy {}
-  class NativeShadowDomStrategy {}
-  class ShadowDomStrategy {}
+  class EmulatedScopedShadowDomStrategy {
+
+  }
+  class EmulatedUnscopedShadowDomStrategy {
+
+  }
+  class NativeShadowDomStrategy {
+
+  }
+  class ShadowDomStrategy {
+
+  }
 }
 
 declare module "angular2/src/render/dom/shadow_dom/style_url_resolver" {
-  class StyleUrlResolver {}
+  class StyleUrlResolver {
+
+  }
 }
 
 declare module "angular2/src/facade/async" {
@@ -248,6 +412,7 @@ declare module "angular2/src/facade/collection" {
 declare module "angular2/src/facade/browser" {
   var __esModule: boolean;
   var win: any;
+  var window: any;
   var document: any;
   var location: any;
   var gc: () => void;
@@ -262,9 +427,15 @@ declare module "angular2/src/facade/lang" {
   var assertionsEnabled: any;
   function isPresent(): any;
   function isBlank(): any;
-  class BaseException {}
-  class RegExpWrapper {}
-  class NumberWrapper {}
+  class BaseException {
+
+  }
+  class RegExpWrapper {
+
+  }
+  class NumberWrapper {
+
+  }
   class StringWrapper {
     static toLowerCase(str: string): string;
     static toUpperCase(str: string): string;
@@ -280,7 +451,9 @@ declare module "angular2/src/core/compiler/directive_resolver" {
 }
 
 declare module "angular2/router" {
-  class Instruction {}
+  class Instruction {
+
+  }
   class Router {
     navigate(url: string): any;
     config(config: any): any;
@@ -575,141 +748,12 @@ declare module "angular2/src/dom/parse5_adapter" {
     }
 }
 
-declare module "angular2/angular2" {
-  function bootstrap(appComponentType: any, componentInjectableBindings?: Array<any>, errorReporter?: Function): any;
-
-  function Component(arg: _ComponentArg): (target: any) => any;
-  function View(arg: _ViewArg): (target: any) => any;
-  function Directive(arg: _DirectiveArg): (target: any) => any;
-
-  function bind(token: any): any;
-
-  class ElementRef {
-    domElement: any;
-  }
-
-  function NgSwitch(): void;
-  function NgSwitchWhen(): void;
-  function NgSwitchDefault(): void;
-  function NgNonBindable(): void;
-  function NgIf(): void;
-  function NgFor(): void;
-
-  var formDirectives: any;
-  var coreDirectives: any;
-
-  class EventEmitter{};
-  var Observable: any;
-  var DomRenderer: any;
-  var DOCUMENT_TOKEN: any;
-  var ASTWithSource: any;
-  var AST: any;
-  var AstTransformer: any;
-  var AccessMember: any;
-  var LiteralArray: any;
-  var ImplicitReceiver: any;
-  var Lexer: any;
-  var Parser: any;
-  var Locals: any;
-  var ExpressionChangedAfterItHasBeenChecked: any;
-  var ChangeDetectionError: any;
-  var ProtoChangeDetector: any;
-  var ChangeDispatcher: any;
-  var ChangeDetector: any;
-  var ChangeDetection: any;
-  var CHECK_ONCE: any;
-  var CHECK_ALWAYS: any;
-  var DETACHED: any;
-  var CHECKED: any;
-  var ON_PUSH: any;
-  var DEFAULT: any;
-  var DynamicProtoChangeDetector: any;
-  var JitProtoChangeDetector: any;
-  var BindingRecord: any;
-  var DirectiveIndex: any;
-  var DirectiveRecord: any;
-  var DynamicChangeDetector: any;
-  var ChangeDetectorRef: any;
-  var PipeRegistry: any;
-  var uninitialized: any;
-  var WrappedValue: any;
-  var Pipe: any;
-  var NullPipe: any;
-  var NullPipeFactory: any;
-  var defaultPipes: any;
-  var DynamicChangeDetection: any;
-  var JitChangeDetection: any;
-  var defaultPipeRegistry: any;
-  var ___esModule: any;
-  var ViewRef: any;
-  var ProtoViewRef: any;
-  class ViewContainerRef {}
-  var AncestorAnnotation: any;
-  var ParentAnnotation: any;
-  interface OnChange {}
-  var ViewAnnotation: any;
-  interface ApplicationRef {}
-  var appComponentRefToken: any;
-  var appComponentAnnotatedTypeToken: any;
-  var QueryAnnotation: any;
-  var AttributeAnnotation: any;
-  interface QueryList {}
-  interface CompilerCache {}
-  interface Compiler {}
-  interface TemplateLoader {}
-  interface ShadowDomStrategy {}
-  interface NativeShadowDomStrategy {}
-  interface EmulatedScopedShadowDomStrategy {}
-  interface EmulatedUnscopedShadowDomStrategy {}
-  interface ComponentRef {
-     instance: any;
-     dispose(): void;
-  }
-  class DynamicComponentLoader {
-     loadIntoNewLocation(type: any, b: any, c: any, d?: any): any;
-     loadNextToExistingLocation(a: any, b: any, c: any): any;
-  }
-  var ComponentAnnotation: any;
-  var DirectiveAnnotation: any;
-  var onDestroy: any;
-  var onChange: any;
-  var onAllChangesDone: any;
-  var Ancestor: any;
-  var Parent: any;
-  var Attribute: any;
-  var Query: any;
-  var coreDirectives: any;
-  interface CSSClass {}
-  var VALID: any;
-  var INVALID: any;
-  interface Control {}
-  interface ControlGroup {}
-  interface ControlArray {}
-  interface DefaultValueAccessor {}
-  interface CheckboxControlValueAccessor {}
-  interface ControlDirective {}
-  interface ControlGroupDirective {}
-  var formDirectives: any;
-  interface Validators {}
-  interface RequiredValidatorDirective {}
-  interface FormBuilder {}
-  interface EventBinding {}
-  interface ElementBinder {}
-  interface DirectiveBinder {}
-  interface ProtoViewDto {}
-  interface DirectiveMetadata {}
-  interface RenderProtoViewRef {}
-  interface RenderViewRef {}
-  interface ViewDefinition {}
-  interface RenderCompiler {}
-  interface Renderer {}
-  interface EventDispatcher {}
-  var Injectable: any;
-}
 
 
 declare module "angular2/src/di/binding" {
-  class Binding {}
+  class Binding {
+
+  }
 }
 
 declare module "angular2/di" {
@@ -723,11 +767,21 @@ declare module "angular2/di" {
      get(di: any):any
   }
   var Injectable: any;
-  class Dependency {}
-  class Inject {}
-  class InjectPromise {}
-  class InjectLazy {}
-  class Optional {}
+  class Dependency {
+
+  }
+  class Inject {
+
+  }
+  class InjectPromise {
+
+  }
+  class InjectLazy {
+
+  }
+  class Optional {
+
+  }
   var Binding: any;
   var ResolvedBinding: any;
   var Key: any;

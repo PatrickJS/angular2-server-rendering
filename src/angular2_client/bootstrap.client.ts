@@ -36,6 +36,7 @@ import {TestabilityRegistry, Testability} from 'angular2/src/core/testability/te
 import {AppViewPool, APP_VIEW_POOL_CAPACITY} from 'angular2/src/core/compiler/view_pool';
 import {AppViewManager} from 'angular2/src/core/compiler/view_manager';
 import {AppViewManagerUtils} from 'angular2/src/core/compiler/view_manager_utils';
+import {AppViewListener} from 'angular2/src/core/compiler/view_listener';
 import {ProtoViewFactory} from 'angular2/src/core/compiler/proto_view_factory';
 import {Renderer, RenderCompiler} from 'angular2/src/render/api';
 import {DomRenderer, DOCUMENT_TOKEN} from 'angular2/src/render/dom/dom_renderer';
@@ -104,6 +105,7 @@ function _injectorBindings(appComponentType): List<Binding> {
         bind(APP_VIEW_POOL_CAPACITY).toValue(10000),
         AppViewManager,
         AppViewManagerUtils,
+        AppViewListener,
         Compiler,
         CompilerCache,
         TemplateResolver,
@@ -263,10 +265,14 @@ export function bootstrap(appComponentType: Type,
                 lc.registerWith(zone, appChangeDetector);
                 lc.tick(); //the first tick that will bootstrap the app
 
+                console.log('about to fire BootstrapComplete');
+
                 //jw: dispatch BootstrapComplete even to let preboot know it is complete
                 var evt = new Event("BootstrapComplete");
                 var document = DOM.defaultDoc();
                 document.dispatchEvent(evt);
+
+                console.log('done firing BootstrapComplete');
 
                 bootstrapProcess.resolve(new ApplicationRef(componentRef, appComponentType, appInjector));
             },

@@ -481,6 +481,8 @@ function getOnLoadHandler(opts) {
 function getBootstrapCompleteHandler(opts) {
     return function onComplete() {
 
+      console.log('got BootstrapComplete');
+
         // track that complete has been called and don't do anything if we can't complete
         state.completeCalled = true;
         if (!state.canComplete) { return; }

@@ -11,7 +11,8 @@
     "update-angular": "git submodule foreach 'npm install && gulp build.js || true'",
     "pull-angular": "git submodule foreach 'git pull --rebase git@github.com:angular/angular.git master'",
     "update-submodule": "git submodule update --recursive",
-    "preinstall": "npm run update-submodule && npm run pull-angular && npm run update-angular"
+    "preinstall": "npm run update-submodule && npm run pull-angular && npm run update-angular",
+    "postinstall": "tsc || true"
   },
   "author": "gdi2290 <github@gdi2290.com>",
   "license": "",

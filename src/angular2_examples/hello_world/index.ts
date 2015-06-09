@@ -1,5 +1,4 @@
 import {bootstrap} from '../../angular2_client/bootstrap.client';
-import {SERVER_RENDERED_TOKEN} from '../../angular2_client/iso_dom_renderer';
 import {bind} from 'angular2/di';
 // import {bootstrap} from 'angular2/angular2';
 
@@ -25,6 +24,6 @@ export function main() {
   // You can use the light dom of the <hello-app> tag as temporary content (for
   // example 'Loading...') before the application is ready.
   bootstrap(HelloCmp, [
-    bind(SERVER_RENDERED_TOKEN).toValue(true)
+    //bind(SERVER_RENDERED_TOKEN).toValue(true)
   ]);
 }

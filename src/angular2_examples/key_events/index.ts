@@ -1,5 +1,4 @@
 import {bootstrap} from '../../angular2_client/bootstrap.client';
-import {SERVER_RENDERED_TOKEN} from '../../angular2_client/iso_dom_renderer';
 import {bind} from 'angular2/di';
 // import {bootstrap} from 'angular2/angular2';
 
@@ -42,6 +41,6 @@ export class KeyEventsApp {
 export function main() {
   reflector.reflectionCapabilities = new ReflectionCapabilities();  // for the Dart version
   bootstrap(KeyEventsApp, [
-    bind(SERVER_RENDERED_TOKEN).toValue(true)
+    //bind(SERVER_RENDERED_TOKEN).toValue(true)
   ]);
 }

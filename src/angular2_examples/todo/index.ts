@@ -1,5 +1,4 @@
 import {bootstrap} from '../../angular2_client/bootstrap.client';
-import {SERVER_RENDERED_TOKEN} from '../../angular2_client/iso_dom_renderer';
 import {bind, Inject} from 'angular2/di';
 // import {bootstrap} from 'angular2/angular2';
 

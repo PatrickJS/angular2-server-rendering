@@ -4,12 +4,11 @@ var serveStatic = require('serve-static');
 var morgan = require('morgan');
 var path = require('path');
 
-
 module.exports = function(ROOT) {
   var app = express();
   var router = express.Router();
 
-  var iso = require(ROOT+'/dist/ng2Engine');
+  var iso = require(ROOT + '/dist/ng2Engine');
   // rendering engine
 
   app.use(morgan('dev'));

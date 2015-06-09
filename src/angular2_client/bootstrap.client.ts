@@ -38,11 +38,7 @@ import {AppViewManager} from 'angular2/src/core/compiler/view_manager';
 import {AppViewManagerUtils} from 'angular2/src/core/compiler/view_manager_utils';
 import {ProtoViewFactory} from 'angular2/src/core/compiler/proto_view_factory';
 import {Renderer, RenderCompiler} from 'angular2/src/render/api';
-
-
-//import {DomRenderer, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN} from 'angular2/src/render/dom/dom_renderer';
-import {IsoDomRenderer, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN} from './iso_dom_renderer';
-
+import {DomRenderer, DOCUMENT_TOKEN} from 'angular2/src/render/dom/dom_renderer';
 import {resolveInternalDomView} from 'angular2/src/render/dom/view/view';
 import {DefaultDomCompiler} from 'angular2/src/render/dom/compiler/compiler';
 import {internalView} from 'angular2/src/core/compiler/view_ref';
@@ -63,8 +59,6 @@ var _rootBindings = [
 function _injectorBindings(appComponentType): List<Binding> {
     return [
         bind(DOCUMENT_TOKEN).toValue(DOM.defaultDoc()),
-        bind(SERVER_RENDERED_TOKEN).toValue(false),
-        bind(IS_SERVER_TOKEN).toValue(false),
         bind(appComponentTypeToken).toValue(appComponentType),
         bind(appComponentRefToken).toAsyncFactory((dynamicComponentLoader, injector,
                                                    testability, registry) => {
@@ -93,12 +87,12 @@ function _injectorBindings(appComponentType): List<Binding> {
             [StyleUrlResolver, DOCUMENT_TOKEN]),
         // TODO(tbosch): We need an explicit factory here, as
         // we are getting errors in dart2js with mirrors...
-        bind(IsoDomRenderer).toFactory(
-            (eventManager, shadowDomStrategy, doc, isServerRendered, isServer) => new IsoDomRenderer(eventManager, shadowDomStrategy, doc, isServerRendered, isServer),
-            [EventManager, ShadowDomStrategy, DOCUMENT_TOKEN, SERVER_RENDERED_TOKEN, IS_SERVER_TOKEN]
+        bind(DomRenderer).toFactory(
+            (eventManager, shadowDomStrategy, doc) => new DomRenderer(eventManager, shadowDomStrategy, doc),
+            [EventManager, ShadowDomStrategy, DOCUMENT_TOKEN]
         ),
         DefaultDomCompiler,
-        bind(Renderer).toAlias(IsoDomRenderer),
+        bind(Renderer).toAlias(DomRenderer),
         bind(RenderCompiler).toAlias(DefaultDomCompiler),
         ProtoViewFactory,
         // TODO(tbosch): We need an explicit factory here, as
@@ -269,12 +263,8 @@ export function bootstrap(appComponentType: Type,
                 lc.registerWith(zone, appChangeDetector);
                 lc.tick(); //the first tick that will bootstrap the app
 
-                // if the document was originally server rendered, now that we are bootstrapped,
-                // we can go back to normal client side behavior
-                var domRenderer = appInjector.get(IsoDomRenderer);
-                domRenderer.setDocumentServerRendered(false);
-
-                var evt = new Event("AngularBootstrapComplete");
+                //jw: dispatch BootstrapComplete even to let preboot know it is complete
+                var evt = new Event("BootstrapComplete");
                 var document = DOM.defaultDoc();
                 document.dispatchEvent(evt);
 

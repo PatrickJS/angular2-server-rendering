@@ -19,7 +19,7 @@ module.exports = function(ROOT) {
 
   function ngApp(req, res) {
     res.render('index', {
-      clientOnly: true,
+      clientOnly: false,
       Params: {
         url: req.url,
         originalUrl: req.originalUrl,

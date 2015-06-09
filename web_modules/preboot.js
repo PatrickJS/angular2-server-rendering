@@ -185,7 +185,7 @@ function displayOverlay(document, timeout) {
     document.body.appendChild(overlay);
 
     // hide overlay after 4 seconds regardless of whether bootstrap complete
-    setTimeout(hideOverlay, (timeout || 4000));
+    // setTimeout(hideOverlay, (timeout || 4000));
 }
 
 /**

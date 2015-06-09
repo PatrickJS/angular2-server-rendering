@@ -16,7 +16,7 @@
     });
   </script>
 
-  <!-- Won't be needed soon -->
+  <!-- Needed for ES6 polyfills -->
   <script src="/lib/traceur-runtime.min.js"></script>
   <!-- SystemJS -->
   <script src="/lib/es6-module-loader-sans-promises.js"></script>
@@ -67,6 +67,7 @@
     var bootstrapTime = new Date();
     ngApp()
     .then(function() {
+      document.dispatchEvent(new window.Event('BootstrapComplete'));
       console.timeEnd('bootstrap');
       var bootstrapTimeEnd = new Date();
       var milliseconds = bootstrapTimeEnd - bootstrapTime;
@@ -79,6 +80,7 @@
 
     });
   }
+  bootstrap();
 
 </script>
 </body>

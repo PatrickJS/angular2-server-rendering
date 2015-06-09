@@ -31,6 +31,9 @@ export function selectorRegExpFactory(selector: string): RegExp {
         $1       $2        $3
     <selector> content </selector>
   */
+
   let regExpSelector = `(<${ escapeRegExp(selector) }>)((?:.|\\n)*?)(<\/${ escapeRegExp(selector) }>)`;
+  // wip
+  // let regExpSelector = `(<(?:.|\\n)*?${ escapeRegExp(selector) }(?:.|\\n)*?>)((?:.|\\n)*?)(<\/(?:.|\\n)*?${ escapeRegExp(selector) }(?:.|\\n)*?>)`
   return new RegExp(regExpSelector);
 }

@@ -11,7 +11,6 @@ import {
   showDebug
 } from './helper';
 
-import {ng2string} from './ng2string';
 import {stringifyElement} from './stringifyElement';
 
 import {DOCUMENT_TOKEN, bind} from 'angular2/angular2';

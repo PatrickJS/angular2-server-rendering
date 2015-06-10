@@ -3,7 +3,9 @@
 <head>
   <title>Angular 2 + TypeScript + Isomorphic + Server</title>
   <meta charset="UTF-8">
-  <script src="/lib/preboot.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="/css/progress.css">
+
   <script type="text/javascript">
     'use strict';
     window.addEventListener('load', function () {
@@ -38,6 +40,7 @@
   </script>
 </head>
 <body>
+<script src="/lib/preboot.js"></script>
 
 <app>
   Loading...
@@ -67,7 +70,7 @@
     var bootstrapTime = new Date();
     ngApp()
     .then(function() {
-      document.dispatchEvent(new window.Event('BootstrapComplete'));
+      document.dispatchEvent(new window.CustomEvent('BootstrapComplete', {detail: {yolo:'yolo'}}));
       console.timeEnd('bootstrap');
       var bootstrapTimeEnd = new Date();
       var milliseconds = bootstrapTimeEnd - bootstrapTime;
@@ -80,7 +83,9 @@
 
     });
   }
-  bootstrap();
+  setTimeout(function() {
+    bootstrap();
+  }, 5000);
 
 </script>
 </body>

@@ -164,12 +164,8 @@ function hideOverlay() {
     }
 }
 
-/**
- * Display overlay by sticking div at end of body
- * @param document
- * @param timeout - So that we can timeout quickly for unit tests
- */
-function displayOverlay(document, timeout) {
+
+function createOverlay(document, timeout) {
     var overlay = state.overlay = document.createElement('div');
     var style = overlay.style;
 
@@ -181,8 +177,68 @@ function displayOverlay(document, timeout) {
     style.width = '100%';
     style.height = '100%';
     style.background = '#263741';
+    style.display = 'none';
     style.opacity = '.27';
-    document.body.appendChild(overlay);
+    // document.body.appendChild(overlay);
+
+    // hide overlay after 4 seconds regardless of whether bootstrap complete
+    // setTimeout(hideOverlay, (timeout || 4000));
+    return overlay;
+}
+
+function createProgress(document) {
+  var progress = document.createElement('div');
+  progress.id = '567567567567';
+  progress.className = 'progress'
+  progress.style.display = 'none';
+  return progress;
+}
+
+
+/**
+ * Display overlay by sticking div at end of body
+ * @param document
+ * @param timeout - So that we can timeout quickly for unit tests
+ */
+window.displayOverlay = function displayOverlay(document, timeout, event) {
+
+
+  var hasProgress = state.overlay//document.getElementById('567567567567');
+  // var overlay = state.overlay = createOverlay(document, timeout);
+  // document.body.appendChild(overlay);
+
+  if (hasProgress) {
+    if (event && event.target && event.target.parentElement) {
+
+      state.targetElement = event.target;
+      var progress = document.getElementById('567567567567');
+      progress.style.display = 'inline';
+      event.target.parentElement.appendChild(progress)
+
+    }
+
+    hasProgress.style.display = 'inline';
+    state.overlay = hasProgress;
+
+  } else {
+    var progress = createProgress(document);
+
+    // var overlay = createOverlay(document, timeout)
+    // overlay.appendChild(progress);
+
+    state.overlay = progress;
+    // state.overlay = overlay;
+
+    if (event && event.target && event.target.parentElement) {
+
+      state.targetElement = event.target;
+      event.target.parentElement.appendChild(state.overlay)
+
+    } else {
+      document.body.appendChild(state.overlay);
+    }
+
+  }
 
     // hide overlay after 4 seconds regardless of whether bootstrap complete
     // setTimeout(hideOverlay, (timeout || 4000));
@@ -218,7 +274,7 @@ function getEventHandler(document, strategy, node, eventName) {
 
         // if we should show overlay when user hits button so there is no further action
         if (strategy.overlay) {
-            displayOverlay(document);
+            displayOverlay(document, null, event);
         }
 
         // we will record events for later replay unless explicitly marked as doNotReplay
@@ -360,9 +416,10 @@ function checkFocus(document) {
         state.currentFocus = document.activeElement || state.currentFocus;
 
         // call this again recursively after 50 milliseconds
-        setTimeout(function () {
+        var focusTimeout = setTimeout(function () {
+            clearTimeout(focusTimeout);
             checkFocus(document);
-        }, 50);
+        }, 0);
     }
 }
 
@@ -372,7 +429,18 @@ function checkFocus(document) {
  */
 function startTracking(document) {
     state.trackingEnabled = true;
-    checkFocus(document);
+    function focusin(e) {
+      state.currentFocus = e.target || e.targetElement;
+      console.log('focusin!')
+    }
+    function focusout() {
+      document.removeEventListener('focusin', focusin);
+      document.removeEventListener('focusout', focusout);
+
+    }
+    document.addEventListener('focusin', focusin, true);
+    document.addEventListener('focusout', focusout);
+    // checkFocus(document);
 }
 
 /**
@@ -479,7 +547,7 @@ function getOnLoadHandler(opts) {
  * @returns {Function}
  */
 function getBootstrapCompleteHandler(opts) {
-    return function onComplete() {
+    return function onComplete(event) {
 
       console.log('got BootstrapComplete');
 
@@ -511,16 +579,17 @@ function pauseCompletion() {
  * @returns {Function}
  */
 function getResumeCompleteHandler(opts) {
-    return function onPause() {
+    return function onPause(event) {
         state.canComplete = true;
 
         if (state.completeCalled) {
 
             // using setTimeout to fix weird bug where err thrown on
             // serverRoot.remove() in buffer switch
-            setTimeout(function () {
-                getBootstrapCompleteHandler(opts)();
-            }, 10);
+            var completeTimer = setTimeout(function () {
+                clearTimeout(completeTimer);
+                getBootstrapCompleteHandler(opts)(event);
+            }, 50);
         }
     };
 }
@@ -530,6 +599,9 @@ function getResumeCompleteHandler(opts) {
  * @param opts
  */
 function start(opts) {
+    // need to rebuild rather than global
+    window.displayOverlay(document);
+
     window.addEventListener('load', getOnLoadHandler(opts));
     window.document.addEventListener(opts.pauseEvent, pauseCompletion);
     window.document.addEventListener(opts.resumeEvent, getResumeCompleteHandler(opts));

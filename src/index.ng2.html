@@ -70,7 +70,10 @@
     var bootstrapTime = new Date();
     ngApp()
     .then(function() {
-      document.dispatchEvent(new window.CustomEvent('BootstrapComplete', {detail: {yolo:'yolo'}}));
+
+
+        preboot.done();
+
       console.timeEnd('bootstrap');
       var bootstrapTimeEnd = new Date();
       var milliseconds = bootstrapTimeEnd - bootstrapTime;

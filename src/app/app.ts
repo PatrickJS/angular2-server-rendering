@@ -22,6 +22,9 @@ import {Component, View, coreDirectives} from 'angular2/angular2';
 {{ buttonTest | json }}</pre>
   </div>
   <div>
+    <input type="text" />
+  </div>
+  <div>
     <button (click)="clickingTest()">Click Test</button>
   </div>
 

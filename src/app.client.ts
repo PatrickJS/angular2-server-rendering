@@ -17,10 +17,5 @@ export function main() {
     // doesn't work with server rendering
     // bind(ShadowDomStrategy).toClass(NativeShadowDomStrategy),
     //bind(SERVER_RENDERED_TOKEN).toValue(true)
-  ])
-  .then(appRef => {
-    console.log('client', appRef);
-    // debugger;
-    return appRef;
-  });
+  ]);
 }

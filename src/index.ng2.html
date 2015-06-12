@@ -23,10 +23,11 @@
   <!-- SystemJS -->
   <script src="/lib/es6-module-loader-sans-promises.js"></script>
   <script src="/lib/system.js"></script>
-  <!-- Angular2: Zone -->
-  <script src="/lib/zone-microtask.js"></script>
-  <!-- Angular2: Reflect -->
   <script src="/lib/Reflect.js"></script>
+  <!-- Angular2: Zone -->
+  <!-- // <script src="/lib/zone-microtask.js"></script> -->
+  <script src="/lib/angular2.js"></script>
+  <!-- Angular2: Reflect -->
   <script type="text/javascript">
     window.global = window.global || window;
     System.baseURL = '/';
@@ -37,6 +38,13 @@
         "rx": "node_modules/rx/dist/rx.js"
       }
     });
+    var ngApp = (function ngApp() {
+      var app =  System.import('app.client')
+      return function ngApp() {
+        return app.then(function(module) { return module.main(); });
+      }
+
+    }())
   </script>
 </head>
 <body>
@@ -50,28 +58,33 @@
 <br>
 <br>
 <br>
+
 <div id="bootstrap" style="z-index:999999999;position: absolute;">
-  <button id="bootstrap" onclick="bootstrap()">
+  <button onclick="bootstrap()">
     Bootstrap Angular2 Client
+  </button>
+</div>
+<div id="replaceView" style="z-index:999999999;position: absolute;margin-left: 10em;">
+  <button onclick="replaceView()">
+    ReplaceView Angular2 Client
   </button>
 </div>
 
 <script>
 
-  function ngApp() {
-    return System.import('app.client')
-    .then(function(module) { return module.main(); });
-  }
 
   // Angular bootstraps too fast
   'use strict';
+  window.completeBootstrap = function() { Promise.resolve(null)}
   function bootstrap() {
     console.time('bootstrap');
     var bootstrapTime = new Date();
     ngApp()
-    .then(function() {
-      document.dispatchEvent(new window.CustomEvent('BootstrapComplete', {detail: {yolo:'yolo'}}));
+    .then(function(defer) {
       console.timeEnd('bootstrap');
+      window.completeBootstrap = defer;
+      replaceView();
+      document.dispatchEvent(new window.CustomEvent('BootstrapComplete', {detail: {yolo:'yolo'}}));
       var bootstrapTimeEnd = new Date();
       var milliseconds = bootstrapTimeEnd - bootstrapTime;
       var seconds = ~~(milliseconds / 1000);
@@ -83,10 +96,19 @@
 
     });
   }
-  setTimeout(function() {
-    bootstrap();
-  }, 5000);
+
+  function replaceView() {
+    console.time('createRootHostView');
+    completeBootstrap().then(function(app) {
+      console.timeEnd('createRootHostView');
+      return app;
+    })
+  }
+  // setTimeout(function() {
+    // bootstrap();
+  // }, 5000);
 
 </script>
+
 </body>
 </html>

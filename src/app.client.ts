@@ -3,7 +3,8 @@
 /// <reference path="../typings/_custom/server.d.ts" />
 
 // import {bootstrap} from './angular2_client/bootstrap.client';
-import {bootstrap} from 'angular2/angular2';
+// import {bootstrap} from 'angular2/angular2';
+import {bootstrap} from './angular2_client/bootstrap-defer';
 
 
 import {bind, OpaqueToken} from 'angular2/di';

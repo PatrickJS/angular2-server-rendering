@@ -1,12 +1,19 @@
 /**
- * (C)Leanest CSS spinner ever
+ *
+ * This is a same CSS file for overlay and spinner. This can/should
+ * be overriden/customized to suit your needs
  */
+
+.preboot-overlay {
+  background: grey;
+  opacity: .27;
+}
 
 @keyframes spin {
   to { transform: rotate(1turn); }
 }
 
-.progress {
+.preboot-spinner {
   position: relative;
   display: inline-block;
   width: 5em;
@@ -18,18 +25,18 @@
   animation: spin 1s infinite steps(8);
 }
 
-.small.progress {
+.preboot-spinner.small {
   font-size: 6px;
 }
 
-.large.progress {
+.preboot-spinner.large {
   font-size: 24px;
 }
 
-.progress:before,
-.progress:after,
-.progress > div:before,
-.progress > div:after {
+.preboot-spinner:before,
+.preboot-spinner:after,
+.preboot-spinner > div:before,
+.preboot-spinner > div:after {
   content: '';
   position: absolute;
   top: 0;
@@ -42,21 +49,21 @@
   transform-origin: 50% 2.5em; /* container height / 2 */
 }
 
-.progress:before {
+.preboot-spinner:before {
   background: #555;
 }
 
-.progress:after {
+.preboot-spinner:after {
   transform: rotate(-45deg);
   background: #777;
 }
 
-.progress > div:before {
+.preboot-spinner > div:before {
   transform: rotate(-90deg);
   background: #999;
 }
 
-.progress > div:after {
+.preboot-spinner > div:after {
   transform: rotate(-135deg);
   background: #bbb;
 }

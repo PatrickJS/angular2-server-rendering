@@ -4,7 +4,7 @@
   <title>Angular 2 + TypeScript + Isomorphic + Server</title>
   <meta charset="UTF-8">
 
-  <link rel="stylesheet" type="text/css" href="/css/progress.css">
+  <link rel="stylesheet" type="text/css" href="/css/preboot.css">
 
   <script type="text/javascript">
     'use strict';
@@ -46,9 +46,9 @@
 
     }())
   </script>
+  <script src="/lib/preboot.js"></script>
 </head>
 <body>
-<script src="/lib/preboot.js"></script>
 
 <app>
   Loading...
@@ -83,8 +83,10 @@
     .then(function(defer) {
       console.timeEnd('bootstrap');
       window.completeBootstrap = defer;
+
+      preboot.done();
       replaceView();
-      document.dispatchEvent(new window.CustomEvent('BootstrapComplete', {detail: {yolo:'yolo'}}));
+
       var bootstrapTimeEnd = new Date();
       var milliseconds = bootstrapTimeEnd - bootstrapTime;
       var seconds = ~~(milliseconds / 1000);

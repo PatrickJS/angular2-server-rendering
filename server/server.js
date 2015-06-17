@@ -26,10 +26,10 @@ module.exports = function(ROOT) {
   var spa = require('./spa')(ROOT);
   var api = require('./api')(ROOT);
 
+  app.use(spa);
   app.use('/angular2/dist', angular2_dist);
   app.use('/lib', web_modules);
   app.use(dev_source_maps);
-  app.use(spa);
   app.use('/api', api);
   app.use('/angular2_examples', examples);
 

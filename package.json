@@ -8,11 +8,13 @@
     "test": "echo 'Error: no test specified' && exit 1",
     "watch": "tsc -w",
     "debug": "node-inspector & nodemon --ext 'js,ts,html' --debug 'index.js' --ignore '.git' --ignore 'node_modules/*' --ignore 'angular/*' --verbose",
+    "remove-angular-typings": "rm -rf angular/modules/angular2/typings",
     "update-angular": "git submodule foreach 'npm install && gulp build.js || true'",
     "pull-angular": "git submodule foreach 'git pull --rebase git@github.com:angular/angular.git master'",
     "update-submodule": "git submodule update --recursive",
-    "preinstall": "npm run update-submodule && npm run pull-angular && npm run update-angular",
-    "postinstall": "tsc || true"
+    "angular-submodule": "npm run update-submodule && npm run pull-angular && npm run clean-angular-typings && npm run update-angular",
+    "preinstall": "exit 0 #npm run angular-submodule",
+    "postinstall": "tsc || true && ./update-ng-bundle.sh 2.0.0-alpha.27"
   },
   "author": "gdi2290 <github@gdi2290.com>",
   "license": "",
@@ -20,11 +22,11 @@
     "angular2": "file:angular/dist/js/cjs/angular2"
   },
   "dependencies": {
-    "angular2": "^2.0.0-alpha.26",
+    "angular2": "2.0.0-alpha.27",
     "bluebird": "^2.9.25",
     "css": "^2.2.0",
     "parse5": "^1.4.2",
-    "preboot": "^0.1.8",
+    "preboot": "git+ssh://git@github.com/jeffwhelpley/preboot.git",
     "reflect-metadata": "^0.1.0",
     "rtts_assert": "file:dev_modules/rtts_assert",
     "rx": "^2.5.2",

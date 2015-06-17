@@ -1,15 +1,16 @@
-import {bootstrap} from '../../angular2_client/bootstrap.client';
-import {bind, Inject} from 'angular2/di';
+import {bootstrap} from '../../angular2_client/bootstrap-defer';
 // import {bootstrap} from 'angular2/angular2';
 
-import {routerInjectables, Router} from 'angular2/router';
+import {coreDirectives} from 'angular2/angular2';
+import {Component, View, Directive} from 'angular2/angular2';
+import {bind, Inject} from 'angular2/di';
 
-import {coreDirectives, Component, View, Directive} from 'angular2/angular2';
 import {Store, Todo, TodoFactory} from './services/TodoStore';
 
 
 @Component({
-  selector: 'todo-app'
+  selector: 'app',
+  appInjector: [ Store, TodoFactory ]
 })
 @View({
   directives: [ coreDirectives ],
@@ -18,12 +19,12 @@ import {Store, Todo, TodoFactory} from './services/TodoStore';
 
   <header id="header">
     <h1>todos</h1>
-    <input
-      id="new-todo"
-      placeholder="What needs to be done?"
-      autofocus
-      #newtodo
-      (keyup.enter)="enterTodo($event, newtodo)">
+      <input
+        id="new-todo"
+        placeholder="What needs to be done?"
+        autofocus
+        #newtodo
+        (keyup.enter)="enterTodo($event, newtodo)">
   </header>
 
   <section id="main">
@@ -41,7 +42,7 @@ import {Store, Todo, TodoFactory} from './services/TodoStore';
                  (click)="completeMe(todo)"
                  [checked]="todo.completed">
 
-          <label (dblclick)="editTodo(todo)">{{todo.title}}</label>
+          <label (dblclick)="editTodo(todo)">{{ todo.title }}</label>
           <button class="destroy" (click)="deleteMe(todo)"></button>
 
         </div>
@@ -62,7 +63,6 @@ import {Store, Todo, TodoFactory} from './services/TodoStore';
 
   <footer id="footer">
     <span id="todo-count"></span>
-    <div [class.hidden]="true"></div>
     <ul id="filters">
       <li>
         <a href="#/" class="selected">All</a>
@@ -86,12 +86,12 @@ import {Store, Todo, TodoFactory} from './services/TodoStore';
 
   `
 })
-export class App {
+export class TodoApp {
   todoEdit: Todo = null;
-  constructor(public todoStore: Store, public factory: TodoFactory) {
-  }
+  constructor(public todoStore: Store, public factory: TodoFactory) {}
 
   enterTodo($event, inputElement) {
+    if (!inputElement.value) return;
     this.addTodo(inputElement.value);
     inputElement.value = '';
   }
@@ -103,6 +103,7 @@ export class App {
   doneEditing($event, todo: Todo) {
     var which = $event.which;
     var target = $event.target;
+
     if (which === 13) {
       todo.title = target.value;
       this.todoEdit = null;
@@ -110,6 +111,7 @@ export class App {
       this.todoEdit = null;
       target.value = todo.title;
     }
+
   }
 
   addTodo(newTitle: string) {
@@ -136,7 +138,6 @@ export class App {
 
 export function main() {
   return bootstrap(TodoApp, [
-    Store,
-    TodoFactory
+
   ]);
 }

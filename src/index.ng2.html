@@ -23,11 +23,12 @@
   <!-- SystemJS -->
   <script src="/lib/es6-module-loader-sans-promises.js"></script>
   <script src="/lib/system.js"></script>
-  <script src="/lib/Reflect.js"></script>
+  <!-- <script src="/lib/Reflect.js"></script> -->
   <!-- Angular2: Zone -->
-  <!-- // <script src="/lib/zone-microtask.js"></script> -->
-  <script src="/lib/angular2.min.js"></script>
-  <script src="/bundled-app.js"></script>
+  <!-- <script src="/lib/zone-microtask.js"></script> -->
+  <script src="/lib/angular2.dev.js"></script>
+  <script src="/lib/router.dev.js"></script>
+
   <!-- Angular2: Reflect -->
   <script type="text/javascript">
     window.global = window.global || window;
@@ -39,25 +40,6 @@
         "rx": "node_modules/rx/dist/rx.js"
       }
     });
-    var ngApp = (function ngApp() {
-      console.time('angular2/angular2');
-      var app = System.import('angular2/angular2').then(function() {
-      // var app = Promise.resolve(true).then(function() {
-        console.timeEnd('angular2/angular2');
-
-        console.time('app.client');
-        return System.import('app.client').then(function(module) {
-          console.timeEnd('app.client');
-          return module;
-        });
-      });
-      return function ngApp() {
-        return app.then(function(module) {
-          return module.main();
-        });
-      }
-
-    }())
   </script>
   <script src="/lib/preboot.js"></script>
 </head>
@@ -77,28 +59,23 @@
     Bootstrap Angular2 Client
   </button>
 </div>
-<div id="replaceView" style="z-index:999999999;position: absolute;margin-left: 10em;">
-  <button onclick="replaceView()">
-    ReplaceView Angular2 Client
-  </button>
-</div>
 
 <script>
-
-
-  // Angular bootstraps too fast
   'use strict';
-  window.completeBootstrap = function() { Promise.resolve(null)}
+
+  function ngApp() {
+    return System.import('app.client').then(function(module) {
+      return module.main();
+    });
+  }
+
   function bootstrap() {
     console.time('bootstrap');
     var bootstrapTime = new Date();
     ngApp()
     .then(function(defer) {
       console.timeEnd('bootstrap');
-      window.completeBootstrap = defer;
-
       preboot.done();
-      replaceView(defer);
 
       var bootstrapTimeEnd = new Date();
       var milliseconds = bootstrapTimeEnd - bootstrapTime;
@@ -109,24 +86,8 @@
         '<br>'+
         'seconds: '+ seconds+'s';
     });
-    window.replaceView = function replaceView(promise) {
-      if (typeof defer !== 'function') return;
-      console.time('createRootHostView');
-      var replaceViewTime = new Date();
-      (promise || completeBootstrap)().then(function(app) {
-        console.timeEnd('createRootHostView');
-        var replaceViewTimeEnd = new Date();
-        var milliseconds = replaceViewTimeEnd - replaceViewTime;
-        var seconds = ~~(milliseconds / 1000);
-        var $replaceView = document.getElementById('replaceView');
-        $replaceView.innerHTML = ''+
-          'milliseconds: '+milliseconds+'ms'+
-          '<br>'+
-          'seconds: '+ seconds+'s';
-        return app;
-      })
-    }
   }
+  // Angular bootstraps too fast
 
   // document.addEventListener('DOMContentLoaded', function(event) {
   //   setTimeout(function() {
@@ -136,9 +97,9 @@
   // window.addEventListener('load', function(event) {
   //   bootstrap();
   // });
-  // setTimeout(function() {
+  setTimeout(function() {
     bootstrap();
-  // }, 5000);
+  }, 0);
 
 </script>
 

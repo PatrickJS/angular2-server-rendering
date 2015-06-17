@@ -1,17 +1,30 @@
-import {Injector, bind, OpaqueToken} from 'angular2/di';
-import {NumberWrapper, Type, isBlank, isPresent, BaseException,
-    assertionsEnabled, print, stringify} from 'angular2/src/facade/lang';
-
+import {Injector, bind, OpaqueToken, Binding} from 'angular2/di';
+import {
+  NumberWrapper,
+  Type,
+  isBlank,
+  isPresent,
+  BaseException,
+  assertionsEnabled,
+  print,
+  stringify
+} from 'angular2/src/facade/lang';
 // import {BrowserDomAdapter} from 'angular2/src/dom/browser_adapter';
-
 import {DOM} from 'angular2/src/dom/dom_adapter';
-
 //
 import {Compiler, CompilerCache} from 'angular2/src/core/compiler/compiler';
 //
-
 import {Reflector, reflector} from 'angular2/src/reflection/reflection';
-import {Parser, Lexer, ChangeDetection, DynamicChangeDetection, PipeRegistry, defaultPipeRegistry} from 'angular2/change_detection';
+import {
+  Parser,
+  Lexer,
+  ChangeDetection,
+  JitChangeDetection,
+  PreGeneratedChangeDetection,
+  DynamicChangeDetection,
+  PipeRegistry,
+  defaultPipeRegistry
+} from 'angular2/change_detection';
 
 //
 import {ExceptionHandler} from 'angular2/src/core/exception_handler';
@@ -32,9 +45,11 @@ import {Promise, PromiseWrapper} from 'angular2/src/facade/async';
 import {NgZone} from 'angular2/src/core/zone/ng_zone';
 import {LifeCycle} from 'angular2/src/core/life_cycle/life_cycle';
 import {ShadowDomStrategy} from 'angular2/src/render/dom/shadow_dom/shadow_dom_strategy';
-import {EmulatedUnscopedShadowDomStrategy} from 'angular2/src/render/dom/shadow_dom/emulated_unscoped_shadow_dom_strategy';
-import {XHR} from 'angular2/src/services/xhr';
-import {XHRImpl} from 'angular2/src/services/xhr_impl';
+import {
+  EmulatedUnscopedShadowDomStrategy
+} from 'angular2/src/render/dom/shadow_dom/emulated_unscoped_shadow_dom_strategy';
+import {XHR} from 'angular2/src/render/xhr';
+import {XHRImpl} from 'angular2/src/render/xhr_impl';
 import {EventManager, DomEventsPlugin} from 'angular2/src/render/dom/events/event_manager';
 import {KeyEventsPlugin} from 'angular2/src/render/dom/events/key_events';
 import {HammerGesturesPlugin} from 'angular2/src/render/dom/events/hammer_gestures';
@@ -43,7 +58,10 @@ import {ComponentUrlMapper} from 'angular2/src/core/compiler/component_url_mappe
 import {UrlResolver} from 'angular2/src/services/url_resolver';
 import {StyleUrlResolver} from 'angular2/src/render/dom/shadow_dom/style_url_resolver';
 import {StyleInliner} from 'angular2/src/render/dom/shadow_dom/style_inliner';
-import {ComponentRef, DynamicComponentLoader} from 'angular2/src/core/compiler/dynamic_component_loader';
+import {
+  ComponentRef,
+  DynamicComponentLoader
+} from 'angular2/src/core/compiler/dynamic_component_loader';
 import {TestabilityRegistry, Testability} from 'angular2/src/core/testability/testability';
 import {AppViewPool, APP_VIEW_POOL_CAPACITY} from 'angular2/src/core/compiler/view_pool';
 import {AppViewManager} from 'angular2/src/core/compiler/view_manager';
@@ -60,22 +78,21 @@ import {ElementRef} from 'angular2/src/core/compiler/element_ref';
 // Server
 
 //
-import {
-  appComponentRefToken,
-  appComponentTypeToken
-} from 'angular2/src/core/application_tokens';
+import {appComponentRefToken, appComponentTypeToken} from 'angular2/src/core/application_tokens';
 //
-
 
 var _rootInjector: Injector;
 
 // Contains everything that is safe to share between applications.
-var _rootBindings = [
-  bind(Reflector).toValue(reflector),
-  TestabilityRegistry
-];
+var _rootBindings = [ bind(Reflector).toValue(reflector), TestabilityRegistry ];
 
-function _injectorBindings(appComponentType): List<Binding> {
+function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
+  var bestChangeDetection:Type = DynamicChangeDetection;
+  // if (PreGeneratedChangeDetection.isSupported()) {
+  //   bestChangeDetection = PreGeneratedChangeDetection;
+  // } else if (JitChangeDetection.isSupported()) {
+  //   bestChangeDetection = JitChangeDetection;
+  // }
   return [
       bind(DOCUMENT_TOKEN).toValue(DOM.defaultDoc()),
 
@@ -90,22 +107,12 @@ function _injectorBindings(appComponentType): List<Binding> {
       bind(ShadowDomStrategy).toFactory(
           (styleUrlResolver, doc) => new EmulatedUnscopedShadowDomStrategy(styleUrlResolver, doc.head),
           [StyleUrlResolver, DOCUMENT_TOKEN]),
-      // TODO(tbosch): We need an explicit factory here, as
-      // we are getting errors in dart2js with mirrors...
-      bind(DomRenderer).toFactory(
-          (eventManager, shadowDomStrategy, doc) => new DomRenderer(eventManager, shadowDomStrategy, doc),
-          [EventManager, ShadowDomStrategy, DOCUMENT_TOKEN]
-      ),
+      DomRenderer,
       DefaultDomCompiler,
       bind(Renderer).toAlias(DomRenderer),
       bind(RenderCompiler).toAlias(DefaultDomCompiler),
       ProtoViewFactory,
-      // TODO(tbosch): We need an explicit factory here, as
-      // we are getting errors in dart2js with mirrors...
-      bind(AppViewPool).toFactory(
-        (capacity) => new AppViewPool(capacity),
-        [APP_VIEW_POOL_CAPACITY]
-      ),
+      AppViewPool,
       bind(APP_VIEW_POOL_CAPACITY).toValue(10000),
       AppViewManager,
       AppViewManagerUtils,
@@ -114,7 +121,7 @@ function _injectorBindings(appComponentType): List<Binding> {
       CompilerCache,
       TemplateResolver,
       bind(PipeRegistry).toValue(defaultPipeRegistry),
-      bind(ChangeDetection).toClass(DynamicChangeDetection),
+      bind(ChangeDetection).toClass(bestChangeDetection),
       TemplateLoader,
       DirectiveResolver,
       Parser,

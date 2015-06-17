@@ -17,6 +17,8 @@ import {
   Parser,
   Lexer,
   ChangeDetection,
+  JitChangeDetection,
+  PreGeneratedChangeDetection,
   DynamicChangeDetection,
   PipeRegistry,
   defaultPipeRegistry
@@ -45,8 +47,8 @@ import {ShadowDomStrategy} from 'angular2/src/render/dom/shadow_dom/shadow_dom_s
 import {
   EmulatedUnscopedShadowDomStrategy
 } from 'angular2/src/render/dom/shadow_dom/emulated_unscoped_shadow_dom_strategy';
-import {XHR} from 'angular2/src/services/xhr';
-import {XHRImpl} from 'angular2/src/services/xhr_impl';
+import {XHR} from 'angular2/src/render/xhr';
+import {XHRImpl} from 'angular2/src/render/xhr_impl';
 import {EventManager, DomEventsPlugin} from 'angular2/src/render/dom/events/event_manager';
 import {KeyEventsPlugin} from 'angular2/src/render/dom/events/key_events';
 import {HammerGesturesPlugin} from 'angular2/src/render/dom/events/hammer_gestures';
@@ -78,6 +80,12 @@ var _rootInjector: Injector;
 var _rootBindings = [bind(Reflector).toValue(reflector), TestabilityRegistry];
 
 function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
+  var bestChangeDetection:Type = DynamicChangeDetection;
+  // if (PreGeneratedChangeDetection.isSupported()) {
+  //   bestChangeDetection = PreGeneratedChangeDetection;
+  // } else if (JitChangeDetection.isSupported()) {
+  //   bestChangeDetection = JitChangeDetection;
+  // }
   return [
     bind(DOCUMENT_TOKEN)
         .toValue(DOM.defaultDoc()),
@@ -112,7 +120,7 @@ function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
     CompilerCache,
     TemplateResolver,
     bind(PipeRegistry).toValue(defaultPipeRegistry),
-    bind(ChangeDetection).toClass(DynamicChangeDetection),
+    bind(ChangeDetection).toClass(bestChangeDetection),
     TemplateLoader,
     DirectiveResolver,
     Parser,
@@ -165,16 +173,22 @@ function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
 
 
             return function deferApp(zone) {
-              return function defer() {
+              return function defer(callback) {
                 deferBootstrapProcess.resolve(hostProtoViewRef);
                 return deferedApp.then(componentRef => {
                   var appChangeDetector = internalView(componentRef.hostView).changeDetector;
                   // retrieve life cycle: may have already been created if injected in root component
 
                   lifeCycle.registerWith(zone, appChangeDetector);
+                  callback(componentRef, appComponentType, injector, lifeCycle);
                   lifeCycle.tick();  // the first tick that will bootstrap the app
 
-                  return new ApplicationRef(componentRef, appComponentType, injector);
+                  return new ApplicationRef(
+                    componentRef,
+                    appComponentType,
+                    injector,
+                    lifeCycle
+                  );
                 });
               }
             }
@@ -364,15 +378,23 @@ export class ApplicationRef {
   _hostComponent: ComponentRef;
   _injector: Injector;
   _hostComponentType: Type;
-  constructor(hostComponent: ComponentRef, hostComponentType: Type, injector: Injector) {
+  _lifeCycle: LifeCycle;
+  constructor(
+    hostComponent: ComponentRef,
+    hostComponentType: Type,
+    injector: Injector,
+    lifeCycle: LifeCycle) {
     this._hostComponent = hostComponent;
     this._injector = injector;
     this._hostComponentType = hostComponentType;
+    this._lifeCycle = lifeCycle;
   }
 
   get hostComponentType() { return this._hostComponentType; }
 
   get hostComponent() { return this._hostComponent.instance; }
+
+  get hostLifecycle() { return this._lifeCycle; }
 
   dispose() {
     // TODO: We also need to clean up the Zone, ... here!

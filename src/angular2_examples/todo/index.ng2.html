@@ -1,6 +1,8 @@
 <!doctype html>
 <html>
+<head>
   <title>Todo Angular 2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script type="text/javascript">
     'use strict';
     window.onload = function(){
@@ -13,13 +15,13 @@
     };
   </script>
 
-  <!-- Won't be needed soon -->
+  <!-- Browser polyfills -->
   <script src="/lib/traceur-runtime.min.js"></script>
   <!-- SystemJS -->
   <script src="/lib/es6-module-loader-sans-promises.js"></script>
   <script src="/lib/system.js"></script>
   <!-- Angular2: Zone -->
-  <script src="/lib/zone-microtask.js"></script>
+  <!-- // <script src="/lib/zone-microtask.js"></script> -->
   <!-- Angular2: Reflect -->
   <script src="/lib/Reflect.js"></script>
   <script type="text/javascript">
@@ -33,51 +35,76 @@
       }
     });
   </script>
-  <link rel="stylesheet" href="/css/main.css" media="screen" title="no title" charset="utf-8">
 
+  <link rel="stylesheet" href="/css/main.css" media="screen" title="no title" charset="utf-8">
   <!-- Should be in component -->
   <link rel="stylesheet" href="/css/base.css" media="screen" title="no title" charset="utf-8">
+  <script src="/lib/angular2.min.js"></script>
 
+  <script src="/lib/preboot.js"></script>
+  <script type="text/javascript">
+    // System.import('angular2_examples/todo/index')
+    // var ngApp = (function() {
+    //   var app = System.import('angular2_examples/todo/index');
+    //   return function() {
+    //     return app.then(function(module) {
+    //       return module.main();
+    //     });
+    //   }
+    // }());
+  </script>
+</head>
 <body>
+
+
   <app>
     Loading...
   </app>
 
-
-
-  <div id="bootstrap" style="margin:5em">
+  <div id="bootstrapButton" style="margin:5em">
     <button id="bootstrap" onclick="bootstrap()">
       Bootstrap Angular2 Client
     </button>
   </div>
 
 <script>
+  'use strict';
 
   function ngApp() {
-    return System.import('angular2_examples/todo/index')
-    .then(function(module) {
-      return module.main();
-    });
+    return System.import('angular2_examples/todo/index').
+      then(function(module) {
+        return module.main();
+      });
   }
 
   function bootstrap() {
     console.time('bootstrap');
     var bootstrapTime = new Date();
-    ngApp()
-    .then(function() {
-      var bootstrapped = console.timeEnd('bootstrap');
-      var bootstrapTimeEnd = new Date();
-      var milliseconds = bootstrapTimeEnd - bootstrapTime;
-      var seconds = ~~(milliseconds / 1000);
-      var $bootstrap = document.getElementById('bootstrap');
-      $bootstrap.innerHTML = ''+
-        'milliseconds: '+milliseconds+'ms'+
-        '<br>'+
-        'seconds: '+ seconds+'s';
+    return ngApp().
+      then(function(defer) {
+        setTimeout(function() {
+          defer(function(componentRef, appComponentType, injector, lifeCycle) {
+            // debugger;
+          })
+          .then(preboot.done);
+        })
 
-    });
+        var bootstrapped = console.timeEnd('bootstrap');
+        var bootstrapTimeEnd = new Date();
+        var milliseconds = bootstrapTimeEnd - bootstrapTime;
+        var seconds = ~~(milliseconds / 1000);
+        var $bootstrap = document.getElementById('bootstrapButton');
+        $bootstrap.innerHTML = ''+
+          'milliseconds: '+milliseconds+'ms'+
+          '<br>'+
+          'seconds: '+ seconds+'s';
+        return defer;
+      });
   }
-  bootstrap();
+
+  setTimeout(function() {
+    bootstrap()
+  });
 </script>
 </body>
 </html>

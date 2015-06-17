@@ -26,7 +26,8 @@
   <script src="/lib/Reflect.js"></script>
   <!-- Angular2: Zone -->
   <!-- // <script src="/lib/zone-microtask.js"></script> -->
-  <script src="/lib/angular2.dev.js"></script>
+  <script src="/lib/angular2.min.js"></script>
+  <script src="/bundled-app.js"></script>
   <!-- Angular2: Reflect -->
   <script type="text/javascript">
     window.global = window.global || window;
@@ -57,11 +58,6 @@
       }
 
     }())
-    document.addEventListener('DOMContentLoaded', function(event) {
-      setTimeout(function() {
-        bootstrap();
-      });
-    });
   </script>
   <script src="/lib/preboot.js"></script>
 </head>
@@ -102,7 +98,7 @@
       window.completeBootstrap = defer;
 
       preboot.done();
-      replaceView();
+      replaceView(defer);
 
       var bootstrapTimeEnd = new Date();
       var milliseconds = bootstrapTimeEnd - bootstrapTime;
@@ -113,24 +109,25 @@
         '<br>'+
         'seconds: '+ seconds+'s';
     });
+    window.replaceView = function replaceView(promise) {
+      if (typeof defer !== 'function') return;
+      console.time('createRootHostView');
+      var replaceViewTime = new Date();
+      (promise || completeBootstrap)().then(function(app) {
+        console.timeEnd('createRootHostView');
+        var replaceViewTimeEnd = new Date();
+        var milliseconds = replaceViewTimeEnd - replaceViewTime;
+        var seconds = ~~(milliseconds / 1000);
+        var $replaceView = document.getElementById('replaceView');
+        $replaceView.innerHTML = ''+
+          'milliseconds: '+milliseconds+'ms'+
+          '<br>'+
+          'seconds: '+ seconds+'s';
+        return app;
+      })
+    }
   }
 
-  function replaceView() {
-    console.time('createRootHostView');
-    var replaceViewTime = new Date();
-    completeBootstrap().then(function(app) {
-      console.timeEnd('createRootHostView');
-      var replaceViewTimeEnd = new Date();
-      var milliseconds = replaceViewTimeEnd - replaceViewTime;
-      var seconds = ~~(milliseconds / 1000);
-      var $replaceView = document.getElementById('replaceView');
-      $replaceView.innerHTML = ''+
-        'milliseconds: '+milliseconds+'ms'+
-        '<br>'+
-        'seconds: '+ seconds+'s';
-      return app;
-    })
-  }
   // document.addEventListener('DOMContentLoaded', function(event) {
   //   setTimeout(function() {
   //     bootstrap();
@@ -140,8 +137,8 @@
   //   bootstrap();
   // });
   // setTimeout(function() {
-    // bootstrap();
-  // }, 0);
+    bootstrap();
+  // }, 5000);
 
 </script>
 

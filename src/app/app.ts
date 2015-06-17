@@ -4,6 +4,7 @@
 
 import {Component, View, coreDirectives} from 'angular2/angular2';
 
+
 @Component({
   selector: 'app'
 })
@@ -22,7 +23,8 @@ import {Component, View, coreDirectives} from 'angular2/angular2';
 {{ buttonTest | json }}</pre>
   </div>
   <div>
-    <input type="text" />
+    <input type="text" autofocus [value]="wat" (keyup)="log(wat)">
+    {{ wat }}
   </div>
   <div>
     <button (click)="clickingTest()">Click Test</button>
@@ -75,6 +77,9 @@ export class App {
     this.addItem();
     this.addItem();
     this.addItem();
+  }
+  log(val) {
+    console.log(val);
   }
   toggleNgIf() {
     this.toggle = !this.toggle;

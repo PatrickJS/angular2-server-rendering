@@ -82,7 +82,7 @@ module.exports = function(ROOT) {
 
     var TodoApp = require(ROOT+'/dist/angular2_examples/todo').TodoApp;
     res.render('angular2_examples/todo/index', {
-      clientOnly: true,
+      clientOnly: false,
       Component: TodoApp
     });
   });

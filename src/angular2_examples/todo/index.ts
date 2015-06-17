@@ -4,20 +4,16 @@ import {bind, Inject} from 'angular2/di';
 
 import {routerInjectables, Router} from 'angular2/router';
 
-import {NgFor, Component, View, Directive} from 'angular2/angular2';
+import {coreDirectives, Component, View, Directive} from 'angular2/angular2';
 import {Store, Todo, TodoFactory} from './services/TodoStore';
-import {reflector} from 'angular2/src/reflection/reflection';
-import {ReflectionCapabilities} from 'angular2/src/reflection/reflection_capabilities';
 
 
 @Component({
-  selector: 'todo-app',
-  appInjector: [Store, TodoFactory]
+  selector: 'todo-app'
 })
 @View({
+  directives: [ coreDirectives ],
   template: `
-<style>@import "css/base.css";</style>
-
 <section id="todoapp">
 
   <header id="header">
@@ -88,24 +84,23 @@ import {ReflectionCapabilities} from 'angular2/src/reflection/reflection_capabil
   <p>Created by <a href="http://twitter.com/angularjs">The Angular Team</a></p>
 </footer>
 
-  `,
-  directives: [NgFor]
+  `
 })
-export class TodoApp {
+export class App {
   todoEdit: Todo = null;
-  router: Router
-  constructor(public todoStore: Store, public factory: TodoFactory, @Inject(Router) router: Router) {
-    this.router = router;
+  constructor(public todoStore: Store, public factory: TodoFactory) {
   }
 
-  enterTodo($event, inputElement): void {
+  enterTodo($event, inputElement) {
     this.addTodo(inputElement.value);
     inputElement.value = '';
   }
 
-  editTodo(todo: Todo): void { this.todoEdit = todo; }
+  editTodo(todo: Todo) {
+    this.todoEdit = todo;
+  }
 
-  doneEditing($event, todo: Todo): void {
+  doneEditing($event, todo: Todo) {
     var which = $event.which;
     var target = $event.target;
     if (which === 13) {
@@ -117,24 +112,31 @@ export class TodoApp {
     }
   }
 
-  addTodo(newTitle: string): void { this.todoStore.add(this.factory.create(newTitle, false)); }
+  addTodo(newTitle: string) {
+    this.todoStore.add(this.factory.create(newTitle, false));
+  }
 
-  completeMe(todo: Todo): void { todo.completed = !todo.completed; }
+  completeMe(todo: Todo) {
+    todo.completed = !todo.completed;
+  }
 
-  deleteMe(todo: Todo): void { this.todoStore.remove(todo); }
+  deleteMe(todo: Todo) {
+    this.todoStore.remove(todo);
+  }
 
-  toggleAll($event): void {
+  toggleAll($event) {
     var isComplete = $event.target.checked;
     this.todoStore.list.forEach((todo: Todo) => { todo.completed = isComplete; });
   }
 
-  clearCompleted(): void { this.todoStore.removeBy((todo) => todo.completed); }
+  clearCompleted() {
+    this.todoStore.removeBy((todo) => todo.completed);
+  }
 }
 
 export function main() {
-  reflector.reflectionCapabilities = new ReflectionCapabilities();  // for the Dart version
-  bootstrap(TodoApp, [
-    routerInjectables
-    // bind(SERVER_RENDERED_TOKEN).toValue(true)
+  return bootstrap(TodoApp, [
+    Store,
+    TodoFactory
   ]);
 }

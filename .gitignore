@@ -30,3 +30,9 @@ node_modules
 
 dist/
 
+web_modules/angular2.dev.js
+web_modules/angular2.js
+web_modules/angular2.min.js
+web_modules/router.dev.js
+web_modules/router.dev.js.map
+

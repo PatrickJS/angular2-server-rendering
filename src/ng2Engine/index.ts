@@ -88,7 +88,6 @@ export function readNgTemplate(content, AppComponent, options) {
     return rendered;
   })
   .catch(err => {
-    debugger;
     throw err;
   });
 }

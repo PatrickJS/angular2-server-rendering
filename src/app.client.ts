@@ -17,6 +17,5 @@ export function main() {
   return angular.bootstrap(App, [
     // doesn't work with server rendering
     // bind(ShadowDomStrategy).toClass(NativeShadowDomStrategy),
-    //bind(SERVER_RENDERED_TOKEN).toValue(true)
   ]);
 }

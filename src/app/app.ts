@@ -52,7 +52,8 @@ import {Component, View, coreDirectives} from 'angular2/angular2';
 
   <p>
     Problem with default component state and stateful DOM
-    <input #testInput [value]="testingInput">
+    <br>
+    <input #testInput [value]="testingInput" (change)="log($event)">
     {{ testingInput }}
   </p>
 

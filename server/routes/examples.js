@@ -34,7 +34,6 @@ module.exports = function(ROOT) {
 
   router.route('/todo')
   .get(function(req, res) {
-    console.log('WATT')
     var TodoApp = require(ROOT+'/dist/angular2_examples/todo').TodoApp;
     res.render('angular2_examples/todo/index', {
       // clientOnly: true,

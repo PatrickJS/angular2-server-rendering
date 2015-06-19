@@ -23,7 +23,7 @@ import {Component, View, coreDirectives} from 'angular2/angular2';
 {{ buttonTest | json }}</pre>
   </div>
   <div>
-    <input type="text" autofocus [value]="wat" (keyup)="log(wat)">
+    <input type="text" autofocus [value]="wat" (keyup)="wat = $event.target.value; log(wat)">
     {{ wat }}
   </div>
   <div>

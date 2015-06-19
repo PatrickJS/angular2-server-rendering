@@ -97,13 +97,13 @@
     console.time('bootstrap');
     var bootstrapTime = new Date();
     return ngApp().then(function(defer) {
-        if (typeof defer === 'function') {
+        if (typeof defer !== 'function') {
+          preboot.done();
+        } else {
           defer(function(componentRef, appComponentType, injector, lifeCycle) {
             // debugger;
           })
           .then(preboot.done);
-        } else {
-          preboot.done();
         }
 
         var bootstrapped = console.timeEnd('bootstrap');

@@ -87,7 +87,7 @@
             // debugger;
           })
           .then(preboot.done);
-        })
+        });
 
         var bootstrapped = console.timeEnd('bootstrap');
         var bootstrapTimeEnd = new Date();
@@ -104,7 +104,7 @@
 
   setTimeout(function() {
     bootstrap()
-  });
+  }, 2000);
 </script>
 </body>
 </html>

@@ -20,6 +20,7 @@ import {Store, Todo, TodoFactory} from './services/TodoStore';
   <header id="header">
     <h1>todos</h1>
       <input
+        type="text"
         id="new-todo"
         placeholder="What needs to be done?"
         autofocus

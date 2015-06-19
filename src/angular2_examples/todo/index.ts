@@ -2,18 +2,29 @@
 import {bootstrap} from 'angular2/angular2';
 
 import {coreDirectives} from 'angular2/angular2';
-import {Component, View, Directive} from 'angular2/angular2';
+import {Component, View, Directive, ElementRef} from 'angular2/angular2';
 import {bind, Inject} from 'angular2/di';
 
 import {Store, Todo, TodoFactory} from './services/TodoStore';
 
+@Directive({
+  selector: '[autofocus]'
+})
+export class Autofocus {
+  constructor(public el: ElementRef) {
+    // autofocus fix for multiple views
+    if (this.el.domElement.focus) {
+      this.el.domElement.focus();
+    }
+  }
+}
 
 @Component({
   selector: 'app',
   appInjector: [ Store, TodoFactory ]
 })
 @View({
-  directives: [ coreDirectives ],
+  directives: [ coreDirectives, Autofocus ],
   template: `
 <section id="todoapp">
 
@@ -35,7 +46,7 @@ import {Store, Todo, TodoFactory} from './services/TodoStore';
     <ul id="todo-list">
 
       <li
-        *ng-for="#todo of todoStore.list"
+        *ng-for="var todo of todoStore.list"
         [class.editing]="todoEdit == todo"
         [class.completed]="todo.completed == true">
 
@@ -52,12 +63,13 @@ import {Store, Todo, TodoFactory} from './services/TodoStore';
 
         </div>
 
-        <div>
+        <div *ng-if="todoEdit == todo">
 
           <input class="edit"
             [class.visible]="todoEdit == todo"
             [value]="todo.title"
-            (keyup)="doneEditing($event, todo)">
+            (keyup)="doneEditing($event, todo)"
+            autofocus>
 
         </div>
 

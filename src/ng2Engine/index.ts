@@ -14,6 +14,14 @@ import {
 import {stringifyElement} from './stringifyElement';
 
 import {DOCUMENT_TOKEN, bind} from 'angular2/angular2';
+import {BrowserXHR} from 'angular2/src/http/backends/browser_xhr';
+import {
+  MockBackend,
+  XHRBackend,
+  HttpFactory,
+  BaseRequestOptions,
+  Http
+} from 'angular2/http';
 import {DOM} from 'angular2/src/dom/dom_adapter';
 import {DirectiveResolver} from 'angular2/src/core/compiler/directive_resolver';
 
@@ -22,6 +30,29 @@ import {DirectiveResolver} from 'angular2/src/core/compiler/directive_resolver';
 var serverInjector = undefined; // because js defaults
 var serverDocument = DOM.createHtmlDocument();
 var serverDirectiveResolver = new DirectiveResolver();
+
+function logging(type) {
+  return function(...args) {
+    console.log('logging ', type, ':', ...args);
+
+  }
+}
+class MockBrowserXHR {
+  abort: any;
+  send: any;
+  open: any;
+  addEventListener: any;
+  removeEventListener: any;
+  response: any;
+  responseText: string;
+  constructor() {
+    this.abort = logging('about');
+    this.send  = logging('send');
+    this.open  = logging('open');
+    this.addEventListener = logging('addEventListener');
+    this.removeEventListener = logging('removeEventListener');
+  }
+}
 
 
 export function readNgTemplate(content, AppComponent, options) {
@@ -35,6 +66,13 @@ export function readNgTemplate(content, AppComponent, options) {
   let el = DOM.createElement(selector, serverDocument);
   DOM.appendChild(serverDocument.body, el);
   // }
+  var httpInjectables: Array<any> = [
+    bind(BrowserXHR).toValue(MockBrowserXHR),
+    bind(XHRBackend).toClass(MockBackend),
+    BaseRequestOptions,
+    bind(HttpFactory).toFactory(HttpFactory, [XHRBackend, BaseRequestOptions]),
+    Http
+  ];
 
   return Promise.resolve(
     // AppRef ||
@@ -43,6 +81,7 @@ export function readNgTemplate(content, AppComponent, options) {
       serverInjector,
       [
         bind(DOCUMENT_TOKEN).toValue(serverDocument),
+        httpInjectables
         // bind(IS_SERVER_TOKEN).toValue(true), // defined in bootstrap
       ]
     )

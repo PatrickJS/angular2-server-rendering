@@ -11,7 +11,18 @@ Element.prototype.onclick = function(fn) {
   fn()
 };
 
+function logging(type) {
+  return function(...args) {
+    console.log('logging mock ', type, ':', ...args);
+
+  }
+}
 function XMLHttpRequest() {
+  this.abort = logging('about');
+  this.send  = logging('send');
+  this.open  = logging('open');
+  this.addEventListener = logging('addEventListener');
+  this.removeEventListener = logging('removeEventListener');
 }
 
 function WebSocket() {

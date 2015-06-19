@@ -53,7 +53,6 @@ import {XHRImpl} from 'angular2/src/render/xhr_impl';
 import {EventManager, DomEventsPlugin} from 'angular2/src/render/dom/events/event_manager';
 import {KeyEventsPlugin} from 'angular2/src/render/dom/events/key_events';
 import {HammerGesturesPlugin} from 'angular2/src/render/dom/events/hammer_gestures';
-import {Binding} from 'angular2/src/di/binding';
 import {ComponentUrlMapper} from 'angular2/src/core/compiler/component_url_mapper';
 import {UrlResolver} from 'angular2/src/services/url_resolver';
 import {StyleUrlResolver} from 'angular2/src/render/dom/shadow_dom/style_url_resolver';

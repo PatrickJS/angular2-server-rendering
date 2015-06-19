@@ -21,6 +21,7 @@
     "src/ng2Engine/index.ts",
     "src/ng2Engine/helper.ts",
     "src/ng2Engine/stringifyElement.ts",
+    "src/angular2_client/bootstrap-defer.ts",
     "src/angular2_client/bootstrap.client.ts",
     "src/angular2_server/bootstrap.server.ts",
     "src/angular2_server/server_patch.ts",

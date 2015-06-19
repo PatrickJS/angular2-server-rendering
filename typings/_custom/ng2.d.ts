@@ -52,6 +52,29 @@ declare var zone: any;
 declare var Zone: any;
 
 
+declare module "angular2/http" {
+  class Http {
+    private _backend;
+    private _defaultOptions;
+    constructor(_backend: any, _defaultOptions: any);
+    request(url: string, options?: any): any;
+    get(url: string, options?: any): any;
+    post(url: string, body: any, options?: any): any;
+    put(url: string, body: any, options?: any): any;
+    delete(url: string, options?: any): any;
+    patch(url: string, body: any, options?: any): any;
+    head(url: string, options?: any): any;
+  }
+  class HttpFactory {}
+  class MockBackend {}
+  class XHRBackend {}
+  class BaseRequestOptions {}
+  var httpInjectables: Array<any>;
+}
+declare module "angular2/src/http/backends/browser_xhr" {
+  class BrowserXHR {}
+}
+
 declare module "angular2/src/core/compiler/view_listener" {
   class AppViewListener {}
 }

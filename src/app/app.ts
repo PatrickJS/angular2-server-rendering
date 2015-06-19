@@ -30,13 +30,13 @@ import {Component, View, coreDirectives} from 'angular2/angular2';
     <button (click)="clickingTest()">Click Test</button>
   </div>
 
+  <div>
+    <button (click)="toggleNgIf()">Toggle NgIf</button>
+  </div>
   <div *ng-if="toggle">
     NgIf true
   </div>
 
-  <div>
-    <button (click)="toggleNgIf()">Toggle NgIf</button>
-  </div>
   <ul>
     <li *ng-for="var item of items">
       {{ item }}

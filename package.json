@@ -14,7 +14,7 @@
     "update-submodule": "git submodule update --recursive",
     "angular-submodule": "npm run update-submodule && npm run pull-angular && npm run clean-angular-typings && npm run update-angular",
     "preinstall": "exit 0 #npm run angular-submodule",
-    "postinstall": "tsc || true && ./update-ng-bundle.sh 2.0.0-alpha.27"
+    "postinstall": "tsc || true && ./update-ng-bundle.sh 2.0.0-alpha.27 v0.17.1 0.18.1 v0.1.0"
   },
   "author": "gdi2290 <github@gdi2290.com>",
   "license": "",

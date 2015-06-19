@@ -35,4 +35,10 @@ web_modules/angular2.js
 web_modules/angular2.min.js
 web_modules/router.dev.js
 web_modules/router.dev.js.map
+web_modules/system.js
+web_modules/system.js.map
+web_modules/system.src.js
 
+web_modules/Reflect.js
+
+web_modules/Reflect.js.map

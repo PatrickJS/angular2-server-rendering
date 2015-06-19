@@ -7,6 +7,8 @@ import {bind, Inject} from 'angular2/di';
 
 import {Store, Todo, TodoFactory} from './services/TodoStore';
 
+import {httpInjectables} from 'angular2/http';
+
 @Directive({
   selector: '[autofocus]'
 })
@@ -179,5 +181,6 @@ export class TodoApp {
 
 export function main() {
   return bootstrap(TodoApp, [
+    httpInjectables
   ]);
 }

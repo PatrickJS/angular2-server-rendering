@@ -1,6 +1,6 @@
 import {Injectable} from 'angular2/angular2';
+import {Http} from 'angular2/http';
 import {ListWrapper} from 'angular2/src/facade/collection';
-
 // base model for RecordStore
 export class KeyModel {
   constructor(public key: number) {}
@@ -24,21 +24,45 @@ export class TodoFactory {
 // Store manages any generic item that inherits from KeyModel
 @Injectable()
 export class Store {
-  list: List<KeyModel> = [];
+  constructor(private http: Http) {
 
-  add(record: KeyModel): void { ListWrapper.push(this.list, record); }
+    var todosObs = this.http.get('/api/todos').
+      filter(res => res.status >= 200 && res.status < 300).
+      map(res => res.json());
+
+    todosObs.subscribe(
+      value =>    console.log('next', value),
+      err => {
+        debugger
+        console.error('err', err);
+        throw err;
+      },
+      complete => {
+        debugger
+        console.log('complete', complete)
+      }
+    );
+
+  }
+  list: Array<KeyModel> = [];
+
+  add(record: KeyModel): void { this.list.push(record); }
 
   remove(record: KeyModel): void { this._spliceOut(record); }
 
-  removeBy(callback: Function): void {
-    var records = ListWrapper.filter(this.list, callback);
-    ListWrapper.removeAll(this.list, records);
+  removeBy(callback: any): void {
+    var records = this.list.filter(callback);
+
+    for (let i = 0; i < records.length; ++i) {
+      let index = this.list.indexOf(records[i]);
+      this.list.splice(index, 1);
+    }
   }
 
   private _spliceOut(record: KeyModel) {
     var i = this._indexFor(record);
     if (i > -1) {
-      return ListWrapper.splice(this.list, i, 1)[0];
+      return this.list.splice(i, 1)[0];
     }
     return null;
   }

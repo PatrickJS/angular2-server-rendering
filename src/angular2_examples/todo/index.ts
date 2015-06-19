@@ -14,7 +14,7 @@ export class Autofocus {
   constructor(public el: ElementRef) {
     // autofocus fix for multiple views
     if (this.el.domElement.focus) {
-      this.el.domElement.focus();
+      // setTimeout(_ => this.el.domElement.focus());
     }
   }
 }
@@ -166,6 +166,5 @@ export class TodoApp {
 
 export function main() {
   return bootstrap(TodoApp, [
-
   ]);
 }

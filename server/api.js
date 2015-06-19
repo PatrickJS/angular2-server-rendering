@@ -2,11 +2,15 @@ var express = require('express');
 
 module.exports = function(ROOT) {
   var router = express.Router();
-  router.route('/todos/:todo_id')
+  router.route('/todos')
     .get(function(req, res) {
       console.log('GET');
-      res.json(null);
+      res.json({
+        title: 'testing',
+        completed: false
+      });
     })
+  router.route('/todos/:todo_id')
     .post(function(req, res) {
       console.log('POST');
       res.json(null);

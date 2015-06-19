@@ -78,7 +78,7 @@ export class Autofocus {
 
   </section>
 
-  <footer id="footer" [hidden]="todoStore.list.length == 0">
+  <footer id="footer" *ng-if="todoStore.list.length">
     <span id="todo-count">
       <strong>{{ remainingCount() }}</strong>
       {{ pluralize(remainingCount(), 'item') }} left

@@ -15,8 +15,6 @@ module.exports = function(ROOT) {
   app.set('view engine', 'ng2.html');
   app.set('view options', { doctype: 'html' });
 
-  app.use(serveStatic(ROOT + '/dist'));
-  app.use(serveStatic(ROOT + '/public'));
 
   var angular2_dist = require('./routes/angular2_dist')(ROOT);
   var web_modules = require('./routes/web_modules')(ROOT);
@@ -26,10 +24,13 @@ module.exports = function(ROOT) {
   var api = require('./api')(ROOT);
 
 
-  app.use('/angular2_examples', examples);
+  app.use(serveStatic(ROOT + '/dist'));
+  app.use(serveStatic(ROOT + '/public'));
+
   app.use('/angular2/dist', angular2_dist);
   app.use('/lib', web_modules);
   app.use('/api', api);
+  app.use(examples);
   app.use(dev_source_maps);
   app.use(spa);
 

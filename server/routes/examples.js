@@ -5,7 +5,7 @@ module.exports = function(ROOT) {
   var router = express.Router();
 
   // Example repos
-  router.route('/hello_world')
+  router.route('/angular2_examples/hello_world')
   .get(function(req, res) {
     var HelloCmp = require(ROOT+'/dist/angular2_examples/hello_world/index_common').HelloCmp;
 
@@ -14,7 +14,7 @@ module.exports = function(ROOT) {
     });
   });
 
-  router.route('/key_events')
+  router.route('/angular2_examples/key_events')
   .get(function(req, res) {
     var KeyEventsApp = require(ROOT+'/dist/angular2_examples/key_events').KeyEventsApp;
 
@@ -23,7 +23,7 @@ module.exports = function(ROOT) {
     });
   });
 
-  router.route('/forms')
+  router.route('/angular2_examples/forms')
   .get(function(req, res) {
     var SurveyBuilder = require(ROOT+'/dist/angular2_examples/forms').SurveyBuilder;
 
@@ -32,7 +32,7 @@ module.exports = function(ROOT) {
     });
   });
 
-  router.route('/todo')
+  router.route('/angular2_examples/todo')
   .get(function(req, res) {
     var TodoApp = require(ROOT+'/dist/angular2_examples/todo').TodoApp;
     res.render('angular2_examples/todo/index', {
@@ -40,7 +40,7 @@ module.exports = function(ROOT) {
       Component: TodoApp
     });
   });
-  router.route('/largetable')
+  router.route('/angular2_examples/largetable')
   .get(function(req, res) {
 
     var AppComponent = require(ROOT+'/dist/angular2_examples/largetable/largetable').AppComponent;

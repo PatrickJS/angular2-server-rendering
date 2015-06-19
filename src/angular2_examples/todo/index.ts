@@ -34,12 +34,16 @@ import {Store, Todo, TodoFactory} from './services/TodoStore';
 
     <ul id="todo-list">
 
-      <li *ng-for="#todo of todoStore.list">
+      <li
+        *ng-for="#todo of todoStore.list"
+        [class.editing]="todoEdit == todo"
+        [class.completed]="todo.completed == true">
 
         <div class="view"
             [class.hidden]="todoEdit == todo">
 
-          <input class="toggle" type="checkbox"
+          <input class="toggle"
+                 type="checkbox"
                  (click)="completeMe(todo)"
                  [checked]="todo.completed">
 
@@ -62,8 +66,11 @@ import {Store, Todo, TodoFactory} from './services/TodoStore';
 
   </section>
 
-  <footer id="footer">
-    <span id="todo-count"></span>
+  <footer id="footer" [hidden]="todoStore.list.length == 0">
+    <span id="todo-count">
+      <strong>{{ remainingCount() }}</strong>
+      {{ pluralize(remainingCount(), 'item') }} left
+    </span>
     <ul id="filters">
       <li>
         <a href="#/" class="selected">All</a>
@@ -129,11 +136,19 @@ export class TodoApp {
 
   toggleAll($event) {
     var isComplete = $event.target.checked;
-    this.todoStore.list.forEach((todo: Todo) => { todo.completed = isComplete; });
+    this.todoStore.list.forEach((todo: Todo) => todo.completed = isComplete);
   }
 
   clearCompleted() {
-    this.todoStore.removeBy((todo) => todo.completed);
+    this.todoStore.removeBy(todo => todo.completed);
+  }
+
+  pluralize(count, word) {
+    return word + (count === 1 ? '' : 's');
+  }
+
+  remainingCount() {
+    return this.todoStore.list.filter((todo: Todo) => !todo.completed).length;
   }
 }
 

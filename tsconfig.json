@@ -18,7 +18,6 @@
     "typings/_custom/ng2.d.ts",
     "src/app/app.ts",
     "src/app.client.ts",
-    "src/app.server.ts",
     "src/ng2Engine/index.ts",
     "src/ng2Engine/helper.ts",
     "src/ng2Engine/stringifyElement.ts",

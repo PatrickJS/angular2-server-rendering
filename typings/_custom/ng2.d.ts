@@ -51,6 +51,11 @@ interface _DirectiveArg {
 declare var zone: any;
 declare var Zone: any;
 
+
+declare module "angular2/src/core/compiler/view_listener" {
+  class AppViewListener {}
+}
+
 declare module "angular2/src/render/dom/compiler/template_loader" {
  class TemplateLoader {
 
@@ -61,6 +66,10 @@ declare module "angular2/src/core/compiler/template_resolver" {
   class TemplateResolver {
 
   }
+}
+
+declare module "angular2/src/render/xhr_impl" {
+  class XHRImpl {}
 }
 
 declare module "angular2/src/services/xhr_impl" {
@@ -275,6 +284,12 @@ declare module "angular2/change_detection" {
   class PipeRegistry {
 
   }
+  class PreGeneratedChangeDetection {
+
+  }
+  class JitChangeDetection {
+
+  }
   var defaultPipeRegistry: any;
 }
 
@@ -296,7 +311,7 @@ declare module "angular2/src/core/exception_handler" {
   }
 }
 
-declare module "angular2/src/services/xhr" {
+declare module "angular2/src/render/xhr" {
   class XHR {
 
   }
@@ -782,7 +797,9 @@ declare module "angular2/di" {
   class Optional {
 
   }
-  var Binding: any;
+  class Binding {
+
+  }
   var ResolvedBinding: any;
   var Key: any;
   var KeyRegistry: any;

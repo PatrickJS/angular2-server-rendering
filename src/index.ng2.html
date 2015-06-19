@@ -3,6 +3,7 @@
 <head>
   <title>Angular 2 + TypeScript + Isomorphic + Server</title>
   <meta charset="UTF-8">
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 
   <link rel="stylesheet" type="text/css" href="/css/preboot.css">
 
@@ -21,7 +22,6 @@
   <!-- Needed for ES6 polyfills -->
   <script src="/lib/traceur-runtime.min.js"></script>
   <!-- SystemJS -->
-  <script src="/lib/es6-module-loader-sans-promises.js"></script>
   <script src="/lib/system.js"></script>
   <!-- <script src="/lib/Reflect.js"></script> -->
   <!-- Angular2: Zone -->
@@ -31,13 +31,21 @@
 
   <!-- Angular2: Reflect -->
   <script type="text/javascript">
+    'use strict';
     window.global = window.global || window;
     System.baseURL = '/';
+    System.defaultJSExtensions = true;
     System.config({
-      "paths": {
+      "map": {
         "*": "*.js",
-        "angular2/*": "node_modules/angular2/*.js",
-        "rx": "node_modules/rx/dist/rx.js"
+        "angular2": "node_modules/angular2",
+        "rx": "node_modules/rx/dist/rx"
+      },
+      'meta': {
+        // auto-detection fails to detect properly
+        "rx": {
+          "format": "cjs" //https://github.com/systemjs/builder/issues/123
+        }
       }
     });
   </script>

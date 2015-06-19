@@ -14,7 +14,7 @@ export class Autofocus {
   constructor(public el: ElementRef) {
     // autofocus fix for multiple views
     if (this.el.domElement.focus) {
-      // setTimeout(_ => this.el.domElement.focus());
+      setTimeout(_ => this.el.domElement.focus());
     }
   }
 }
@@ -85,13 +85,25 @@ export class Autofocus {
     </span>
     <ul id="filters">
       <li>
-        <a href="#/" class="selected">All</a>
+        <a href="#/"
+          [class.selected]="selected === 0"
+          (click)="selected = 0">
+          All
+        </a>
       </li>
       <li>
-        <a href="#/active">Active</a>
+        <a href="#/active"
+          [class.selected]="selected === 1"
+          (click)="selected = 1">
+          Active
+        </a>
       </li>
       <li>
-        <a href="#/completed">Completed</a>
+        <a href="#/completed"
+          [class.selected]="selected === 2"
+          (click)="selected = 2">
+          Completed
+        </a>
       </li>
     </ul>
     <button id="clear-completed" (click)="clearCompleted()">Clear completed</button>
@@ -108,6 +120,7 @@ export class Autofocus {
 })
 export class TodoApp {
   todoEdit: Todo = null;
+  selected: number = 0;
   constructor(public todoStore: Store, public factory: TodoFactory) {}
 
   enterTodo($event, inputElement) {

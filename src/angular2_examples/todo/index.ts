@@ -1,5 +1,5 @@
-import {bootstrap} from '../../angular2_client/bootstrap-defer';
-// import {bootstrap} from 'angular2/angular2';
+// import {bootstrap} from '../../angular2_client/bootstrap-defer';
+import {bootstrap} from 'angular2/angular2';
 
 import {coreDirectives} from 'angular2/angular2';
 import {Component, View, Directive} from 'angular2/angular2';

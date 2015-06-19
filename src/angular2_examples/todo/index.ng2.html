@@ -3,6 +3,7 @@
 <head>
   <title>Todo Angular 2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <script type="text/javascript">
     'use strict';
     window.onload = function(){
@@ -15,44 +16,12 @@
     };
   </script>
 
-  <!-- Browser polyfills -->
-  <script src="/lib/traceur-runtime.min.js"></script>
-  <!-- SystemJS -->
-  <script src="/lib/es6-module-loader-sans-promises.js"></script>
-  <script src="/lib/system.js"></script>
-  <!-- Angular2: Zone -->
-  <!-- // <script src="/lib/zone-microtask.js"></script> -->
-  <!-- Angular2: Reflect -->
-  <!--  <script src="/lib/Reflect.js"></script> -->
-  <script type="text/javascript">
-    window.global = window.global || window;
-    System.baseURL = '/';
-    System.config({
-      "paths": {
-        "*": "*.js",
-        "angular2/*": "node_modules/angular2/*.js",
-        "rx": "node_modules/rx/dist/rx.js"
-      }
-    });
-  </script>
-
   <link rel="stylesheet" href="/css/main.css" media="screen" title="no title" charset="utf-8">
   <!-- Should be in component -->
   <link rel="stylesheet" href="/css/base.css" media="screen" title="no title" charset="utf-8">
-  <script src="/lib/angular2.dev.js"></script>
+
 
   <script src="/lib/preboot.js"></script>
-  <script type="text/javascript">
-    // System.import('angular2_examples/todo/index')
-    // var ngApp = (function() {
-    //   var app = System.import('angular2_examples/todo/index');
-    //   return function() {
-    //     return app.then(function(module) {
-    //       return module.main();
-    //     });
-    //   }
-    // }());
-  </script>
 </head>
 <body>
 
@@ -61,15 +30,61 @@
     Loading...
   </app>
 
+
+
+
   <div id="bootstrapButton" style="margin:5em">
     <button id="bootstrap" onclick="bootstrap()">
       Bootstrap Angular2 Client
     </button>
   </div>
 
+  <!-- Browser polyfills -->
+  <script src="/lib/traceur-runtime.min.js"></script>
+  <!-- SystemJS -->
+  <!-- // <script src="/lib/es6-module-loader.js"></script> -->
+  <script src="/lib/system.js"></script>
+  <!-- Angular2: Zone -->
+  <!-- // <script src="/lib/zone-microtask.js"></script> -->
+  <!-- Angular2: Reflect -->
+  <!--  <script src="/lib/Reflect.js"></script> -->
+  <script type="text/javascript">
+    'use strict';
+    window.global = window.global || window;
+    System.baseURL = '/';
+    System.defaultJSExtensions = true;
+    System.config({
+      "map": {
+        "*": "*.js",
+        "angular2": "node_modules/angular2",
+        "rx": "node_modules/rx/dist/rx.js"
+      },
+      'meta': {
+        // auto-detection fails to detect properly
+        "rx": {
+          "format": "cjs" //https://github.com/systemjs/builder/issues/123
+        }
+      }
+    });
+  </script>
+  <script src="/lib/angular2.min.js"></script>
+  <!--
+  <script type="text/javascript">
+    'use strict';
+    var ngApp = (function() {
+      var app = System.import('angular2_examples/todo/index');
+      return function() {
+        return app.then(function(module) {
+          return module.main();
+        });
+      }
+    }());
+  </script>
+   -->
+
+
 <script>
   'use strict';
-
   function ngApp() {
     return System.import('angular2_examples/todo/index').
       then(function(module) {
@@ -80,14 +95,15 @@
   function bootstrap() {
     console.time('bootstrap');
     var bootstrapTime = new Date();
-    return ngApp().
-      then(function(defer) {
-        setTimeout(function() {
+    return ngApp().then(function(defer) {
+        if (typeof defer === 'function') {
           defer(function(componentRef, appComponentType, injector, lifeCycle) {
             // debugger;
           })
           .then(preboot.done);
-        });
+        } else {
+          preboot.done();
+        }
 
         var bootstrapped = console.timeEnd('bootstrap');
         var bootstrapTimeEnd = new Date();
@@ -103,7 +119,7 @@
   }
 
   setTimeout(function() {
-    bootstrap()
+    bootstrap();
   }, 2000);
 </script>
 </body>

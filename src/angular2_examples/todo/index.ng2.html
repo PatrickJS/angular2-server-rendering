@@ -4,25 +4,14 @@
   <title>Todo Angular 2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-  <link rel="stylesheet" type="text/css" href="/css/preboot.css">
-  <script src="/lib/preboot.js"></script>
-  <script type="text/javascript">
-    'use strict';
-    window.onload = function(){
-      setTimeout(function(){
-        var t = window.performance.timing;
-        console.log('Network latency', t.responseEnd - t.fetchStart);
-        console.log('Server to Client load: ', t.loadEventEnd - t.responseEnd);
-        console.log('Navigation to Client load:', t.loadEventEnd - t.navigationStart);
-      }, 0);
-    };
-  </script>
 
   <link rel="stylesheet" href="/css/main.css" media="screen" title="no title" charset="utf-8">
   <!-- Should be in component -->
   <link rel="stylesheet" href="/css/base.css" media="screen" title="no title" charset="utf-8">
 
 
+  <link rel="stylesheet" type="text/css" href="/css/preboot.css">
+  <script src="/lib/preboot.js"></script>
 </head>
 <body>
 
@@ -45,6 +34,10 @@
     </footer>
 
   </app>
+
+  <script type="text/javascript">
+    preboot.start();
+  </script>
 
 
 
@@ -153,9 +146,9 @@
       });
   }
 
-  // setTimeout(function() {
-    // bootstrap();
-  // }, 5000);
+  setTimeout(function() {
+    bootstrap();
+  }, 5000);
 </script>
 </body>
 </html>

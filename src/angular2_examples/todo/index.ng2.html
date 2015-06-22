@@ -4,6 +4,8 @@
   <title>Todo Angular 2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <link rel="stylesheet" type="text/css" href="/css/preboot.css">
+  <script src="/lib/preboot.js"></script>
   <script type="text/javascript">
     'use strict';
     window.onload = function(){
@@ -21,11 +23,8 @@
   <link rel="stylesheet" href="/css/base.css" media="screen" title="no title" charset="utf-8">
 
 
-  <link rel="stylesheet" type="text/css" href="/css/preboot.css">
-  <script src="/lib/preboot.js"></script>
 </head>
 <body>
-
 
   <app>
     <section id="todoapp">
@@ -83,9 +82,9 @@
   <script type="text/javascript">
     'use strict';
     window.global = window.global || window;
-    System.baseURL = '/';
-    System.defaultJSExtensions = true;
     System.config({
+      "baseURL": "/",
+      "defaultJSExtensions": true,
       "map": {
         "*": "*.js",
         "angular2": "node_modules/angular2",
@@ -152,8 +151,8 @@
   }
 
   // setTimeout(function() {
-    bootstrap();
-  // }, 2000);
+    // bootstrap();
+  // }, 5000);
 </script>
 </body>
 </html>

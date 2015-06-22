@@ -27,18 +27,16 @@ export class Store {
   constructor(private http: Http) {
 
     var todosObs = this.http.get('/api/todos').
-      filter(res => res.status >= 200 && res.status < 300).
       map(res => res.json());
+      // filter(res => res.status >= 200 && res.status < 300).
 
     todosObs.subscribe(
       value =>    console.log('next', value),
       err => {
-        debugger
         console.error('err', err);
         throw err;
       },
       complete => {
-        debugger
         console.log('complete', complete)
       }
     );

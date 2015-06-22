@@ -36,7 +36,6 @@ module.exports = function(ROOT) {
   app.use(spa);
 
 
-
   app.use(morgan('dev'));
   app.get('*', function(req, res) {
     res.json({

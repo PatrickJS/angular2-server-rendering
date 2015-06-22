@@ -5,7 +5,17 @@ module.exports = function(ROOT) {
   var router = express.Router();
 
   // Example repos
-  router.route('/angular2_examples/hello_world')
+
+  router.route('/angular2_examples/todo')
+  .get(function(req, res) {
+    var TodoApp = require(ROOT+'/dist/angular2_examples/todo').TodoApp;
+    res.render('angular2_examples/todo/index', {
+      // clientOnly: true,
+      Component: TodoApp
+    });
+  });
+
+/*  router.route('/angular2_examples/hello_world')
   .get(function(req, res) {
     var HelloCmp = require(ROOT+'/dist/angular2_examples/hello_world/index_common').HelloCmp;
 
@@ -30,17 +40,10 @@ module.exports = function(ROOT) {
     res.render('angular2_examples/forms/index', {
       Component: SurveyBuilder
     });
-  });
+  });*/
 
-  router.route('/angular2_examples/todo')
-  .get(function(req, res) {
-    var TodoApp = require(ROOT+'/dist/angular2_examples/todo').TodoApp;
-    res.render('angular2_examples/todo/index', {
-      // clientOnly: true,
-      Component: TodoApp
-    });
-  });
-  router.route('/angular2_examples/largetable')
+
+/*  router.route('/angular2_examples/largetable')
   .get(function(req, res) {
 
     var AppComponent = require(ROOT+'/dist/angular2_examples/largetable/largetable').AppComponent;
@@ -49,6 +52,6 @@ module.exports = function(ROOT) {
       Component: AppComponent
     });
   });
-
+*/
   return router;
 }

@@ -28,17 +28,48 @@
 
 
   <app>
-    Loading...
+    <section id="todoapp">
+      <h1>Loading...</h1>
+      <header id="header">
+        <!--
+        <input id="new-todo" placeholder="Loading..." autofocus>
+         -->
+      </header>
+      <section id="main">
+        <ul id="todo-list" class="no_selection"></ul>
+      </section>
+    </section>
+
+    <footer id="info">
+      <p>Double-click to edit a todo</p>
+      <p>Created by <a href="http://gdi2290.com">PatrickJS</a></p>
+    </footer>
+
   </app>
 
 
 
 
-  <div id="bootstrapButton" style="margin:5em">
-    <button id="bootstrap" onclick="bootstrap()">
-      Bootstrap Angular2 Client
-    </button>
-  </div>
+<div id="bootstrapButton" style="margin:5em">
+  <h1>Rendered</h1>
+  <ul>
+    <li>
+      <h1>✔ Server</h1>
+    </li>
+    <li>
+      <h1>✔ Client</h1>
+    </li>
+  </ul>
+  <h1>Application</h1>
+  <ul>
+    <li>
+      <h1>✔ Server</h1>
+    </li>
+    <li>
+      <h1>✔ Client</h1>
+    </li>
+  </ul>
+</div>
 
   <!-- Browser polyfills -->
   <script src="/lib/traceur-runtime.min.js"></script>
@@ -115,16 +146,17 @@
         var seconds = ~~(milliseconds / 1000);
         var $bootstrap = document.getElementById('bootstrapButton');
         $bootstrap.innerHTML = ''+
-          'milliseconds: '+milliseconds+'ms'+
-          '<br>'+
-          'seconds: '+ seconds+'s';
+          // 'milliseconds: '+milliseconds+'ms'+
+          // '<br>'+
+          // 'seconds: '+ seconds+'s'+
+        '<h1>Client Rendered</h1>';
         return defer;
       });
   }
 
-  setTimeout(function() {
+  // setTimeout(function() {
     bootstrap();
-  }, 2000);
+  // }, 2000);
 </script>
 </body>
 </html>

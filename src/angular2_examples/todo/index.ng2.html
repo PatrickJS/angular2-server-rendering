@@ -12,6 +12,13 @@
 
   <link rel="stylesheet" type="text/css" href="/css/preboot.css">
   <script src="/lib/preboot.js"></script>
+  <style type="text/css">
+    #bootstrapButton ul {
+        list-style-type: none;
+        padding: 0px;
+        margin: 0px;
+    }
+  </style>
 </head>
 <body>
 
@@ -29,7 +36,6 @@
     </section>
 
     <footer id="info">
-      <p>Double-click to edit a todo</p>
       <p>Created by <a href="http://gdi2290.com">PatrickJS</a></p>
     </footer>
 
@@ -46,19 +52,19 @@
   <h1>Rendered</h1>
   <ul>
     <li>
-      <h1>✔ Server</h1>
+      <h1 style="color:green">✔ Server</h1>
     </li>
     <li>
-      <h1>✔ Client</h1>
+      <h1 style="color:red">✘ Client</h1>
     </li>
   </ul>
   <h1>Application</h1>
   <ul>
     <li>
-      <h1>✔ Server</h1>
+      <h1 style="color:green">✔ Server</h1>
     </li>
     <li>
-      <h1>✔ Client</h1>
+      <h1 style="color:red">✘ Client</h1>
     </li>
   </ul>
 </div>
@@ -92,60 +98,45 @@
     });
   </script>
   <script src="/lib/angular2.min.js"></script>
-  <!--
-  <script type="text/javascript">
-    'use strict';
-    var ngApp = (function() {
-      var app = System.import('angular2_examples/todo/index');
-      return function() {
-        return app.then(function(module) {
-          return module.main();
-        });
-      }
-    }());
-  </script>
-   -->
 
 
 <script>
   'use strict';
-  function ngApp() {
+
+  function bootstrap() {
     return System.import('angular2_examples/todo/index').
       then(function(module) {
         return module.main();
-      });
-  }
-
-  function bootstrap() {
-    console.time('bootstrap');
-    var bootstrapTime = new Date();
-    return ngApp().then(function(defer) {
-        if (typeof defer !== 'function') {
-          preboot.done();
-        } else {
-          defer(function(componentRef, appComponentType, injector, lifeCycle) {
-            // debugger;
-          })
-          .then(preboot.done);
-        }
-
-        var bootstrapped = console.timeEnd('bootstrap');
-        var bootstrapTimeEnd = new Date();
-        var milliseconds = bootstrapTimeEnd - bootstrapTime;
-        var seconds = ~~(milliseconds / 1000);
+      }).
+      then(function() {
+        preboot.done();
         var $bootstrap = document.getElementById('bootstrapButton');
         $bootstrap.innerHTML = ''+
-          // 'milliseconds: '+milliseconds+'ms'+
-          // '<br>'+
-          // 'seconds: '+ seconds+'s'+
-        '<h1>Client Rendered</h1>';
-        return defer;
+          '<h1>Rendered</h1>'+
+          '<ul>'+
+            '<li>'+
+              '<h1 style="color:green">✔ Server</h1>'+
+            '</li>'+
+            '<li>'+
+              '<h1 style="color:green">✔ Client</h1>'+
+            '</li>'+
+          '</ul>'+
+          '<h1>Application</h1>'+
+          '<ul>'+
+            '<li>'+
+              '<h1 style="color:green">✔ Server</h1>'+
+            '</li>'+
+            '<li>'+
+              '<h1 style="color:green">✔ Client</h1>'+
+            '</li>'+
+          '</ul>'+
+        '';
       });
   }
 
-  setTimeout(function() {
+  // setTimeout(function() {
     bootstrap();
-  }, 5000);
+  // }, 5000);
 </script>
 </body>
 </html>

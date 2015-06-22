@@ -114,7 +114,6 @@ export class Autofocus {
 </section>
 
 <footer id="info">
-  <p>Double-click to edit a todo</p>
   <p>Created by <a href="http://gdi2290.com">PatrickJS</a></p>
 </footer>
 

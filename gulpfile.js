@@ -9,7 +9,7 @@ gulp.task('preboot', function () {
     focus:       true,          // maintain focus after re-rendering
     buffer:      true,          // client app will write to hidden div until bootstrap complete
     keyPress:    true,          // all keystrokes in text elements recorded
-    uglify:      true,
+    //uglify:      true,
     buttonPress: true           // when button pressed, record and freeze page
   })
     .pipe(gulp.dest('web_modules'));

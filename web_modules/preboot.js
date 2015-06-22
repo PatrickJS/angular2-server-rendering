@@ -1,1 +1,877 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var t;t="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,t.preboot=e()}}(function(){return function e(t,n,o){function r(s,a){if(!n[s]){if(!t[s]){var l="function"==typeof require&&require;if(!a&&l)return l(s,!0);if(i)return i(s,!0);var u=new Error("Cannot find module '"+s+"'");throw u.code="MODULE_NOT_FOUND",u}var d=n[s]={exports:{}};t[s][0].call(d.exports,function(e){var n=t[s][1][e];return r(n?n:e)},d,d.exports,e,t,n,o)}return n[s].exports}for(var i="function"==typeof require&&require,s=0;s<o.length;s++)r(o[s]);return r}({"./freeze/freeze_with_spinner.js":[function(e,t,n){function o(e){var t=e.freezeStyles||{},n=t.overlay||{},o=t.spinner||{};s.overlay=i.addNodeToBody("div",n.className,n.style),s.spinner=i.addNodeToBody("div",o.className,o.style),i.on(e.freezeEvent,function(e){s.spinner.top=e.target.offsetTop,s.spinner.left=e.target.offsetLeft,s.overlay.style.display="block",s.spinner.style.display="block",setTimeout(function(){s.overlay&&(s.overlay.style.display="none"),s.spinner&&(s.spinner.style.display="none")},4e3)})}function r(){i.removeNode(s.overlay),i.removeNode(s.spinner),s.overlay=null,s.spinner=null}var i=e("../dom"),s={overlay:null,spinner:null};t.exports={state:s,prep:o,cleanup:r}},{"../dom":2}],"./listen/listen_by_selectors.js":[function(e,t,n){function o(e){var t,n,o,i,s,a,l,u=[],d=e.eventsBySelector||{},p=Object.keys(d);for(t=0;t<p.length;t++)if(n=p[t],l=d[n],i=r.getAllAppNodes(n))for(s=0;s<i.length;s++)for(o=i[s],a=0;a<l.length;a++)u.push({node:o,eventName:l[a]});return u}var r=e("../dom");t.exports={getNodeEvents:o}},{"../dom":2}],"./replay/replay_after_rerender.js":[function(e,t,n){function o(e,t,n){var o,i,s,a,l,u=[];for(e=e||[],o=0;o<e.length;o++)i=e[o],l=i.event,s=i.node,a=r.findClientNode(s),a?(a.value=s.value,a.dispatchEvent(l),n(3,s,a,l)):(n(4,s),u.push(i));return u}var r=e("../dom");t.exports={replayEvents:o}},{"../dom":2}],1:[function(e,t,n){function o(){var e=i.state.appRoot,t=e.cloneNode(!1);t.style.display="none",e.parentNode.insertBefore(t,e),i.updateRoots(e,e,t)}function r(){var e=i.state.clientRoot||i.state.appRoot,t=i.state.serverRoot||i.state.appRoot;s.switched||(t!==e&&"BODY"!==t.nodeName&&(t.remove?t.remove():t.style.display="none"),e.style.display="block",i.updateRoots(e,null,e),s.switched=!0)}var i=e("../dom"),s={switched:!1};t.exports={state:s,prep:o,switchBuffer:r}},{"../dom":2}],2:[function(e,t,n){function o(e){h.window=e.window||h.window||{},h.document=e.document||h.window.document||{},h.body=e.body||h.document.body,h.appRoot=e.appRoot||h.body,h.serverRoot=h.clientRoot=h.appRoot}function r(e,t,n){h.appRoot=e,h.serverRoot=t,h.clientRoot=n}function i(e){return h.document.querySelector(e)}function s(e){return h.appRoot.querySelector(e)}function a(e){return h.appRoot.querySelectorAll(e)}function l(e){return h.clientRoot.querySelectorAll(e)}function u(e){h.window.addEventListener("load",e)}function d(e,t){h.document.addEventListener(e,t)}function p(e){h.document.dispatchEvent(new h.window.Event(e))}function f(e,t){e.dispatchEvent(new h.window.Event(t))}function c(e){return h.appRoot.contains(e)}function v(e,t,n){var o=h.document.createElement(e);if(o.className=t,n)for(var r in n)n.hasOwnProperty(r)&&(o.style[r]=n[r]);return h.body.appendChild(o)}function y(e){e.remove?e.remove():e.style.display="none"}function m(e,t){for(var n=[],o=e;o&&o!==t;)n.push(o),o=o.parentNode;o&&n.push(o);var r,i,s=e.nodeName,a=n.length;for(r=a-1;r>=0;r--)if(o=n[r],o.childNodes&&r>0)for(i=0;i<o.childNodes.length;i++)if(o.childNodes[i]===n[r-1]){s+="_s"+(i+1);break}return s}function g(e){if(!e)return null;for(var t=m(e,h.serverRoot),n=N[t]||[],o=0;o<n.length;o++)if(n[o].serverNode===e)return n[o].clientNode;var r=e.tagName,i=(e.className||"").replace("ng-binding","").trim();e.id?r+="#"+e.id:i&&(r+="."+i.replace(/ /g,"."));var s=l(r);for(o=0;s&&o<s.length;o++){var a=s[o];if(m(a,h.clientRoot)===t)return N[t]=N[t]||[],N[t].push({clientNode:a,serverNode:e}),a}return null}var h={},N={};t.exports={state:h,nodeCache:N,init:o,updateRoots:r,getDocumentNode:i,getAppNode:s,getAllAppNodes:a,getClientNodes:l,onLoad:u,on:d,dispatchGlobalEvent:p,dispatchNodeEvent:f,appContains:c,addNodeToBody:v,removeNode:y,getNodeKey:m,findClientNode:g}},{}],3:[function(e,t,n){function o(e,t,n){return function(o){u.listening&&(e.preventDefault&&o.preventDefault(),e.dispatchEvent&&l.dispatchGlobalEvent(e.dispatchEvent),e.action&&e.action(t,o,l),e.trackFocus&&(u.activeNode="focusin"===o.type?o.target:null),"keyup"===n&&13===o.which&&t.attributes["(keyup.enter)"]&&l.dispatchGlobalEvent("PrebootFreeze"),e.doNotReplay||u.events.push({node:t,event:o,name:n,time:(new Date).getTime()}))}}function r(e,t){for(var n=0;n<e.length;n++){var r=e[n],i=r.node,s=r.eventName,a=o(t,i,s);i.addEventListener(s,a),u.eventListeners.push({node:i,name:s,handler:a})}}function i(t){var n=t.listen||[];u.listening=!0;for(var o=0;o<n.length;o++){var i=n[o],s=i.getNodeEvents||e("./listen/listen_by_"+i.name+".js").getNodeEvents,a=s(i,l);r(a,i,t)}}function s(t,n){var o=t.replay||[];u.listening=!1;for(var r=0;r<o.length;r++){var i=o[r],s=i.replayEvents||e("./replay/replay_after_"+i.name+".js").replayEvents;u.events=s(u.events,i,n,l)}}function a(e){var t,n;if(e.focus&&u.activeNode){var o=l.findClientNode(u.activeNode);o&&o.focus()}for(var r=0;r<u.eventListeners.length;r++)t=u.eventListeners[r],n=t.node,n.removeEventListener(t.name,t.handler);u.events=[]}var l=e("./dom"),u={eventListeners:[],events:[],listening:!1,activeNode:null};t.exports={state:u,getEventHandler:o,addEventListeners:r,startListening:i,replayEvents:s,cleanup:a}},{"./dom":2}],4:[function(e,t,n){function o(e){console.log("preboot options are:"),console.log(e)}function r(e){console.log("preboot events captured are:"),console.log(e)}function i(e,t,n){console.log("replaying:"),console.log({serverNode:e,clientNode:t,event:n})}function s(e){console.log("preboot could not find client node for:"),console.log(e)}function a(){if(arguments.length){var e=arguments[0]+"",t=l[e];if(t){var n=arguments.length>0?[].splice.call(arguments,1):[];t.apply(null,n)}}}var l={1:o,2:r,3:i,4:s};t.exports={log:a}},{}],5:[function(e,t,n){function o(){var e=c.opts;f(2,d.state.events),c.completeCalled=!0,c.canComplete&&(d.replayEvents(e,f),e.buffer&&p.switchBuffer(e),e.freeze&&c.freeze.cleanup(),d.cleanup(e))}function r(e){return function(){u.init({window:window}),u.updateRoots(u.getDocumentNode(e.appRoot)),e.buffer&&p.prep(e),e.freeze&&c.freeze.prep(e),d.startListening(e)}}function i(){c.canComplete=!1}function s(){return function(){c.canComplete=!0,c.completeCalled&&setTimeout(o,10)}}function a(t){c.opts=t,f(1,t),c.freeze="string"==typeof t.freeze?e("./freeze/freeze_with_"+t.freeze+".js"):t.freeze,u.init({window:window})}function l(){u.init({window:window}),u.state.body?r(c.opts)():u.onLoad(r(c.opts)),u.on(c.opts.pauseEvent,i),u.on(c.opts.resumeEvent,s())}var u=e("./dom"),d=e("./event_manager"),p=e("./buffer/buffer_manager"),f=e("./log").log||function(){},c={canComplete:!0,completeCalled:!1,freeze:null,opts:null};t.exports={eventManager:d,bufferManager:p,init:a,start:l,done:o}},{"./buffer/buffer_manager":1,"./dom":2,"./event_manager":3,"./log":4}]},{},[5])(5)}),preboot.init({appRoot:"app",replay:[{name:"rerender"}],freeze:"spinner",focus:!0,buffer:!0,keyPress:!0,uglify:!0,buttonPress:!0,pauseEvent:"PrebootPause",resumeEvent:"PrebootResume",freezeEvent:"PrebootFreeze",listen:[{name:"selectors",eventsBySelector:{'input[type="text"],textarea':["keypress","keyup","keydown"]}},{name:"selectors",eventsBySelector:{'input[type="text"],textarea':["focusin","focusout"]},trackFocus:!0,doNotReplay:!0},{name:"selectors",preventDefault:!0,eventsBySelector:{'input[type="submit"],button':["click"]},dispatchEvent:"PrebootFreeze"}],freezeStyles:{overlay:{className:"preboot-overlay",style:{position:"absolute",display:"none",zIndex:"9999999",top:"0",left:"0",width:"100%",height:"100%"}},spinner:{className:"preboot-spinner",style:{position:"absolute",display:"none",zIndex:"99999999"}}}});
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.preboot = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./freeze/freeze_with_spinner.js":[function(require,module,exports){
+/**
+ * Author: Jeff Whelpley
+ * Date: 6/9/15
+ *
+ * Freeze by showing a spinner
+ */
+var dom = require('../dom');
+
+var state = {
+    overlay: null,
+    spinner: null
+};
+
+/**
+ * Create the overlay and spinner nodes
+ * @param opts
+ */
+function prep(opts) {
+    var freezeStyles = opts.freezeStyles || {};
+    var overlayStyles = freezeStyles.overlay || {};
+    var spinnerStyles = freezeStyles.spinner || {};
+
+    // add the overlay and spinner to the end of the body
+    state.overlay = dom.addNodeToBody('div', overlayStyles.className, overlayStyles.style);
+    state.spinner = dom.addNodeToBody('div', spinnerStyles.className, spinnerStyles.style);
+
+    // when a freeze event occurs, show the overlay and spinner
+    dom.on(opts.freezeEvent, function (event) {
+        state.spinner.top = event.target.offsetTop;
+        state.spinner.left = event.target.offsetLeft;
+        state.overlay.style.display = 'block';
+        state.spinner.style.display = 'block';
+
+        setTimeout(function () {
+            if (state.overlay) {
+                state.overlay.style.display = 'none';
+            }
+            if (state.spinner) {
+                state.spinner.style.display = 'none';
+            }
+        }, 4000);
+    });
+}
+
+/**
+ * Remove the overlay and spinner
+ */
+function cleanup() {
+    dom.removeNode(state.overlay);
+    dom.removeNode(state.spinner);
+
+    state.overlay = null;
+    state.spinner = null;
+}
+
+module.exports = {
+    state: state,
+    prep: prep,
+    cleanup: cleanup
+};
+},{"../dom":2}],"./listen/listen_by_selectors.js":[function(require,module,exports){
+/**
+ * Author: Jeff Whelpley
+ * Date: 6/2/15
+ *
+ * Listen by an explicit list of selectors mapped to a set of events
+ */
+var dom = require('../dom');
+
+/**
+ * Get all node events for a given set of selectors
+ * @param strategy
+ * @returns {Array}
+ */
+function getNodeEvents(strategy) {
+    var nodeEvents = [];
+    var eventsBySelector = strategy.eventsBySelector || {};
+    var selectors = Object.keys(eventsBySelector);
+    var selectorIdx, selector, elem, elems, i, j, events;
+
+    // loop through selectors
+    for (selectorIdx = 0; selectorIdx < selectors.length; selectorIdx++) {
+        selector = selectors[selectorIdx];
+        events = eventsBySelector[selector];
+        elems = dom.getAllAppNodes(selector);
+
+        // only do something if there are elements found
+        if (elems) {
+
+            // loop through elements
+            for (i = 0; i < elems.length; i++) {
+                elem = elems[i];
+
+                // loop through events
+                for (j = 0; j < events.length; j++) {
+                    nodeEvents.push({
+                        node:       elem,
+                        eventName:  events[j]
+                    });
+                }
+            }
+        }
+    }
+
+    return nodeEvents;
+}
+
+module.exports = {
+    getNodeEvents: getNodeEvents
+};
+},{"../dom":2}],"./replay/replay_after_rerender.js":[function(require,module,exports){
+/**
+ * Author: Jeff Whelpley
+ * Date: 6/2/15
+ *
+ * This replay strategy assumes that the client completely re-rendered
+ * the page so reboot will need to find the element in the new client
+ * rendered DOM that matches the element it has in memory.
+ */
+var dom = require('../dom');
+
+/**
+ * Loop through all events and replay each by trying to find a node
+ * that most closely resembles the original.
+ *
+ * @param events
+ * @param strategy
+ * @param log
+ * @returns {Array}
+ */
+function replayEvents(events, strategy, log) {
+    var i, eventData, serverNode, clientNode, event;
+    var remainingEvents = [];
+    events = events || [];
+
+    // loop through the events, find the appropriate client node and dispatch the event
+    for (i = 0; i < events.length; i++) {
+        eventData = events[i];
+        event = eventData.event;
+        serverNode = eventData.node;
+        clientNode = dom.findClientNode(serverNode);
+
+        if (clientNode) {
+            clientNode.value = serverNode.value;  // need to explicitly set value since keypress events won't transfer
+            clientNode.dispatchEvent(event);
+            log(3, serverNode, clientNode, event);
+        }
+        else {
+            log(4, serverNode);
+            remainingEvents.push(eventData);
+        }
+    }
+
+    return remainingEvents;
+}
+
+module.exports = {
+    replayEvents: replayEvents
+};
+},{"../dom":2}],1:[function(require,module,exports){
+/**
+ * Author: Jeff Whelpley
+ * Date: 6/2/15
+ *
+ * Manage the switching of buffers
+ */
+var dom = require('../dom');
+var state = {
+    switched: false
+};
+
+/**
+ * Create a second div that will be the client root
+ * for an app
+ */
+function prep() {
+
+    // server root is the app root when we get started
+    var serverRoot = dom.state.appRoot;
+
+    // client root is going to be a shallow clone of the server root
+    var clientRoot = serverRoot.cloneNode(false);
+
+    // client in the DOM, but not displayed until time for switch
+    clientRoot.style.display = 'none';
+
+    // insert the client root right before the server root
+    serverRoot.parentNode.insertBefore(clientRoot, serverRoot);
+
+    // update the dom manager to store the server and client roots
+    // first param is the appRoot
+    dom.updateRoots(serverRoot, serverRoot, clientRoot);
+}
+
+/**
+ * We want to simultaneously remove the server node from the DOM
+ * and display the client node
+ */
+function switchBuffer() {
+
+    // get refs to the roots
+    var clientRoot = dom.state.clientRoot || dom.state.appRoot;
+    var serverRoot = dom.state.serverRoot || dom.state.appRoot;
+
+    // don't do anything if already switched
+    if (state.switched) { return; }
+
+    // remove the server root if not same as client and not the body
+    if (serverRoot !== clientRoot && serverRoot.nodeName !== 'BODY') {
+        serverRoot.remove ?
+            serverRoot.remove() :
+            serverRoot.style.display = 'none';
+    }
+
+    // display the client
+    clientRoot.style.display = 'block';
+
+    // update the roots; first param is the new appRoot; serverRoot now null
+    dom.updateRoots(clientRoot, null, clientRoot);
+
+    // finally mark state as switched
+    state.switched = true;
+}
+
+module.exports = {
+    state: state,
+    prep: prep,
+    switchBuffer: switchBuffer
+};
+},{"../dom":2}],2:[function(require,module,exports){
+/**
+ * Author: Jeff Whelpley
+ * Date: 6/10/15
+ *
+ * This is a wrapper for the DOM that is used by preboot. We do this
+ * for a few reasons. It makes the other preboot code more simple,
+ * makes things easier to test (i.e. just mock out the DOM) and it
+ * centralizes our DOM related interactions so we can more easily
+ * add fixes for different browser quirks
+ */
+var state = {};
+var nodeCache = {};
+
+/**
+ * Initialize the DOM state based on input
+ * @param opts
+ */
+function init(opts) {
+    state.window = opts.window || state.window || {};
+    state.document = opts.document || state.window.document || {};
+    state.body = opts.body || state.document.body;
+    state.appRoot = opts.appRoot || state.body;
+    state.serverRoot = state.clientRoot = state.appRoot;
+}
+
+/**
+ * Setter for app root
+ * @param appRoot
+ * @param serverRoot
+ * @param clientRoot
+ */
+function updateRoots(appRoot, serverRoot, clientRoot) {
+    state.appRoot       = appRoot;
+    state.serverRoot    = serverRoot;
+    state.clientRoot    = clientRoot;
+}
+
+/**
+ * Get a node in the document
+ * @param selector
+ * @returns {Element}
+ */
+function getDocumentNode(selector) {
+    return state.document.querySelector(selector);
+}
+
+/**
+ * Get one app node
+ * @param selector
+ * @returns {Element}
+ */
+function getAppNode(selector) {
+    return state.appRoot.querySelector(selector);
+}
+
+/**
+ * Get all app nodes for a given selector
+ * @param selector
+ */
+function getAllAppNodes(selector) {
+    return state.appRoot.querySelectorAll(selector);
+}
+
+/**
+ * Get all nodes under the client root
+ * @param selector
+ * @returns {*|NodeList}
+ */
+function getClientNodes(selector) {
+    return state.clientRoot.querySelectorAll(selector);
+}
+
+/**
+ * Add event listener at window level
+ * @param handler
+ */
+function onLoad(handler) {
+    state.window.addEventListener('load', handler);
+}
+
+/**
+ * These are global events that get passed around. Currently
+ * we use the document to do this.
+ * @param eventName
+ * @param handler
+ */
+function on(eventName, handler) {
+    state.document.addEventListener(eventName, handler);
+}
+
+/**
+ * Dispatch an event on the document
+ * @param eventName
+ */
+function dispatchGlobalEvent(eventName) {
+    state.document.dispatchEvent(new state.window.Event(eventName));
+}
+
+/**
+ * Dispatch an event on a specific node
+ * @param node
+ * @param eventName
+ */
+function dispatchNodeEvent(node, eventName) {
+    node.dispatchEvent(new state.window.Event(eventName));
+}
+
+/**
+ * Check to see if the app contains a particular node
+ * @param node
+ * @returns boolean
+ */
+function appContains(node) {
+    return state.appRoot.contains(node);
+}
+
+/**
+ * Create a new element
+ * @param type
+ * @param className
+ * @param styles
+ */
+function addNodeToBody(type, className, styles) {
+    var elem = state.document.createElement(type);
+    elem.className = className;
+
+    if (styles) {
+        for (var key in styles) {
+            if (styles.hasOwnProperty(key)) {
+                elem.style[key] = styles[key];
+            }
+        }
+    }
+
+    return state.body.appendChild(elem);
+}
+
+/**
+ * Remove a node since we are done with it
+ * @param node
+ */
+function removeNode(node) {
+    node.remove ?
+        node.remove() :
+        node.style.display = 'none';
+}
+
+/**
+ * Get a unique key for a node in the DOM
+ * @param node
+ * @param rootNode - Need to know how far up we go
+ */
+function getNodeKey(node, rootNode) {
+    var ancestors = [];
+    var temp = node;
+    while (temp && temp !== rootNode) {
+        ancestors.push(temp);
+        temp = temp.parentNode;
+    }
+
+    // push the rootNode on the ancestors
+    if (temp) {
+        ancestors.push(temp);
+    }
+
+    // now go backwards starting from the root
+    var key = node.nodeName;
+    var len = ancestors.length;
+    var i, j;
+
+    for (i = (len - 1); i >= 0; i--) {
+        temp = ancestors[i];
+
+        //key += '_d' + (len - i);
+
+        if (temp.childNodes && i > 0) {
+            for (j = 0; j < temp.childNodes.length; j++) {
+                if (temp.childNodes[j] === ancestors[i - 1]) {
+                    key += '_s' + (j + 1);
+                    break;
+                }
+            }
+        }
+    }
+
+    return key;
+}
+
+/**
+ * Given a node from the server rendered view, find the equivalent
+ * node in the client rendered view.
+ *
+ * @param serverNode
+ */
+function findClientNode(serverNode) {
+
+    // if nothing passed in, then no client node
+    if (!serverNode) { return null; }
+
+    // we use the string of the node to compare to the client node & as key in cache
+    var serverNodeKey = getNodeKey(serverNode, state.serverRoot);
+
+    // first check to see if we already mapped this node
+    var nodes = nodeCache[serverNodeKey] || [];
+    for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].serverNode === serverNode) {
+            return nodes[i].clientNode;
+        }
+    }
+
+    //TODO: improve this algorithm in the future so uses fuzzy logic (i.e. not necessarily perfect match)
+    var selector = serverNode.tagName;
+    var className = (serverNode.className || '').replace('ng-binding', '').trim();
+
+    if (serverNode.id) {
+        selector += '#' + serverNode.id;
+    }
+    else if (className) {
+        selector += '.' + className.replace(/ /g, '.');
+    }
+
+    var clientNodes = getClientNodes(selector);
+    for (i = 0; clientNodes && i < clientNodes.length; i++) {
+        var clientNode = clientNodes[i];
+
+        //TODO: this assumes a perfect match which isn't necessarily true
+        if (getNodeKey(clientNode, state.clientRoot) === serverNodeKey) {
+
+            // add the client/server node pair to the cache
+            nodeCache[serverNodeKey] = nodeCache[serverNodeKey] || [];
+            nodeCache[serverNodeKey].push({
+                clientNode: clientNode,
+                serverNode: serverNode
+            });
+
+            return clientNode;
+        }
+    }
+
+    // if we get here it means we couldn't find the client node
+    return null;
+}
+
+module.exports = {
+    state: state,
+    nodeCache: nodeCache,
+
+    init: init,
+    updateRoots: updateRoots,
+    getDocumentNode: getDocumentNode,
+    getAppNode: getAppNode,
+    getAllAppNodes: getAllAppNodes,
+    getClientNodes: getClientNodes,
+    onLoad: onLoad,
+    on: on,
+    dispatchGlobalEvent: dispatchGlobalEvent,
+    dispatchNodeEvent: dispatchNodeEvent,
+    appContains: appContains,
+    addNodeToBody: addNodeToBody,
+    removeNode: removeNode,
+    getNodeKey: getNodeKey,
+    findClientNode: findClientNode
+};
+},{}],3:[function(require,module,exports){
+/**
+ * Author: Jeff Whelpley
+ * Date: 6/2/15
+ *
+ * Handling events on the client side
+ */
+var dom = require('./dom');
+var state = {
+    eventListeners: [],
+    events: [],
+    listening: false,
+    activeNode: null
+};
+
+/**
+ * For a given node, add an event listener based on the given attribute. The attribute
+ * must match the Angular pattern for event handlers (i.e. either (event)='blah()' or
+ * on-event='blah'
+ *
+ * @param strategy
+ * @param node
+ * @param eventName
+ */
+function getEventHandler(strategy, node, eventName) {
+    return function (event) {
+
+        // if we aren't listening anymore (i.e. bootstrap complete)
+        // then don't capture any more events
+        if (!state.listening) {
+            return;
+        }
+
+        // we want to wait until client bootstraps so don't allow default action
+        if (strategy.preventDefault) {
+            event.preventDefault();
+        }
+
+        // if we want to raise an event that others can listen for
+        if (strategy.dispatchEvent) {
+            dom.dispatchGlobalEvent(strategy.dispatchEvent);
+        }
+
+        // if callback provided for a custom action when an event occurs
+        if (strategy.action) {
+            strategy.action(node, event, dom);
+        }
+
+        // when tracking focus keep a ref to the last active node
+        if (strategy.trackFocus) {
+            state.activeNode = (event.type === 'focusin') ? event.target : null;
+        }
+
+        //TODO: remove this hack after angularu presentation
+        if (eventName === 'keyup' && event.which === 13 && node.attributes['(keyup.enter)']) {
+            dom.dispatchGlobalEvent('PrebootFreeze');
+        }
+
+        // we will record events for later replay unless explicitly marked as doNotReplay
+        if (!strategy.doNotReplay) {
+            state.events.push({
+                node:       node,
+                event:      event,
+                name:       eventName,
+                time:       (new Date()).getTime()
+            });
+        }
+    };
+}
+
+/**
+ * Loop through node events and add listeners
+ * @param nodeEvents
+ * @param strategy
+ */
+function addEventListeners(nodeEvents, strategy) {
+    for (var i = 0; i < nodeEvents.length; i++) {
+        var nodeEvent = nodeEvents[i];
+        var node = nodeEvent.node;
+        var eventName = nodeEvent.eventName;
+        var handler = getEventHandler(strategy, node, eventName);
+
+        // add the actual event listener and keep a ref so we can remove the listener during cleanup
+        node.addEventListener(eventName, handler);
+        state.eventListeners.push({
+            node:       node,
+            name:       eventName,
+            handler:    handler
+        });
+    }
+}
+
+/**
+ * Add event handlers
+ * @param opts
+ */
+function startListening(opts) {
+    var listenStrategies = opts.listen || [];
+
+    state.listening = true;
+    for (var i = 0; i < listenStrategies.length; i++) {
+        var strategy = listenStrategies[i];
+
+        // we either use custom strategy or one from the listen dir
+        var getNodeEvents = strategy.getNodeEvents ||
+            require('./listen/listen_by_' + strategy.name + '.js').getNodeEvents;
+
+        // get array of objs with 1 node and 1 event; add event listener for each
+        var nodeEvents = getNodeEvents(strategy, dom);
+        addEventListeners(nodeEvents, strategy, opts);
+    }
+}
+
+/**
+ * Loop through replay strategies and call replayEvents functions
+ * @param opts
+ * @param log
+ */
+function replayEvents(opts, log) {
+    var replayStrategies = opts.replay || [];
+
+    state.listening = false;
+    for (var i = 0; i < replayStrategies.length; i++) {
+        var strategy = replayStrategies[i];
+
+        // we either use custom strategy or one from the listen dir
+        var replayEvts = strategy.replayEvents ||
+            require('./replay/replay_after_' + strategy.name + '.js').replayEvents;
+
+        // get array of objs with 1 node and 1 event; add event listener for each
+        state.events = replayEvts(state.events, strategy, log, dom);
+    }
+
+    //TODO: figure out better solution for remaining events
+    // if some events are remaining, log to the console
+    //if (state.events && state.events.length) {
+    //    console.log('Not all events replayed: ');
+    //    console.log(state.events);
+    //}
+}
+
+/**
+ * Go through all the event listeners and clean them up
+ * by removing them from the given node (i.e. element)
+ * @param opts
+ */
+function cleanup(opts) {
+    var listener, node;
+
+    // if we are setting focus and there is an active element, do it
+    if (opts.focus && state.activeNode) {
+        var activeClientNode = dom.findClientNode(state.activeNode);
+        if (activeClientNode) {
+            activeClientNode.focus();
+        }
+    }
+
+    // cleanup the event listeners
+    for (var i = 0; i < state.eventListeners.length; i++) {
+        listener = state.eventListeners[i];
+        node = listener.node;
+        node.removeEventListener(listener.name, listener.handler);
+    }
+
+    // now remove the events
+    state.events = [];
+}
+
+module.exports = {
+    state: state,
+    getEventHandler: getEventHandler,
+    addEventListeners: addEventListeners,
+    startListening: startListening,
+    replayEvents: replayEvents,
+    cleanup: cleanup
+};
+},{"./dom":2}],4:[function(require,module,exports){
+/**
+ * Author: Jeff Whelpley
+ * Date: 6/19/15
+ *
+ * Logger for preboot that can be used when the debug
+ * option is used. It will print out info about what
+ * is happening during the preboot process
+ */
+
+module.exports = {};
+
+//function logOptions(opts) {
+//    console.log('preboot options are:');
+//    console.log(opts);
+//}
+//
+//function logEvents(events) {
+//    console.log('preboot events captured are:');
+//    console.log(events);
+//}
+//
+//function replaySuccess(serverNode, clientNode, event) {
+//    console.log('replaying:');
+//    console.log({
+//        serverNode: serverNode,
+//        clientNode: clientNode,
+//        event: event
+//    });
+//}
+//
+//function missingClientNode(serverNode) {
+//    console.log('preboot could not find client node for:');
+//    console.log(serverNode);
+//}
+//
+//var logMap = {
+//    '1': logOptions,
+//    '2': logEvents,
+//    '3': replaySuccess,
+//    '4': missingClientNode
+//};
+//
+//function log() {
+//    if (!arguments.length) { return; }
+//
+//    var id = arguments[0] + '';
+//    var fn = logMap[id];
+//
+//    if (fn) {
+//        var args = arguments.length > 0 ? [].splice.call(arguments, 1) : [];
+//        fn.apply(null, args);
+//    }
+//}
+//
+//module.exports = {
+//    log: log
+//};
+},{}],5:[function(require,module,exports){
+/**
+ * Author: Jeff Whelpley
+ * Date: 6/2/15
+ *
+ * This is the main entry point for the client side bootstrap library.
+ * This will be browserified and then inlined in the head of an HTML
+ * document along with a call to this module that passes in the
+ * browser document object and all the options. See the
+ * README for details on how this works
+ */
+var dom             = require('./dom');
+var eventManager    = require('./event_manager');
+var bufferManager   = require('./buffer/buffer_manager');
+var log             = require('./log').log || function () {};
+
+// in each client-side module, we store state in an object so we can mock
+// it out during testing and easily reset it as necessary
+var state = {
+    canComplete: true,      // set to false if preboot paused through an event
+    completeCalled: false,  // set to true once the completion event has been raised
+    freeze: null,           // only used if freeze option is passed in
+    opts: null
+};
+
+/**
+ * Get a function to run once bootstrap has completed
+ */
+function done() {
+    var opts = state.opts;
+
+    log(2, eventManager.state.events);
+
+    // track that complete has been called
+    state.completeCalled = true;
+
+    // if we can't complete (i.e. preboot paused), just return right away
+    if (!state.canComplete) { return; }
+
+    // else we can complete, so get started with events
+    eventManager.replayEvents(opts, log);                   // replay events on client DOM
+    if (opts.buffer) { bufferManager.switchBuffer(opts); }  // switch from server to client buffer
+    if (opts.freeze) { state.freeze.cleanup(); }            // cleanup freeze divs like overlay
+    eventManager.cleanup(opts);                             // cleanup event listeners
+}
+
+/**
+ * Get function to run once window has loaded
+ * @param opts
+ * @returns {Function}
+ */
+function getOnLoadHandler(opts) {
+    return function onLoad() {
+
+        // re-initialize dom now that we have the body
+        dom.init({ window: window });
+
+        // make sure the app root is set
+        dom.updateRoots(dom.getDocumentNode(opts.appRoot));
+
+        // if we are buffering, need to switch around the divs
+        if (opts.buffer) {
+            bufferManager.prep(opts);
+        }
+
+        // if we could potentially freeze the UI, we need to prep (i.e. to add divs for overlay, etc.)
+        if (opts.freeze) {
+            state.freeze.prep(opts);
+        }
+
+        // start listening to events
+        eventManager.startListening(opts);
+    };
+}
+
+/**
+ * Pause the completion process
+ */
+function pauseCompletion() {
+    state.canComplete = false;
+}
+
+/**
+ * Resume the completion process; if complete already called,
+ * call it again right away.
+ *
+ * @returns {Function}
+ */
+function getResumeCompleteHandler() {
+    return function onResume() {
+        state.canComplete = true;
+
+        if (state.completeCalled) {
+
+            // using setTimeout to fix weird bug where err thrown on
+            // serverRoot.remove() in buffer switch
+            setTimeout(done, 10);
+        }
+    };
+}
+
+/**
+ * Init preboot
+ * @param opts
+ */
+function init(opts) {
+    state.opts = opts;
+
+    log(1, opts);
+
+    // freeze strategy is used at this top level, so need to get ref
+    state.freeze = (typeof opts.freeze === 'string') ?
+        require('./freeze/freeze_with_' + opts.freeze + '.js') :
+        opts.freeze;
+
+    // set up handlers for different preboot lifecycle events
+    dom.init({ window: window });
+}
+
+/**
+ * Start preboot
+ */
+function start() {
+    dom.init({ window: window });
+
+    // if body there, then run load handler right away, otherwise register for onLoad
+    dom.state.body ?
+        getOnLoadHandler(state.opts)() :
+        dom.onLoad(getOnLoadHandler(state.opts));
+
+    // set up other handlers
+    dom.on(state.opts.pauseEvent, pauseCompletion);
+    dom.on(state.opts.resumeEvent, getResumeCompleteHandler());
+}
+
+// only expose start
+module.exports = {
+    eventManager: eventManager,
+    bufferManager: bufferManager,
+    init: init,
+    start: start,
+    done: done
+};
+
+},{"./buffer/buffer_manager":1,"./dom":2,"./event_manager":3,"./log":4}]},{},[5])(5)
+});
+
+preboot.init({"appRoot":"app","replay":[{"name":"rerender"}],"freeze":"spinner","focus":true,"buffer":true,"keyPress":true,"buttonPress":true,"pauseEvent":"PrebootPause","resumeEvent":"PrebootResume","freezeEvent":"PrebootFreeze","listen":[{"name":"selectors","eventsBySelector":{"input[type=\"text\"],textarea":["keypress","keyup","keydown"]}},{"name":"selectors","eventsBySelector":{"input[type=\"text\"],textarea":["focusin","focusout"]},"trackFocus":true,"doNotReplay":true},{"name":"selectors","preventDefault":true,"eventsBySelector":{"input[type=\"submit\"],button":["click"]},"dispatchEvent":"PrebootFreeze"}],"freezeStyles":{"overlay":{"className":"preboot-overlay","style":{"position":"absolute","display":"none","zIndex":"9999999","top":"0","left":"0","width":"100%","height":"100%"}},"spinner":{"className":"preboot-spinner","style":{"position":"absolute","display":"none","zIndex":"99999999"}}}});
+

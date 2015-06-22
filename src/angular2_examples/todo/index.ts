@@ -42,7 +42,11 @@ export class Autofocus {
   </header>
 
   <section id="main">
-    <input id="toggle-all" type="checkbox" (click)="toggleAll($event)">
+    <input
+      id="toggle-all"
+      type="checkbox"
+      (click)="toggleAll($event)"
+      [class.hidden]="todoStore.list.length == 0">
     <label for="toggle-all">Mark all as complete</label>
 
     <ul id="todo-list">

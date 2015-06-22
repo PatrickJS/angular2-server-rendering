@@ -11,6 +11,9 @@ module.exports = function(ROOT) {
   router.use('/node_modules', function(req, res, next) {
     serveStatic(ROOT + '/node_modules')(req, res, next);
   });
+  router.use('/Users/patrick/Documents/open-source/angular2-server-rendering/node_modules/angular2/', function(req, res, next) {
+    serveStatic(ROOT + '/angular/modules/angular2')(req, res, next);
+  });
 
   return router;
 };

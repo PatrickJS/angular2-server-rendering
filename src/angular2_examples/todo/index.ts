@@ -23,7 +23,7 @@ export class Autofocus {
 
 @Component({
   selector: 'app',
-  appInjector: [ Store, TodoFactory ]
+  viewInjector: [ Store, TodoFactory ]
 })
 @View({
   directives: [ coreDirectives, Autofocus ],
@@ -115,7 +115,7 @@ export class Autofocus {
 
 <footer id="info">
   <p>Double-click to edit a todo</p>
-  <p>Created by <a href="http://twitter.com/angularjs">The Angular Team</a></p>
+  <p>Created by <a href="http://gdi2290.com">PatrickJS</a></p>
 </footer>
 
   `
